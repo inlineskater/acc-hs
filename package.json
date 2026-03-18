@@ -2,10 +2,12 @@
   "name": "serce-ksiag",
   "version": "1.0.0",
   "scripts": {
+    "start": "node server.js",
     "dev": "npx partykit dev",
     "deploy": "npx partykit deploy"
   },
   "dependencies": {
-    "partykit": "^0.0.107"
+    "partykit": "^0.0.107",
+    "ws": "^8.19.0"
   }
 }
