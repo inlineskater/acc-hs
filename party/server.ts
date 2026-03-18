@@ -127,7 +127,7 @@ const PRIEST_CARDS: CardDef[] = [
   { id:"ps2", name:"Uzdrowienie Masowe", art:"🌈", cost:3, type:"spell", spellEffect:"heal2all", spellText:"Przywróć 2 HP wszystkim swoim minionkom i bohaterowi." },
   { id:"ps3", name:"Wielka Łaska",       art:"🌟", cost:5, type:"spell", spellEffect:"heal6target", spellText:"Przywróć 6 HP dowolnemu celowi." },
   { id:"p5",  name:"Anioł Rejestrowy",   art:"👼", cost:4, type:"minion", atk:2, hp:5, deathrattle:"heal3self", drText:"Pośm.: przywróć 3 HP bohaterowi." },
-  { id:"p6",  name:"Mnich Wieczorny",   art:"🕯️", cost:2, type:"minion", atk:1, hp:4, endOfTurn:"heal2self", eotText:"Koniec tury: przywróć 2 HP bohaterowi." },
+  { id:"p6",  name:"Mnich Wieczorny",   art:"🕯️", cost:2, type:"minion", atk:1, hp:4, endOfTurn:"heal1self", eotText:"Koniec tury: przywróć 1 HP bohaterowi." },
   { id:"pL",  name:"Arcykapłan VAT",     art:"🦄", cost:7, type:"minion", atk:5, hp:8, keywords:["taunt"], battlecry:"heal4target", bcText:"Prowokacja. Okrzyk: przywróć 4 HP dowolnemu.", legendary:true },
 ];
 
@@ -168,7 +168,7 @@ function buildDeck(cls: string): BoardMinion[] {
   const pool = CLASSES[cls].cards;
   const standards = pool.filter(c => !c.legendary);
   const legendary = pool.find(c => c.legendary)!;
-  // 15 cards: 8 standards + 6 random duplicates + 1 legendary
+  // 16 cards: 9 standards + 6 random duplicates + 1 legendary
   const extra = shuffle(standards).slice(0, 6);
   return shuffle([...standards, ...extra, legendary]).map(c => cloneCard(c));
 }
@@ -329,8 +329,10 @@ export default class SerceKsiagServer implements Party.Server {
           this.applySpell(card, me, opp, msg.targetUid, msg.targetType);
           s.log = `${me.cls}: zagrano czar ${card.name}`;
         } else if (card.type === "weapon") {
+          const hadWeapon = !!me.weapon;
           me.weapon = { uid:uid(), name:card.name, art:card.art, atk:card.weaponAtk!, durability:card.durability!, cost:card.cost };
           me.heroAtkVal = card.weaponAtk!;
+          if (!hadWeapon) me.canHeroAtk = true; // first weapon this turn — allow attack; re-equip keeps current state
           s.log = `${me.cls}: wyekwipowano ${card.name}`;
         }
         this.checkDead(me, opp);
@@ -602,9 +604,10 @@ export default class SerceKsiagServer implements Party.Server {
   }
 
   checkDead(me: PlayerState, opp: PlayerState) {
-    // Loop to handle chain deaths from deathrattles
+    // Loop to handle chain deaths from deathrattles (max 10 iterations for safety)
     let changed = true;
-    while (changed) {
+    let iterations = 0;
+    while (changed && iterations++ < 10) {
       changed = false;
       const meDead = me.board.filter(c => c.curHp <= 0);
       const oppDead = opp.board.filter(c => c.curHp <= 0);
@@ -669,6 +672,12 @@ export default class SerceKsiagServer implements Party.Server {
           }
           break;
         }
+        case 'heal1self': {
+          me.hp = Math.min(30, me.hp + 1);
+          const meIdx1 = this.state.playerOrder.indexOf(me.id);
+          this.pendingEvents.push({ kind:'heal', targetId:`hero_${meIdx1}`, amount:1 });
+          break;
+        }
         case 'heal2self': {
           me.hp = Math.min(30, me.hp + 2);
           const meIdx = this.state.playerOrder.indexOf(me.id);
@@ -722,12 +731,16 @@ export default class SerceKsiagServer implements Party.Server {
     if (lvl >= 4 && taunts.length === 0) {
       const totalBoardDmg = attackers.reduce((s, c) => s + (c.atk ?? 0), 0);
       const heroDmg = bot.canHeroAtk ? bot.heroAtkVal : 0;
-      const spellDmg = playable.filter(c => c.spellEffect?.includes('deal') && !c.spellEffect?.includes('all'))
-        .reduce((s, c) => {
-          if (c.spellEffect === 'deal4face') return s + 4;
-          if (c.spellEffect === 'deal6face') return s + 6;
-          return s;
-        }, 0);
+      let spellDmg = 0;
+      let manaLeft = bot.mana;
+      playable.filter(c => c.spellEffect?.includes('deal') && !c.spellEffect?.includes('all'))
+        .sort((a, b) => a.cost - b.cost) // cheapest first to maximize spells cast
+        .forEach(c => {
+          if (c.cost <= manaLeft) {
+            if (c.spellEffect === 'deal4face') { spellDmg += 4; manaLeft -= c.cost; }
+            if (c.spellEffect === 'deal6face') { spellDmg += 6; manaLeft -= c.cost; }
+          }
+        });
       const effectiveHp = human.hp + human.armor;
       if (totalBoardDmg + heroDmg + spellDmg >= effectiveHp) {
         // Go for lethal! Play damage spells first, then attack face

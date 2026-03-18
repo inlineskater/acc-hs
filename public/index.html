@@ -445,7 +445,7 @@ const SFX = {
 // ── Card Art SVGs ─────────────────────────────────────────────────────────
 const CARD_ART = {
   // ── Mage ──
-  m1:  `<svg viewBox="0 0 48 48"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#ffe44d"/><stop offset="100%" stop-color="#ff8800"/></linearGradient></defs><path d="M24 6l4 14h14l-11 8 4 14-11-8-11 8 4-14L6 20h14z" fill="url(#g)" stroke="#c66a00" stroke-width="1.5"/><circle cx="24" cy="22" r="4" fill="#fff8" stroke="#c66a00" stroke-width=".8"/></svg>`,
+  m1:  `<svg viewBox="0 0 48 48"><path d="M24 6l4 14h14l-11 8 4 14-11-8-11 8 4-14L6 20h14z" fill="#ffaa00" stroke="#c66a00" stroke-width="1.5"/><circle cx="24" cy="22" r="4" fill="#fff8" stroke="#c66a00" stroke-width=".8"/></svg>`,
   m2:  `<svg viewBox="0 0 48 48"><ellipse cx="24" cy="26" rx="14" ry="10" fill="#4a8c4a" stroke="#2a5a2a" stroke-width="1.5"/><path d="M14 18c0-6 20-6 20 0v8c0 6-20 6-20 0z" fill="#5ca85c" stroke="#2a5a2a" stroke-width="1.5"/><circle cx="19" cy="17" r="2.5" fill="#ff0" stroke="#c80" stroke-width="1"/><circle cx="29" cy="17" r="2.5" fill="#ff0" stroke="#c80" stroke-width="1"/><path d="M18 23c2 2 10 2 12 0" stroke="#2a5a2a" stroke-width="1.5" fill="none"/><path d="M16 13l-3-5M32 13l3-5" stroke="#2a5a2a" stroke-width="1.5"/></svg>`,
   ms1: `<svg viewBox="0 0 48 48"><rect x="10" y="6" width="28" height="36" rx="2" fill="#f5e8c8" stroke="#8a6a30" stroke-width="1.5"/><line x1="15" y1="14" x2="33" y2="14" stroke="#a08a5a" stroke-width="1"/><line x1="15" y1="19" x2="33" y2="19" stroke="#a08a5a" stroke-width="1"/><line x1="15" y1="24" x2="33" y2="24" stroke="#a08a5a" stroke-width="1"/><line x1="15" y1="29" x2="28" y2="29" stroke="#a08a5a" stroke-width="1"/><circle cx="34" cy="36" r="6" fill="#c8a040" stroke="#8a6a30" stroke-width="1.5"/><path d="M31 36h6M34 33v6" stroke="#fff" stroke-width="1.5"/></svg>`,
   ms2: `<svg viewBox="0 0 48 48"><circle cx="24" cy="24" r="16" fill="none" stroke="#4488cc" stroke-width="2" opacity=".3"/><circle cx="24" cy="24" r="11" fill="none" stroke="#4488cc" stroke-width="2" opacity=".5"/><circle cx="24" cy="24" r="6" fill="#4488cc" stroke="#2a5a9a" stroke-width="1.5"/><path d="M24 8c8 8-8 8 0 16c-8-8 8-8 0-16" fill="#6ab8ff" opacity=".6"/></svg>`,
@@ -590,7 +590,18 @@ function joinRoom() {
 }
 function copyLink() {
   const url = `${location.origin}${location.pathname}?room=${roomId}`;
-  navigator.clipboard.writeText(url).then(() => alert('Link skopiowany!'));
+  if (navigator.clipboard && window.isSecureContext) {
+    navigator.clipboard.writeText(url).then(() => alert('Link skopiowany!'));
+  } else {
+    const ta = document.createElement('textarea');
+    ta.value = url;
+    ta.style.cssText = 'position:fixed;left:-9999px';
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    alert('Link skopiowany!');
+  }
 }
 function setConnStatus(txt) { const el = document.getElementById('conn-status'); if (el) el.textContent = txt; }
 
