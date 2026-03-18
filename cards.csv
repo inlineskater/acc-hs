@@ -1,0 +1,34 @@
+Class,Cost,ID,Name,Art,Type,ATK,HP,Keywords,Effect
+Mage,1,m1,Iskra Skarbowa,⚡,Minion,1,2,charge,Szarża
+Mage,2,m2,Gardziel Podatku,🐉,Minion,2,3,,Battlecry: 1 dmg to any target
+Mage,1,ms1,Korekta Podatkowa,📜,Spell,,,,"Draw 2 cards"
+Mage,3,ms2,Zawieja Audytu,🌀,Spell,,,,"2 dmg to all enemies"
+Mage,4,m3,Strażnik KPiR,🗿,Minion,1,7,taunt,Taunt
+Mage,4,ms3,Kulka Ognia,☄️,Spell,,,,"4 dmg to any target"
+Mage,3,mw1,Różdżka Kontroli,🔮,Weapon,3,2,,Weapon 3/2
+Mage,7,mL,Wielki Inkasent,🧿,Minion,5,7,legendary,"Battlecry: 1 dmg all enemies + draw 1"
+Warrior,1,w1,Oblężnik Bilansu,⛏️,Minion,2,2,,
+Warrior,2,w2,Inkasent Długów,🦁,Minion,2,3,,Battlecry: +2 armor
+Warrior,2,w3,Tarcza Leasingu,🐢,Minion,1,6,taunt,Taunt
+Warrior,3,ws1,Fortyfikacja,🏰,Spell,,,,"Gain 6 armor"
+Warrior,3,w4,Komornik Sądowy,🦅,Minion,4,2,,Battlecry: +3 armor
+Warrior,2,ww1,Topór Amortyzacji,⚒️,Weapon,3,2,,Weapon 3/2
+Warrior,4,ws2,Nalot Komornika,💥,Spell,,,,"3 dmg to all enemy minions"
+Warrior,7,wL,Generał Długów,🐲,Minion,7,7,"taunt,legendary","Taunt. Battlecry: +4 armor"
+Rogue,1,r1,Kieszonkowiec VAT,🦊,Minion,1,2,,Combo: 1 dmg to hero
+Rogue,2,r2,Przemytnik Ulg,🦇,Minion,3,2,,Combo: draw 1
+Rogue,3,r3,Agent Rejestrowy,🐍,Minion,3,2,,Battlecry: draw 1
+Rogue,3,r4,Fałszerz Bilansu,🦂,Minion,2,4,,Combo: 2 dmg to hero
+Rogue,2,rs1,Trucizna Faktur,☠️,Spell,,,,"2 dmg to all enemies"
+Rogue,3,rs2,Sztylet Audytu,🗡️,Spell,,,,"4 dmg to any target"
+Rogue,3,rw1,Sztylet Egzekutora,⚔️,Weapon,3,3,,Weapon 3/3
+Rogue,6,rL,Mistrz Cienia,🐺,Minion,6,5,legendary,"Battlecry: draw 1. Combo: 3 dmg to hero"
+Priest,1,p1,Młodszy Referent,🕊️,Minion,1,3,,
+Priest,2,p2,Archiwista Duszy,🦉,Minion,1,4,,Battlecry: heal 2 to self
+Priest,3,p3,Mnich Podatkowy,🐻,Minion,2,6,taunt,Taunt
+Priest,3,p4,Uzdrowiciel ZUS,🦌,Minion,2,4,,Battlecry: heal 2 to any target
+Priest,1,ps1,Modlitwa Audytu,✨,Spell,,,,"Heal 2 to your hero"
+Priest,3,ps2,Uzdrowienie Masowe,🌈,Spell,,,,"Heal 2 to all friendly minions + hero"
+Priest,5,ps3,Wielka Łaska,🌟,Spell,,,,"Heal 6 to any target"
+Priest,7,pL,Arcykapłan VAT,🦄,Minion,5,8,"taunt,legendary","Taunt. Battlecry: heal 4 to any target"
+Special,0,coin,Moneta,🪙,Spell,,,,"Gain 1 mana this turn"

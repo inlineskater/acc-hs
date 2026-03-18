@@ -1,0 +1,1055 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Serce Ksiąg – Multiplayer</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden}
+:root{--bg:#e8dcc8;--bg2:#f5ecd8;--bg3:#d4c4a0;--gold:#8b6914;--gold2:#a07820;--mana:#2266cc;--red:#c0392b;--green:#27ae60;--font:'Georgia',serif;--card-bg:#faf3e0;--card-border:#b89a5a;--shadow:0 1px 4px rgba(0,0,0,.15)}
+body{background:#2a2a2a;display:flex;align-items:center;justify-content:center;height:100dvh;font-family:var(--font);touch-action:manipulation}
+#G{width:100vw;height:100dvh;max-width:390px;max-height:844px;background:var(--bg);overflow:hidden;display:flex;flex-direction:column;position:relative;color:#3a2a10;border-radius:0;box-shadow:0 0 40px rgba(0,0,0,.5)}
+@media (min-width:420px){#G{border-radius:20px;border:3px solid #444}}
+.scr{display:none;flex-direction:column;flex:1}.scr.on{display:flex}
+
+/* ── Lobby ── */
+#lobby{align-items:center;justify-content:center;padding:20px 14px;background:linear-gradient(180deg,#f0e6d0,#ddd0b0);gap:10px;overflow-y:auto}
+.logo{font-size:44px;filter:drop-shadow(0 2px 6px rgba(139,105,20,.4))}
+.title{font-size:24px;font-weight:700;color:var(--gold);letter-spacing:2px;text-shadow:0 1px 2px rgba(0,0,0,.15)}
+.sub{font-size:12px;color:#6a5a3a;text-align:center;line-height:1.5;max-width:320px}
+.class-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;max-width:320px;width:100%}
+.class-card{background:linear-gradient(135deg,#faf3e0,#ece0c4);border:2px solid var(--card-border);border-radius:10px;padding:10px;text-align:center;cursor:pointer;transition:all .18s;box-shadow:var(--shadow)}
+.class-card:hover,.class-card.sel{border-color:var(--gold);box-shadow:0 0 10px rgba(139,105,20,.35);transform:translateY(-2px)}
+.cl-art{font-size:28px;margin-bottom:2px}
+.cl-name{font-size:11px;font-weight:700;color:var(--gold)}
+.cl-hp{font-size:8px;color:#7a6a4a}
+.start-btn{background:linear-gradient(135deg,#c8a040,#a08020);border:2px solid var(--gold);color:#fff;font-size:13px;font-weight:700;padding:10px 28px;border-radius:8px;cursor:pointer;font-family:var(--font);letter-spacing:1px;transition:all .18s;box-shadow:0 2px 10px rgba(139,105,20,.3);text-shadow:0 1px 2px rgba(0,0,0,.3)}
+.start-btn:hover{transform:scale(1.03);background:linear-gradient(135deg,#dab050,#b09030)}
+.start-btn:disabled{background:#b8a878;color:#8a7a5a;border-color:#a09060;cursor:default;transform:none}
+.room-box{background:#faf3e0;border:2px solid var(--card-border);border-radius:10px;padding:10px 16px;text-align:center;max-width:300px;width:100%;box-shadow:var(--shadow)}
+.room-code{font-size:28px;font-weight:700;color:var(--gold);letter-spacing:6px;font-family:monospace}
+.room-hint{font-size:10px;color:#7a6a4a;margin-top:3px}
+.status-dot{width:8px;height:8px;border-radius:50%;background:#c44;display:inline-block;margin-right:4px}
+.status-dot.ready{background:var(--green)}
+.join-row{display:flex;gap:6px;max-width:300px;width:100%}
+.join-input{flex:1;background:#faf3e0;border:2px solid var(--card-border);border-radius:8px;padding:8px 10px;color:var(--gold);font-size:16px;font-family:monospace;letter-spacing:4px;text-align:center;text-transform:uppercase;outline:none}
+.join-input:focus{border-color:var(--gold)}
+.join-btn{background:linear-gradient(135deg,#3a7ac0,#2a5a90);border:2px solid #48f;color:#fff;font-size:12px;font-weight:700;padding:8px 14px;border-radius:8px;cursor:pointer;font-family:var(--font)}
+.conn-status{font-size:9px;color:#888;min-height:14px}
+.diff-btn{width:40px;height:34px;border:2px solid var(--card-border);border-radius:8px;background:linear-gradient(135deg,#faf3e0,#ece0c4);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:13px;transition:all .15s;box-shadow:var(--shadow)}
+.diff-btn:hover,.diff-btn.sel{border-color:var(--gold);box-shadow:0 0 10px rgba(139,105,20,.35);transform:translateY(-2px);background:linear-gradient(135deg,#ffe8a0,#e8c840)}
+.diff-label{font-size:9px;color:var(--gold);font-weight:700;text-align:center;margin-top:2px}
+
+/* ── Board ── */
+#board{flex:1;display:flex;flex-direction:column;position:relative;overflow:hidden}
+.bg-art{position:absolute;inset:0;z-index:0}
+.bg-left{position:absolute;left:0;top:0;bottom:0;width:30px;background:linear-gradient(to right,#b8a878,transparent)}
+.bg-right{position:absolute;right:0;top:0;bottom:0;width:30px;background:linear-gradient(to left,#b8a878,transparent)}
+.bg-center{position:absolute;left:30px;right:30px;top:0;bottom:0;background:linear-gradient(180deg,#c4d8a0 0%,#8ab868 20%,#6a9848 50%,#8ab868 80%,#c4d8a0 100%)}
+.bg-line{position:absolute;left:10px;right:10px;top:50%;height:2px;background:linear-gradient(90deg,transparent,#8b6914,transparent);transform:translateY(-50%)}
+#ac{position:absolute;inset:0;pointer-events:none;z-index:50}
+.sidebar{position:absolute;right:4px;top:50%;transform:translateY(-50%);z-index:10;display:flex;flex-direction:column;align-items:center;gap:4px}
+.eot-btn{background:linear-gradient(135deg,#5a9a30,#3a7a10);border:2px solid #8c8;color:#fff;font-size:10px;font-family:var(--font);font-weight:700;padding:8px 3px;border-radius:6px;cursor:pointer;width:40px;text-align:center;transition:all .15s;box-shadow:var(--shadow);line-height:1.2}
+.eot-btn:hover{transform:scale(1.05)}
+.eot-btn:disabled{background:#b8a878;color:#8a7a5a;border-color:#a09060;cursor:default;transform:none}
+
+/* ── Top bar ── */
+.top-bar{display:flex;align-items:center;justify-content:space-between;padding:4px 8px;background:linear-gradient(90deg,#8b6914,#a07820,#8b6914);border-bottom:2px solid #a08830;z-index:10}
+.bar-title{font-size:12px;color:#fff;font-weight:700;letter-spacing:1px;text-shadow:0 1px 2px rgba(0,0,0,.3)}
+.bar-phase{font-size:10px;padding:3px 8px;border-radius:99px;font-weight:700}
+.bar-phase.yours{background:#d4edda;color:#155724;border:1px solid #c3e6cb}
+.bar-phase.theirs{background:#f8d7da;color:#721c24;border:1px solid #f5c6cb}
+.bar-phase.waiting{background:#fff3cd;color:#856404;border:1px solid #ffeeba}
+
+/* ── Hero area ── */
+.hero-area{display:flex;justify-content:center;align-items:center;padding:2px 44px 2px 4px;gap:4px;z-index:3;position:relative}
+.hero-port{width:52px;height:52px;border-radius:50%;border:2px solid var(--card-border);background:var(--card-bg);display:flex;align-items:center;justify-content:center;font-size:26px;position:relative;cursor:pointer;transition:all .15s;flex-shrink:0;box-shadow:0 1px 4px rgba(0,0,0,.25)}
+.hero-port.attackable{border-color:var(--red);box-shadow:0 0 10px rgba(192,57,43,.55);animation:prd .8s infinite alternate}
+.hero-port.can-hero-atk{border-color:#e67e22;box-shadow:0 0 8px rgba(230,126,34,.5);cursor:pointer}
+.hero-port.healable{border-color:var(--green);box-shadow:0 0 10px rgba(39,174,96,.45)}
+@keyframes prd{from{box-shadow:0 0 4px rgba(192,57,43,.2)}to{box-shadow:0 0 12px rgba(192,57,43,.7)}}
+.hero-hp{position:absolute;bottom:-4px;right:-4px;background:var(--red);border:2px solid #fff;border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff}
+.hero-armor{position:absolute;top:-3px;right:-3px;background:#5a8abf;border:2px solid #fff;border-radius:50%;width:20px;height:20px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff}
+.hero-name{font-size:10px;color:var(--gold);text-align:center;max-width:56px;line-height:1.1;font-weight:700}
+.hero-cls{font-size:8px;color:#7a6a4a;text-align:center;max-width:56px}
+.deck-ct{background:var(--card-bg);border:2px solid var(--card-border);border-radius:6px;padding:3px 6px;font-size:11px;color:var(--gold);text-align:center;font-weight:700;box-shadow:var(--shadow)}
+.fatigue-badge{color:var(--red);font-size:9px;display:none}
+.mana-row{display:flex;gap:2px;flex-wrap:wrap;max-width:80px;justify-content:center}
+.pip{width:12px;height:12px;border-radius:50%;border:1.5px solid #3a7ac0;background:linear-gradient(135deg,#48f,#2a5aff);box-shadow:0 0 3px rgba(68,136,255,.4)}
+.pip.empty{background:#c8c0a8;border-color:#a09878;box-shadow:none}
+.mana-txt{font-size:11px;color:var(--mana);font-weight:700}
+/* ── Hero Power gem ── */
+.hp-gem-wrap{display:flex;align-items:center;justify-content:center;width:44px;flex-shrink:0}
+.hp-gem{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#8a50c0,#5a2090);border:2px solid #c090f8;color:#fff;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;font-size:18px;line-height:1;transition:all .2s;box-shadow:0 1px 6px rgba(100,40,160,.4);font-family:var(--font);padding:0}
+.hp-gem:not(.used):not(.active):hover{transform:scale(1.1);box-shadow:0 0 12px rgba(200,140,255,.6)}
+.hp-gem.used{background:linear-gradient(135deg,#6a5a4a,#4a3a2a);border-color:#8a7a5a;cursor:default;filter:grayscale(.5);opacity:.7}
+.hp-gem.active{border-color:#ffe8a0;box-shadow:0 0 14px rgba(255,232,160,.9);animation:hpGlow .6s infinite alternate}
+@keyframes hpGlow{from{box-shadow:0 0 4px rgba(255,232,160,.4)}to{box-shadow:0 0 14px rgba(255,232,160,1)}}
+.hp-gem-cost{font-size:8px;color:#ddf;line-height:1;font-weight:700}
+/* ── Weapon slot ── */
+.wpn-slot{width:40px;min-height:46px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.wpn-card{width:36px;height:46px;background:linear-gradient(180deg,#f0e8d0,#e0d0a8);border:2px solid #c8a040;border-radius:7px 7px 50% 50% / 7px 7px 28% 28%;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:default;position:relative;box-shadow:var(--shadow);padding-bottom:8px}
+.wpn-art{font-size:16px;line-height:1}
+.wpn-atk{position:absolute;bottom:-4px;left:-4px;width:18px;height:18px;background:#d4a020;clip-path:polygon(50% 0%,100% 38%,82% 100%,18% 100%,0% 38%);display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:#fff}
+.wpn-dur{position:absolute;bottom:-4px;right:-4px;background:#4a80c0;border:1.5px solid #fff;border-radius:50%;width:18px;height:18px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:#fff}
+
+/* ── Battle zone ── */
+.battle-zone{flex:1;display:flex;align-items:center;justify-content:center;padding:2px 44px 2px 4px;z-index:3;min-height:80px;position:relative}
+.minion-row{display:flex;align-items:center;justify-content:center;gap:5px;flex-wrap:nowrap}
+
+/* ── Minion (mobile) ── */
+.minion{width:74px;min-height:90px;background:linear-gradient(180deg,#faf3e0,#ece0c4);border:2px solid var(--card-border);border-radius:8px 8px 50% 50% / 8px 8px 30% 30%;display:flex;flex-direction:column;align-items:center;padding:3px 3px 20px;cursor:pointer;transition:all .18s;position:relative;user-select:none;box-shadow:var(--shadow)}
+.minion:hover{transform:translateY(-3px) scale(1.04);z-index:10}
+.minion.sel{border-color:#e67e22;box-shadow:0 0 12px rgba(230,126,34,.55);transform:translateY(-4px) scale(1.06);z-index:20}
+.minion.can-atk{border-color:#e67e22;animation:glow .9s infinite alternate}
+.minion.taunt{border-color:#3a6a9f;border-width:4px;border-style:double;box-shadow:0 0 10px rgba(58,106,159,.5),inset 0 0 8px rgba(58,106,159,.15);background:linear-gradient(180deg,#e0ecf8,#c0d4e8);border-radius:6px 6px 40% 40% / 6px 6px 25% 25%}
+.minion.taunt::before{content:'🛡';position:absolute;top:-12px;left:50%;transform:translateX(-50%);font-size:14px;filter:drop-shadow(0 1px 2px rgba(0,0,0,.4))}
+.minion.targeted{border-color:var(--red);box-shadow:0 0 12px rgba(192,57,43,.55)}
+.minion.exh{opacity:.55;filter:grayscale(.3)}
+.minion.healable{border-color:var(--green);box-shadow:0 0 12px rgba(39,174,96,.45)}
+.minion.dying{animation:die .4s forwards}
+.minion.spawning{animation:spawn .3s forwards}
+.minion.legendary{box-shadow:0 0 10px #ffd700,inset 0 0 6px rgba(255,215,0,.1);border-color:#ffd700}
+.minion.legendary.can-atk{box-shadow:0 0 14px #ffd700,0 0 10px rgba(230,126,34,.5)}
+@keyframes glow{from{box-shadow:0 0 3px rgba(230,126,34,.2)}to{box-shadow:0 0 14px rgba(230,126,34,.65)}}
+@keyframes die{0%{transform:scale(1);opacity:1}50%{transform:scale(1.2);opacity:.4}100%{transform:scale(0);opacity:0}}
+@keyframes spawn{0%{transform:scale(0) rotate(-10deg);opacity:0}65%{transform:scale(1.1) rotate(2deg)}100%{transform:scale(1) rotate(0);opacity:1}}
+.m-art{font-size:28px;line-height:1;margin:1px 0}
+.m-name{font-size:9px;color:var(--gold);font-weight:700;text-align:center;line-height:1.1;max-width:68px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.m-kw{font-size:7px;color:#5a8abf;text-align:center;font-weight:700}
+.m-atk{position:absolute;bottom:-6px;left:-6px;width:24px;height:24px;background:#d4a020;clip-path:polygon(50% 0%,100% 38%,82% 100%,18% 100%,0% 38%);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff}
+.m-hp{position:absolute;bottom:-6px;right:-6px;background:var(--red);border:2px solid rgba(0,0,0,.2);border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff}
+.m-hp.hurt{background:#8b0000}
+.m-cost{position:absolute;top:-8px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#48f,#2a5aff);border:2px solid #8af;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;box-shadow:0 1px 3px rgba(0,0,0,.3)}
+.m-ds{position:absolute;inset:0;border-radius:8px 8px 50% 50% / 8px 8px 30% 30%;border:2px solid #ffd700;box-shadow:0 0 8px #ffd700;pointer-events:none}
+.combo-badge{position:absolute;top:-7px;right:-6px;background:#9040c0;border:1px solid #c080f0;border-radius:3px;padding:1px 3px;font-size:7px;color:#fff;font-weight:700;z-index:5}
+
+/* ── Hand ── */
+.hand-area{display:flex;justify-content:center;align-items:flex-end;padding:2px 44px 6px 4px;z-index:3;min-height:100px;position:relative}
+.hand-row{display:flex;justify-content:center;align-items:flex-end}
+.hand-card{width:68px;min-height:94px;background:linear-gradient(180deg,#faf3e0,#ece0c4);border:2px solid var(--card-border);border-radius:8px 8px 50% 50% / 8px 8px 30% 30%;display:flex;flex-direction:column;align-items:center;padding:3px 3px 18px;cursor:pointer;transition:all .2s;margin:0 -5px;position:relative;user-select:none;box-shadow:var(--shadow)}
+.hand-card:hover{transform:translateY(-12px) scale(1.1);z-index:20;border-color:var(--gold);margin:0 1px}
+.hand-card.playable{border-color:var(--green);box-shadow:0 0 8px rgba(39,174,96,.4)}
+.hand-card.unplayable{opacity:.55}
+.hand-card.spell{background:linear-gradient(180deg,#dce8f8,#c0d4f0);border-color:#6a8abf}
+.hand-card.spell.playable{border-color:#3a7ac0;box-shadow:0 0 8px rgba(58,122,192,.4)}
+.hand-card.weapon{background:linear-gradient(180deg,#f0e8d0,#e0d0a8);border-color:#c8a040}
+.hand-card.weapon.playable{border-color:#dab050;box-shadow:0 0 8px rgba(218,176,80,.4)}
+.hand-card.legendary{border-color:#ffd700;box-shadow:0 0 8px #ffd700}
+.hand-card.taunt-card{border-width:3px;border-style:double;border-color:#3a6a9f;background:linear-gradient(180deg,#e0ecf8,#c0d4e8);border-radius:6px 6px 40% 40% / 6px 6px 25% 25%}
+.hand-card.taunt-card.playable{border-color:#2a5a8f;box-shadow:0 0 8px rgba(42,90,143,.5)}
+.hc-art{font-size:24px;line-height:1}
+.hc-name{font-size:8px;color:var(--gold);font-weight:700;text-align:center;line-height:1.1;max-width:62px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hc-type{font-size:7px;color:#7a6a4a;text-align:center}
+.hc-desc{font-size:7px;color:#5a4a2a;text-align:center;line-height:1.2;margin:1px 0;max-width:62px}
+.hc-combo{font-size:7px;color:#9040c0;text-align:center;font-style:italic}
+.hc-atk{position:absolute;bottom:-5px;left:-5px;width:22px;height:22px;background:#d4a020;clip-path:polygon(50% 0%,100% 38%,82% 100%,18% 100%,0% 38%);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff}
+.hc-hp{position:absolute;bottom:-5px;right:-5px;background:var(--red);border:2px solid rgba(0,0,0,.2);border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff}
+
+/* ── Bot hand backs ── */
+.bot-hand-area{display:flex;justify-content:center;align-items:flex-end;padding:2px 44px 2px 4px;z-index:3;min-height:36px;position:relative}
+.bck{width:30px;height:42px;background:linear-gradient(135deg,#8b6914,#c8a040);border-radius:6px 6px 50% 50% / 6px 6px 30% 30%;border:1.5px solid #dab050;margin:0 1px;box-shadow:var(--shadow)}
+
+/* ── Effects ── */
+.dmg-pop{position:absolute;font-size:20px;font-weight:900;pointer-events:none;z-index:100;animation:popUp .8s forwards;text-shadow:0 0 4px #fff,1px 1px 0 rgba(0,0,0,.5)}
+.dmg-pop.dmg{color:#c0392b}.dmg-pop.heal{color:#27ae60}
+@keyframes popUp{0%{opacity:1;transform:translateY(0) scale(1)}100%{opacity:0;transform:translateY(-30px) scale(1.4)}}
+.fx-label{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:14px;font-weight:900;color:#fff;background:rgba(139,105,20,.9);padding:5px 12px;border-radius:6px;border:2px solid #dab050;z-index:200;pointer-events:none;animation:lPop .8s forwards;white-space:nowrap}
+@keyframes lPop{0%{opacity:0;transform:translate(-50%,-50%) scale(.5)}30%{opacity:1;transform:translate(-50%,-50%) scale(1.1)}70%{opacity:1}100%{opacity:0;transform:translate(-50%,-50%) scale(.8)}}
+.atk-flash{animation:flash .25s forwards}
+@keyframes flash{0%,100%{filter:brightness(1)}50%{filter:brightness(2)}}
+
+/* ── Log ── */
+.log-bar{padding:4px 8px;background:linear-gradient(90deg,#d4c4a0,#e8dcc8,#d4c4a0);border-top:2px solid var(--card-border);font-size:11px;color:#5a4a2a;text-align:center;min-height:22px;z-index:5;font-weight:700}
+
+/* ── Game over ── */
+#goov{display:none;position:absolute;inset:0;background:rgba(0,0,0,.5);align-items:center;justify-content:center;z-index:300}
+.goc{background:linear-gradient(180deg,#faf3e0,#ece0c4);border:3px solid var(--gold);border-radius:14px;padding:24px;max-width:280px;text-align:center;box-shadow:0 4px 24px rgba(0,0,0,.3)}
+.got{font-size:22px;font-weight:700;color:var(--gold);margin-bottom:8px}
+.gos{font-size:13px;color:#5a4a2a;margin-bottom:14px;line-height:1.5}
+
+/* ── Spell target overlay ── */
+#spell-overlay{display:none;position:absolute;inset:0;z-index:150;background:rgba(58,122,192,.08);border:2px solid #3a7ac0;border-radius:0;align-items:flex-start;justify-content:center;pointer-events:none;padding-top:6px}
+#spell-overlay.on{display:flex}
+#spell-overlay.heal-mode{background:rgba(39,174,96,.08);border-color:var(--green)}
+.spell-msg{background:rgba(250,243,224,.95);color:#3a2a10;font-size:12px;font-weight:700;padding:6px 14px;border-radius:6px;border:2px solid var(--card-border);pointer-events:none;box-shadow:var(--shadow)}
+#spell-overlay.heal-mode .spell-msg{color:#155724;border-color:var(--green)}
+
+/* ── Mulligan overlay ── */
+#mulligan-overlay{display:none;position:absolute;inset:0;background:rgba(20,12,4,.92);z-index:250;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:16px}
+.mul-title{font-size:18px;font-weight:700;color:#ffe8a0;text-shadow:0 1px 4px rgba(0,0,0,.6);text-align:center}
+.mul-sub{font-size:11px;color:#c8b88a;text-align:center}
+.mul-hand{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+.mul-card{width:72px;min-height:100px;background:linear-gradient(180deg,#faf3e0,#ece0c4);border:2px solid var(--card-border);border-radius:8px 8px 50% 50% / 8px 8px 30% 30%;display:flex;flex-direction:column;align-items:center;padding:3px 3px 18px;cursor:pointer;transition:all .18s;position:relative;user-select:none;box-shadow:var(--shadow)}
+.mul-card:hover{transform:translateY(-3px) scale(1.04)}
+.mul-card.selected{opacity:.45;border-color:var(--red);box-shadow:0 0 10px rgba(192,57,43,.4)}
+.mul-card .sel-x{position:absolute;inset:0;display:none;align-items:center;justify-content:center;font-size:26px;color:var(--red);font-weight:900;pointer-events:none;text-shadow:0 0 8px rgba(0,0,0,.4)}
+.mul-card.selected .sel-x{display:flex}
+.mul-card.coin-card{cursor:default;border-color:#d4a020;box-shadow:0 0 6px rgba(212,160,32,.3)}
+.mul-wait{font-size:11px;color:#c8b88a;display:none;text-align:center}
+</style>
+</head>
+<body>
+<div id="G">
+
+<!-- LOBBY -->
+<div id="lobby" class="scr on">
+  <div class="logo">📒</div>
+  <div class="title">SERCE KSIĄG</div>
+  <div class="sub">Gra karcianna dla 2 graczy · 15 kart · Muligan</div>
+
+  <div style="font-size:11px;color:var(--gold);font-weight:700;align-self:flex-start;max-width:340px;width:100%">Wybierz klasę:</div>
+  <div class="class-grid">
+    <div class="class-card sel" onclick="selClass(this,'mage')">
+      <div class="cl-art">🧙</div>
+      <div class="cl-name">Mag Podatkowy</div>
+      <div class="cl-hp">🔥 Hero Power: 1 dmg</div>
+    </div>
+    <div class="class-card" onclick="selClass(this,'warrior')">
+      <div class="cl-art">⚔️</div>
+      <div class="cl-name">Wojownik Księgi</div>
+      <div class="cl-hp">🛡️ Hero Power: +2 pancerza</div>
+    </div>
+    <div class="class-card" onclick="selClass(this,'rogue')">
+      <div class="cl-art">🃏</div>
+      <div class="cl-name">Łotr Podatkowy</div>
+      <div class="cl-hp">🗡️ Hero Power: Sztylet 1/2</div>
+    </div>
+    <div class="class-card" onclick="selClass(this,'priest')">
+      <div class="cl-art">✝️</div>
+      <div class="cl-name">Kapłan Bilansowy</div>
+      <div class="cl-hp">💚 Hero Power: Ulecz 2 HP</div>
+    </div>
+  </div>
+
+  <div id="lobby-create" style="display:flex;flex-direction:column;align-items:center;gap:10px;width:100%;max-width:320px">
+    <button class="start-btn" onclick="createRoom()">Stwórz Pokój (2 graczy) ▶</button>
+    <div style="font-size:11px;color:#8a7a5a">— lub dołącz do istniejącego —</div>
+    <div class="join-row">
+      <input class="join-input" id="join-code-input" maxlength="4" placeholder="XXXX" oninput="this.value=this.value.toUpperCase()">
+      <button class="join-btn" onclick="joinRoom()">Dołącz</button>
+    </div>
+    <div style="border-top:1px solid #c8b888;width:100%;margin:2px 0"></div>
+    <div style="font-size:11px;color:#8a7a5a">— lub zagraj przeciwko botowi —</div>
+    <div style="display:flex;gap:6px;justify-content:center">
+      <div style="display:flex;flex-direction:column;align-items:center">
+        <div class="diff-btn sel" onclick="selDiff(this,1)" title="Żółtodziób">🌱</div>
+        <div class="diff-label">Łatwy</div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:center">
+        <div class="diff-btn" onclick="selDiff(this,2)" title="Normalny">⚔️</div>
+        <div class="diff-label">Normalny</div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:center">
+        <div class="diff-btn" onclick="selDiff(this,3)" title="Trudny">🔥</div>
+        <div class="diff-label">Trudny</div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:center">
+        <div class="diff-btn" onclick="selDiff(this,4)" title="Ekspert">💀</div>
+        <div class="diff-label">Ekspert</div>
+      </div>
+    </div>
+    <button class="start-btn" style="font-size:12px;padding:8px 28px;background:linear-gradient(135deg,#7a3030,#5a1010);border-color:#c04040" onclick="createBotGame()">🤖 Graj vs Bot</button>
+  </div>
+
+  <div id="lobby-waiting" style="display:none;flex-direction:column;align-items:center;gap:10px;width:100%;max-width:320px">
+    <div class="room-box">
+      <div style="font-size:11px;color:#7a6a4a;margin-bottom:4px">Kod pokoju — podaj znajomemu:</div>
+      <div class="room-code" id="room-code-display">----</div>
+      <div class="room-hint" id="lobby-status"><span class="status-dot"></span>Oczekiwanie na gracza 2...</div>
+    </div>
+    <button class="start-btn" style="font-size:11px;padding:6px 18px;opacity:.7" onclick="copyLink()">📋 Skopiuj link zaproszenia</button>
+  </div>
+  <div class="conn-status" id="conn-status"></div>
+</div>
+
+<!-- GAME BOARD -->
+<div id="gs" class="scr">
+  <div class="top-bar">
+    <div class="bar-title">📒 SERCE KSIĄG</div>
+    <span style="font-size:10px;color:#ffe8a0" id="tnum">Tura 1</span>
+    <span class="bar-phase waiting" id="pbadge">Łączenie...</span>
+  </div>
+
+  <div id="board">
+    <canvas id="ac"></canvas>
+    <div class="bg-art"><div class="bg-left"></div><div class="bg-center"></div><div class="bg-right"></div><div class="bg-line"></div></div>
+
+    <div class="sidebar">
+      <button class="eot-btn" id="eotn" onclick="sendEndTurn()" disabled>KONIEC<br>TURY</button>
+    </div>
+
+    <!-- OPP side -->
+    <div class="bot-hand-area"><div id="opp-hand-display" style="display:flex;gap:2px;align-items:flex-end"></div></div>
+    <div class="hero-area" id="opp-hero-area">
+      <div class="deck-ct">📚<br><span id="opp-deck">15</span><br><span class="fatigue-badge" id="opp-fatigue">💀<span id="opp-fatigue-val">0</span></span></div>
+      <div class="wpn-slot" id="opp-wpn-slot"></div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:2px">
+        <div class="hero-port" id="opp-port" onclick="targetHero('opp')">
+          <span id="opp-art">🤖</span>
+          <div class="hero-hp" id="opp-hp">30</div>
+          <div class="hero-armor" id="opp-armor" style="display:none">0</div>
+        </div>
+        <div class="hero-name" id="opp-name">Przeciwnik</div>
+        <div class="hero-cls" id="opp-cls"></div>
+      </div>
+      <div style="width:64px"></div>
+      <div><div class="mana-txt" id="opp-mana">💎 1/1</div></div>
+    </div>
+    <div class="battle-zone"><div class="minion-row" id="opp-board"></div></div>
+
+    <div style="border-top:2px solid rgba(139,105,20,.3);margin:0 8px"></div>
+
+    <div class="battle-zone"><div class="minion-row" id="my-board"></div></div>
+    <div class="hero-area">
+      <div class="deck-ct">📚<br><span id="my-deck">15</span><br><span class="fatigue-badge" id="my-fatigue">💀<span id="my-fatigue-val">0</span></span></div>
+      <div class="wpn-slot" id="my-wpn-slot"></div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:2px">
+        <div class="hero-port" id="my-port" onclick="heroSelfClick()">
+          <span id="my-art">🧙</span>
+          <div class="hero-hp" id="my-hp">30</div>
+          <div class="hero-armor" id="my-armor" style="display:none">0</div>
+        </div>
+        <div class="hero-name" id="my-name">Ty</div>
+        <div class="hero-cls" id="my-cls"></div>
+      </div>
+      <div class="hp-gem-wrap">
+        <button class="hp-gem" id="hpbtn" onclick="activateHeroPower()">
+          <span id="hp-art">🔥</span>
+          <div class="hp-gem-cost">2💎</div>
+        </button>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:2px">
+        <div class="mana-row" id="my-mana-row"></div>
+        <div class="mana-txt" id="my-mana-txt">1/1</div>
+      </div>
+    </div>
+    <div class="hand-area"><div class="hand-row" id="my-hand"></div></div>
+
+    <div id="spell-overlay"><div class="spell-msg" id="spell-msg-txt">Wybierz cel czaru</div></div>
+
+    <!-- Mulligan overlay -->
+    <div id="mulligan-overlay">
+      <div class="mul-title">✨ Wymień karty</div>
+      <div class="mul-sub">Kliknij karty, które chcesz zamienić, potem zatwierdź</div>
+      <div class="mul-hand" id="mulligan-hand"></div>
+      <button class="start-btn" id="mulligan-btn" onclick="confirmMulligan()">Zatwierdź Muligan ▶</button>
+      <div class="mul-wait" id="mulligan-wait">⏳ Czekam na przeciwnika...</div>
+    </div>
+  </div>
+  <div class="log-bar" id="lg">Łączenie z serwerem...</div>
+</div>
+
+<!-- GAME OVER -->
+<div id="goov" style="position:absolute;inset:0;background:rgba(0,0,0,.5);display:none;align-items:center;justify-content:center;z-index:300">
+  <div class="goc">
+    <div class="got" id="got">Koniec!</div>
+    <div class="gos" id="gos"></div>
+    <button class="start-btn" onclick="location.reload()" style="font-size:12px;padding:8px 20px">Nowa Gra</button>
+  </div>
+</div>
+
+</div>
+
+<script>
+// ── Config ────────────────────────────────────────────────────────────────
+const PARTYKIT_HOST = window.location.host;
+
+// ── State ─────────────────────────────────────────────────────────────────
+let ws = null, myId = null, roomId = null, gameState = null;
+let selAtk = null, dragStart = {x:0,y:0}, dragCurrent = {x:0,y:0};
+let pendingSpell = null, pendingSpellIsHeal = false;
+let heroPowerMode = false, healMode = false;
+let playerClass = 'mage';
+let myIdx = -1;
+let mulliganSelected = new Set();
+let mulliganConfirmed = false;
+let botDifficulty = 1;
+let isBotGame = false;
+
+// ── Sound ─────────────────────────────────────────────────────────────────
+let AC = null;
+function getAC() {
+  if (!AC) { try { AC = new (window.AudioContext || window.webkitAudioContext)(); } catch(e){} }
+  return AC;
+}
+function beep(freq, dur, type='sine', vol=0.3) {
+  try {
+    const ac = getAC(); if (!ac) return;
+    if (ac.state === 'suspended') ac.resume();
+    const o = ac.createOscillator(), g = ac.createGain();
+    o.connect(g); g.connect(ac.destination);
+    o.type = type; o.frequency.value = freq;
+    g.gain.setValueAtTime(vol, ac.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001, ac.currentTime + dur);
+    o.start(); o.stop(ac.currentTime + dur);
+  } catch(e) {}
+}
+const SFX = {
+  play:   () => { beep(440,.1); setTimeout(()=>beep(660,.15),80); },
+  attack: () => beep(120,.2,'sawtooth'),
+  heal:   () => { beep(660,.1); setTimeout(()=>beep(880,.15),100); },
+  win:    () => [440,550,660,880].forEach((f,i)=>setTimeout(()=>beep(f,.3),i*100)),
+  lose:   () => [440,330,220].forEach((f,i)=>setTimeout(()=>beep(f,.4),i*120)),
+};
+
+// ── Card Hover Preview ────────────────────────────────────────────────────
+const preview = document.createElement('div');
+preview.id = 'card-preview';
+preview.style.cssText = 'position:fixed;pointer-events:none;z-index:9999;display:none;background:linear-gradient(180deg,#faf3e0,#ece0c4);border:2px solid #b89a5a;border-radius:10px;padding:10px 8px;min-width:130px;max-width:160px;font-family:Georgia,serif;box-shadow:0 4px 16px rgba(0,0,0,.5);color:#3a2a10';
+document.body.appendChild(preview);
+
+function showPreview(card, x, y) {
+  const isLeg = card.legendary;
+  let h = `<div style="font-size:28px;text-align:center;margin-bottom:3px">${card.art}</div>`;
+  h += `<div style="font-size:11px;font-weight:700;color:${isLeg?'#ffd700':'#8b6914'};text-align:center;margin-bottom:3px;line-height:1.2">${card.name}</div>`;
+  h += `<div style="text-align:center;margin-bottom:5px"><span style="background:linear-gradient(135deg,#48f,#2a5aff);border-radius:50%;width:20px;height:20px;display:inline-flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:10px">${card.cost}</span></div>`;
+  if (card.type === 'minion') {
+    h += `<div style="display:flex;justify-content:space-between;margin-bottom:5px"><span style="background:#d4a020;border-radius:50%;width:20px;height:20px;display:inline-flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:10px">${card.atk??0}</span><span style="background:#c0392b;border-radius:50%;width:20px;height:20px;display:inline-flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:10px">${card.curHp??card.hp??0}</span></div>`;
+  }
+  const descs = [card.bcText, card.drText, card.spellText, card.comboText].filter(Boolean);
+  if (descs.length) h += `<div style="font-size:9px;color:#5a4a2a;text-align:center;line-height:1.4;border-top:1px solid #c8a878;padding-top:4px">${descs.join('<br>')}</div>`;
+  if (isLeg) h += `<div style="font-size:9px;color:#ffd700;text-align:center;margin-top:4px;font-weight:700">⭐ LEGENDARNY</div>`;
+  preview.innerHTML = h;
+  preview.style.display = 'block';
+  const pw = 160, ph = preview.offsetHeight || 180;
+  let px = x + 18, py = y - ph/2;
+  if (px + pw > window.innerWidth - 4) px = x - pw - 18;
+  if (py < 4) py = 4;
+  if (py + ph > window.innerHeight - 4) py = window.innerHeight - ph - 4;
+  preview.style.left = px + 'px';
+  preview.style.top = py + 'px';
+}
+function hidePreview() { preview.style.display = 'none'; }
+function attachPreview(el, card) {
+  el.addEventListener('mouseenter', e => showPreview(card, e.clientX, e.clientY));
+  el.addEventListener('mousemove',  e => showPreview(card, e.clientX, e.clientY));
+  el.addEventListener('mouseleave', hidePreview);
+}
+
+// ── Lobby helpers ─────────────────────────────────────────────────────────
+function selClass(el, cls) {
+  document.querySelectorAll('.class-card').forEach(e => e.classList.remove('sel'));
+  el.classList.add('sel');
+  playerClass = cls;
+}
+function selDiff(el, lvl) {
+  document.querySelectorAll('.diff-btn').forEach(e => e.classList.remove('sel'));
+  el.classList.add('sel');
+  botDifficulty = lvl;
+}
+function genRoomId() { return Math.random().toString(36).slice(2,6).toUpperCase(); }
+
+function createRoom() {
+  isBotGame = false;
+  roomId = genRoomId();
+  document.getElementById('room-code-display').textContent = roomId;
+  document.getElementById('lobby-create').style.display = 'none';
+  document.getElementById('lobby-waiting').style.display = 'flex';
+  connectWS();
+}
+function createBotGame() {
+  isBotGame = true;
+  roomId = genRoomId();
+  document.getElementById('room-code-display').textContent = '🤖BOT';
+  document.getElementById('lobby-create').style.display = 'none';
+  document.getElementById('lobby-waiting').style.display = 'flex';
+  document.getElementById('lobby-status').innerHTML = '<span class="status-dot ready"></span>Uruchamianie bota...';
+  connectWS();
+}
+function joinRoom() {
+  if (!roomId) {
+    const code = document.getElementById('join-code-input').value.trim().toUpperCase();
+    if (code.length !== 4) { alert('Wpisz 4-literowy kod pokoju!'); return; }
+    roomId = code;
+  }
+  document.getElementById('lobby-create').style.display = 'none';
+  document.getElementById('lobby-waiting').style.display = 'flex';
+  document.getElementById('room-code-display').textContent = roomId;
+  document.getElementById('lobby-status').innerHTML = '<span class="status-dot"></span>Łączenie...';
+  connectWS();
+}
+function copyLink() {
+  const url = `${location.origin}${location.pathname}?room=${roomId}`;
+  navigator.clipboard.writeText(url).then(() => alert('Link skopiowany!'));
+}
+function setConnStatus(txt) { const el = document.getElementById('conn-status'); if (el) el.textContent = txt; }
+
+// ── WebSocket ─────────────────────────────────────────────────────────────
+function connectWS() {
+  myId = 'p_' + Math.random().toString(36).slice(2,10);
+  const proto = location.protocol === 'https:' ? 'wss' : 'ws';
+  const url = `${proto}://${PARTYKIT_HOST}/party/${roomId}?_pk_id=${myId}`;
+  setConnStatus('Łączenie z ' + PARTYKIT_HOST + '...');
+  ws = new WebSocket(url);
+  ws.onopen = () => {
+    setConnStatus('Połączono! Dołączanie...');
+    send({ type:'join', cls:playerClass, vsBot: isBotGame, botLevel: isBotGame ? botDifficulty : 0 });
+  };
+  ws.onmessage = e => {
+    const msg = JSON.parse(e.data);
+    if (msg.type === 'you') { myId = msg.id; }
+    if (msg.type === 'state')  onStateUpdate(msg.state, []);
+    if (msg.type === 'update') onStateUpdate(msg.state, msg.events || []);
+  };
+  ws.onclose = ev => { setConnStatus('Rozłączono (kod: ' + ev.code + ')'); log('Rozłączono z serwerem.'); };
+  ws.onerror = () => { setConnStatus('Błąd połączenia!'); log('Błąd połączenia WebSocket.'); };
+}
+function send(obj) { if (ws && ws.readyState === 1) ws.send(JSON.stringify(obj)); }
+
+// ── State update ──────────────────────────────────────────────────────────
+function onStateUpdate(state, events = []) {
+  gameState = state;
+
+  if (state.phase === 'waiting') {
+    setConnStatus('Połączono. Oczekiwanie na gracza 2...');
+    document.getElementById('lobby-status').innerHTML = '<span class="status-dot ready"></span>Połączono! Oczekiwanie na gracza 2...';
+    log(state.log);
+    return;
+  }
+
+  if (myIdx === -1 && state.playerOrder.includes(myId)) {
+    myIdx = state.playerOrder.indexOf(myId);
+  }
+
+  document.getElementById('lobby').classList.remove('on');
+  document.getElementById('gs').classList.add('on');
+
+  if (state.phase === 'mulligan') {
+    if (state.playerOrder.includes(myId)) showMulligan(state);
+    log(state.log);
+    return;
+  }
+
+  // Hide mulligan overlay when game starts
+  const mulOv = document.getElementById('mulligan-overlay');
+  if (mulOv) mulOv.style.display = 'none';
+
+  if (state.phase === 'over') { showGameOver(state); return; }
+
+  render(state);
+  if (events.length) requestAnimationFrame(() => playAnimEvents(events));
+}
+
+// ── Mulligan ──────────────────────────────────────────────────────────────
+function showMulligan(state) {
+  const overlay = document.getElementById('mulligan-overlay');
+  overlay.style.display = 'flex';
+
+  if (mulliganConfirmed) {
+    document.getElementById('mulligan-hand').innerHTML = '';
+    document.getElementById('mulligan-btn').style.display = 'none';
+    document.getElementById('mulligan-wait').style.display = 'block';
+    return;
+  }
+
+  document.getElementById('mulligan-btn').style.display = '';
+  document.getElementById('mulligan-wait').style.display = 'none';
+
+  const me = state.players[myId];
+  if (!me) return;
+  const hand = document.getElementById('mulligan-hand');
+  hand.innerHTML = '';
+
+  me.hand.forEach(c => {
+    const isCoin = c.id === 'coin';
+    const isSel = mulliganSelected.has(c.uid);
+    const div = document.createElement('div');
+    div.className = 'mul-card' + (isSel ? ' selected' : '') + (isCoin ? ' coin-card' : '');
+    const typeClass = c.type === 'spell' ? 'background:linear-gradient(180deg,#dce8f8,#c0d4f0);' : c.type === 'weapon' ? 'background:linear-gradient(180deg,#f0e8d0,#e0d0a8);' : '';
+    if (typeClass) div.style.cssText = typeClass;
+    const hasTnt = c.keywords?.includes('taunt');
+    div.innerHTML = `
+      <div class="m-cost">${c.cost}</div>
+      <div class="hc-art" style="font-size:22px;margin:2px 0">${c.art}</div>
+      <div class="hc-name" style="font-size:8px;color:var(--gold);font-weight:700;text-align:center;max-width:64px">${c.name}</div>
+      ${isCoin ? '<div style="font-size:7px;color:#8a7a5a;text-align:center">Moneta</div>' : ''}
+      ${c.type==='minion' ? `<div class="hc-atk">${c.atk??0}</div><div class="hc-hp">${c.curHp??c.hp??0}</div>` : ''}
+      <div class="sel-x">✗</div>
+    `;
+    if (!isCoin) {
+      div.onclick = () => {
+        if (mulliganSelected.has(c.uid)) mulliganSelected.delete(c.uid);
+        else mulliganSelected.add(c.uid);
+        showMulligan(state);
+      };
+      attachPreview(div, c);
+    }
+    hand.appendChild(div);
+  });
+}
+
+function confirmMulligan() {
+  SFX.play();
+  send({ type: 'mulligan', replace: [...mulliganSelected] });
+  mulliganSelected.clear();
+  mulliganConfirmed = true;
+  if (gameState) showMulligan(gameState);
+}
+
+// ── Render ────────────────────────────────────────────────────────────────
+function render(state) {
+  const me = state.players[myId];
+  const oppId = state.playerOrder.find(id => id !== myId);
+  const opp = oppId ? state.players[oppId] : null;
+  if (!me) return;
+
+  const isMyTurn = state.activePlayer === myId;
+
+  const pb = document.getElementById('pbadge');
+  if (isMyTurn) { pb.textContent = 'Twoja tura'; pb.className = 'bar-phase yours'; }
+  else { pb.textContent = 'Tura przeciwnika'; pb.className = 'bar-phase theirs'; }
+  document.getElementById('tnum').textContent = 'Tura ' + state.turn;
+
+  document.getElementById('my-hp').textContent = me.hp;
+  document.getElementById('my-art').textContent = CLASSES[me.cls]?.art ?? '🧙';
+  document.getElementById('my-cls').textContent = CLASSES[me.cls]?.cls ?? me.cls;
+  setArmor('my-armor', me.armor);
+  setWeaponSlot('my-wpn-slot', me.weapon);
+
+  const mr = document.getElementById('my-mana-row'); mr.innerHTML = '';
+  for (let i = 0; i < me.maxMana; i++) {
+    const d = document.createElement('div');
+    d.className = 'pip' + (i < me.mana ? '' : ' empty');
+    mr.appendChild(d);
+  }
+  document.getElementById('my-mana-txt').textContent = me.mana + '/' + me.maxMana;
+  document.getElementById('my-deck').textContent = me.deck.length;
+
+  const myFat = document.getElementById('my-fatigue');
+  if (me.fatigue > 0) { myFat.style.display = 'block'; document.getElementById('my-fatigue-val').textContent = me.fatigue; }
+  else myFat.style.display = 'none';
+
+  const hpBtn = document.getElementById('hpbtn');
+  document.getElementById('hp-art').textContent = CLASSES[me.cls]?.heroPowerArt ?? '🔥';
+  const hpUsed = me.heroPowerUsed || me.mana < 2 || !isMyTurn;
+  hpBtn.className = 'hp-gem' + (hpUsed ? ' used' : (heroPowerMode || healMode ? ' active' : ''));
+  hpBtn.title = CLASSES[me.cls]?.heroPowerText ?? '';
+
+  const myPort = document.getElementById('my-port');
+  if (healMode || (pendingSpell && pendingSpellIsHeal)) myPort.className = 'hero-port healable';
+  else myPort.className = 'hero-port' + (me.canHeroAtk && isMyTurn ? ' can-hero-atk' : '');
+
+  if (opp) {
+    const BOT_NAMES = ['','Żółtodziób','Normalny','Trudny','Ekspert'];
+    document.getElementById('opp-hp').textContent = opp.hp;
+    document.getElementById('opp-art').textContent = opp.botLevel > 0 ? '🤖' : (CLASSES[opp.cls]?.art ?? '🤖');
+    document.getElementById('opp-name').textContent = opp.botLevel > 0 ? `🤖 Bot` : 'Przeciwnik';
+    document.getElementById('opp-cls').textContent = opp.botLevel > 0 ? `${BOT_NAMES[opp.botLevel]} · ${CLASSES[opp.cls]?.cls??''}` : (CLASSES[opp.cls]?.cls ?? opp.cls);
+    document.getElementById('opp-mana').textContent = '💎 ' + opp.mana + '/' + opp.maxMana;
+    document.getElementById('opp-deck').textContent = opp.deck.length;
+    setArmor('opp-armor', opp.armor);
+    setWeaponSlot('opp-wpn-slot', opp.weapon);
+
+    const oppFat = document.getElementById('opp-fatigue');
+    if (opp.fatigue > 0) { oppFat.style.display = 'block'; document.getElementById('opp-fatigue-val').textContent = opp.fatigue; }
+    else oppFat.style.display = 'none';
+
+    const oh = document.getElementById('opp-hand-display'); oh.innerHTML = '';
+    for (let i = 0; i < opp.hand.length; i++) {
+      const d = document.createElement('div'); d.className = 'bck'; oh.appendChild(d);
+    }
+    renderBoard('opp-board', opp.board, 'opp', isMyTurn);
+    const oppHasTaunt = opp.board.some(c => !c.silenced && c.keywords?.includes('taunt'));
+    // Attacks (minion/hero weapon) are blocked by taunt; hero powers and spells are not
+    const canTargetOppHero = isMyTurn && ((!oppHasTaunt && selAtk) || heroPowerMode || (pendingSpell && !pendingSpellIsHeal));
+    const canHealOppHero = healMode || (pendingSpell && pendingSpellIsHeal);
+    document.getElementById('opp-port').className = 'hero-port' + (canTargetOppHero ? ' attackable' : '') + (canHealOppHero ? ' healable' : '');
+  }
+
+  renderBoard('my-board', me.board, 'me', isMyTurn);
+  renderHand(me, isMyTurn);
+
+  document.getElementById('eotn').disabled = !isMyTurn;
+  log(state.log);
+  drawArrow();
+}
+
+function setArmor(id, val) {
+  const el = document.getElementById(id);
+  if (val > 0) { el.style.display = 'flex'; el.textContent = val; }
+  else el.style.display = 'none';
+}
+function setWeaponSlot(slotId, wpn) {
+  const el = document.getElementById(slotId);
+  if (!el) return;
+  if (wpn) {
+    el.innerHTML = `<div class="wpn-card" title="${wpn.name}">
+      <span class="wpn-art">${wpn.art}</span>
+      <div class="wpn-atk">${wpn.atk}</div>
+      <div class="wpn-dur">${wpn.durability}</div>
+    </div>`;
+  } else {
+    el.innerHTML = '';
+  }
+}
+
+function renderBoard(elId, cards, side, isMyTurn) {
+  const el = document.getElementById(elId); el.innerHTML = '';
+  cards.forEach(c => {
+    const div = document.createElement('div');
+    const canA = side === 'me' && c.canAtk && !c.fresh && isMyTurn;
+    const isSel = selAtk === c.uid;
+    const isTgt = (selAtk || heroPowerMode || (pendingSpell && !pendingSpellIsHeal)) && side === 'opp';
+    const hasTnt = !c.silenced && c.keywords?.includes('taunt');
+    const isHeal = (healMode || (pendingSpell && pendingSpellIsHeal));
+    div.className = 'minion'
+      + (c.legendary ? ' legendary' : '')
+      + (isSel ? ' sel' : canA ? ' can-atk' : (!canA && side === 'me' && !isHeal ? ' exh' : ''))
+      + (isTgt ? ' targeted' : '')
+      + (isHeal ? ' healable' : '')
+      + (hasTnt ? ' taunt' : '');
+    div.dataset.uid = c.uid;
+    div.innerHTML = `<div class="m-cost">${c.cost}</div>
+      <div class="m-art">${c.art}</div>
+      <div class="m-name">${c.name}</div>
+      ${hasTnt ? '<div class="m-kw">Prowokacja</div>' : ''}
+      ${c.keywords?.includes('charge') ? '<div class="m-kw">Szarża</div>' : ''}
+      <div class="m-atk">${c.atk??0}</div>
+      <div class="m-hp${c.curHp < c.maxHp ? ' hurt' : ''}">${c.curHp}</div>
+      ${c.divineShield ? '<div class="m-ds"></div>' : ''}
+      ${(c.combo && side === 'me') ? '<div class="combo-badge">COMBO</div>' : ''}`;
+    if (side === 'me') div.onclick = e => { e.stopPropagation(); clickMyMinion(c, div); };
+    else div.onclick = e => { e.stopPropagation(); clickOppMinion(c); };
+    attachPreview(div, c);
+    el.appendChild(div);
+  });
+}
+
+function renderHand(me, isMyTurn) {
+  const ph = document.getElementById('my-hand'); ph.innerHTML = '';
+  me.hand.forEach(c => {
+    const pl = isMyTurn && me.mana >= c.cost;
+    const div = document.createElement('div');
+    const typeClass = c.type === 'spell' ? ' spell' : c.type === 'weapon' ? ' weapon' : '';
+    const legClass = c.legendary ? ' legendary' : '';
+    const tauntClass = c.keywords?.includes('taunt') ? ' taunt-card' : '';
+    div.className = 'hand-card' + typeClass + legClass + tauntClass + ' ' + (pl ? 'playable' : 'unplayable');
+    const showCombo = me.playedThisTurn && c.comboText;
+    const desc = c.bcText || c.spellText || '';
+    div.innerHTML = `<div class="m-cost">${c.cost}</div>
+      <div class="hc-art">${c.art}</div>
+      <div class="hc-name">${c.name}</div>
+      <div class="hc-type">${c.type==='spell'?'✨ Czar':c.type==='weapon'?'⚔️ Broń':'Minionek'}</div>
+      ${desc ? `<div class="hc-desc">${desc}</div>` : ''}
+      ${c.type==='minion' ? `<div class="hc-atk">${c.atk??0}</div><div class="hc-hp">${c.curHp??0}</div>` : ''}
+      ${showCombo ? `<div class="combo-badge">COMBO</div><div class="hc-combo">${c.comboText}</div>` : ''}`;
+    if (pl) div.onclick = e => { e.stopPropagation(); clickHandCard(c, div); };
+    attachPreview(div, c);
+    ph.appendChild(div);
+  });
+}
+
+// ── Interaction ───────────────────────────────────────────────────────────
+function clickHandCard(card, el) {
+  if (!isMyTurn()) return;
+  cancelModes();
+  const needsBcTarget = card.type === 'minion' && needsBattlecryTarget(card);
+  if ((card.type === 'spell' && needsTarget(card)) || needsBcTarget) {
+    pendingSpell = card;
+    const isHeal = card.type === 'spell' ? (card.spellEffect?.includes('heal') ?? false) : (card.battlecry?.includes('heal') ?? false);
+    pendingSpellIsHeal = isHeal;
+    const overlay = document.getElementById('spell-overlay');
+    overlay.classList.add('on');
+    if (isHeal) overlay.classList.add('heal-mode');
+    document.getElementById('spell-msg-txt').textContent = isHeal ? 'Wybierz cel uzdrowienia' : 'Wybierz cel';
+    if (el) {
+      const r = el.getBoundingClientRect(), br = document.getElementById('board').getBoundingClientRect();
+      dragStart = { x:r.left-br.left+r.width/2, y:r.top-br.top+r.height/2 };
+      dragCurrent = { ...dragStart };
+    }
+    log('Wybierz cel: ' + card.name);
+    if (gameState) render(gameState);
+    return;
+  }
+  SFX.play();
+  send({ type:'play_card', cardUid:card.uid });
+  showFx(card.type==='spell' ? '✨ Czar!' : card.type==='weapon' ? '⚔️ Broń!' : '');
+}
+
+function needsTarget(card) {
+  return ['deal4face','deal6face','heal2target','heal4target','heal6target'].includes(card.spellEffect);
+}
+function needsBattlecryTarget(card) {
+  return ['deal1','deal2','heal2target','heal4target'].includes(card.battlecry);
+}
+function isAoe(card) {
+  return ['deal2all','deal3all','deal1all'].includes(card?.spellEffect);
+}
+
+function clickMyMinion(card, el) {
+  if (!isMyTurn()) return;
+  if (healMode) {
+    send({ type:'hero_power', targetUid:card.uid, targetType:'minion_me' });
+    SFX.heal(); showFx('💚 Uzdrowienie!'); cancelModes(); return;
+  }
+  if (pendingSpell && pendingSpellIsHeal) {
+    send({ type:'play_card', cardUid:pendingSpell.uid, targetUid:card.uid, targetType:'minion_me' });
+    SFX.heal(); showFx('💚 Uzdrowienie!'); cancelModes(); return;
+  }
+  if (pendingSpell || heroPowerMode) { cancelModes(); return; }
+  if (card.fresh && !card.keywords?.includes('charge')) { log(card.name + ' dopiero weszła!'); return; }
+  if (!card.canAtk) { log(card.name + ' już atakowała.'); return; }
+  selAtk = selAtk === card.uid ? null : card.uid;
+  if (selAtk) {
+    const r = el.getBoundingClientRect(), br = document.getElementById('board').getBoundingClientRect();
+    dragStart = { x:r.left-br.left+r.width/2, y:r.top-br.top+r.height/2 };
+    dragCurrent = { ...dragStart };
+  }
+  render(gameState);
+}
+
+function clickOppMinion(card) {
+  if (!isMyTurn()) return;
+  if (healMode) {
+    send({ type:'hero_power', targetUid:card.uid, targetType:'minion_opp' });
+    SFX.heal(); showFx('💚 Uzdrowienie!'); cancelModes(); return;
+  }
+  if (pendingSpell && pendingSpellIsHeal) {
+    send({ type:'play_card', cardUid:pendingSpell.uid, targetUid:card.uid, targetType:'minion_opp' });
+    SFX.heal(); showFx('💚 Uzdrowienie!'); cancelModes(); return;
+  }
+  if (pendingSpell) {
+    SFX.play();
+    send({ type:'play_card', cardUid:pendingSpell.uid, targetUid:card.uid, targetType:'minion_opp' });
+    showFx('✨ Czar!'); cancelModes(); return;
+  }
+  if (heroPowerMode) {
+    SFX.play();
+    send({ type:'hero_power', targetUid:card.uid, targetType:'minion' });
+    showFx('Hero Power!'); cancelModes(); return;
+  }
+  if (!selAtk) { log('Najpierw wybierz swoją kartę!'); return; }
+  SFX.attack();
+  if (selAtk === '__hero__') {
+    send({ type:'hero_attack', targetUid:card.uid, targetType:'minion' });
+  } else {
+    send({ type:'attack', attackerUid:selAtk, targetUid:card.uid, targetType:'minion' });
+  }
+  selAtk = null; render(gameState);
+}
+
+function targetHero(side) {
+  if (!isMyTurn()) return;
+  if (selAtk === '__hero__' && side === 'opp') {
+    SFX.attack();
+    send({ type:'hero_attack', targetType:'hero' });
+    selAtk = null; render(gameState); return;
+  }
+  if (healMode && side === 'opp') {
+    send({ type:'hero_power', targetType:'hero_opp' });
+    SFX.heal(); showFx('💚 Uzdrowienie!'); cancelModes(); return;
+  }
+  if (pendingSpell && pendingSpellIsHeal && side === 'opp') {
+    send({ type:'play_card', cardUid:pendingSpell.uid, targetType:'hero_opp' });
+    SFX.heal(); showFx('💚 Uzdrowienie!'); cancelModes(); return;
+  }
+  if (side !== 'opp') return;
+  if (pendingSpell) {
+    SFX.play();
+    send({ type:'play_card', cardUid:pendingSpell.uid, targetType:'hero' });
+    showFx('✨ Czar!'); cancelModes(); return;
+  }
+  if (heroPowerMode) {
+    SFX.play();
+    send({ type:'hero_power', targetType:'hero' });
+    showFx('Hero Power!'); cancelModes(); return;
+  }
+  if (!selAtk) { log('Wybierz kartę do ataku!'); return; }
+  SFX.attack();
+  send({ type:'attack', attackerUid:selAtk, targetType:'hero' });
+  selAtk = null; render(gameState);
+}
+
+function heroSelfClick() {
+  if (!isMyTurn()) return;
+  if (healMode) {
+    send({ type:'hero_power', targetType:'hero_me' });
+    SFX.heal(); showFx('💚 Uzdrowienie!'); cancelModes(); return;
+  }
+  if (pendingSpell && pendingSpellIsHeal) {
+    send({ type:'play_card', cardUid:pendingSpell.uid, targetType:'hero_me' });
+    SFX.heal(); showFx('💚 Uzdrowienie!'); cancelModes(); return;
+  }
+  const me = gameState?.players[myId];
+  if (!me?.canHeroAtk) return;
+  selAtk = '__hero__';
+  const el = document.getElementById('my-port');
+  const r = el.getBoundingClientRect(), br = document.getElementById('board').getBoundingClientRect();
+  dragStart = { x:r.left-br.left+r.width/2, y:r.top-br.top+r.height/2 };
+  dragCurrent = { ...dragStart };
+  log('Bohater atakuje — wybierz cel!');
+  render(gameState);
+}
+
+function activateHeroPower() {
+  if (!isMyTurn()) return;
+  const me = gameState?.players[myId];
+  if (!me || me.heroPowerUsed || me.mana < 2) return;
+  cancelModes();
+  if (me.cls === 'warrior') { SFX.play(); send({ type:'hero_power' }); showFx('🛡️ +2 Pancerza!'); return; }
+  if (me.cls === 'rogue')   { SFX.play(); send({ type:'hero_power' }); showFx('⚔️ Sztylet!'); return; }
+  if (me.cls === 'priest') {
+    healMode = true;
+    document.getElementById('spell-overlay').classList.add('on','heal-mode');
+    document.getElementById('spell-msg-txt').textContent = 'Wybierz cel uzdrowienia';
+    const hpEl = document.getElementById('hpbtn');
+    if (hpEl) {
+      const r = hpEl.getBoundingClientRect(), br = document.getElementById('board').getBoundingClientRect();
+      dragStart = { x:r.left-br.left+r.width/2, y:r.top-br.top+r.height/2 };
+      dragCurrent = { ...dragStart };
+    }
+    log('Hero Power: wybierz cel uzdrowienia');
+    render(gameState); return;
+  }
+  heroPowerMode = true;
+  document.getElementById('spell-overlay').classList.add('on');
+  document.getElementById('spell-msg-txt').textContent = 'Wybierz cel czaru';
+  const hpEl = document.getElementById('hpbtn');
+  if (hpEl) {
+    const r = hpEl.getBoundingClientRect(), br = document.getElementById('board').getBoundingClientRect();
+    dragStart = { x:r.left-br.left+r.width/2, y:r.top-br.top+r.height/2 };
+    dragCurrent = { ...dragStart };
+  }
+  log('Hero Power: wybierz cel (kliknij minionka lub bohatera wroga)');
+  render(gameState);
+}
+
+function cancelModes() {
+  pendingSpell = null; pendingSpellIsHeal = false;
+  heroPowerMode = false; healMode = false; selAtk = null;
+  const overlay = document.getElementById('spell-overlay');
+  overlay.classList.remove('on','heal-mode');
+  document.getElementById('spell-msg-txt').textContent = 'Wybierz cel czaru';
+}
+
+function sendEndTurn() {
+  if (!isMyTurn()) return;
+  cancelModes();
+  send({ type:'end_turn' });
+}
+
+function isMyTurn() {
+  return gameState?.activePlayer === myId && gameState?.phase === 'playing';
+}
+
+// ── Animations ────────────────────────────────────────────────────────────
+function findTargetElement(targetId) {
+  if (targetId.startsWith('hero_')) {
+    const idx = parseInt(targetId.split('_')[1]);
+    if (!gameState) return null;
+    const pid = gameState.playerOrder[idx];
+    return pid === myId ? document.getElementById('my-port') : document.getElementById('opp-port');
+  }
+  return document.querySelector(`[data-uid="${targetId}"]`);
+}
+
+function playAnimEvents(events) {
+  const bf = document.getElementById('board');
+  if (!bf) return;
+  events.forEach((ev, i) => {
+    setTimeout(() => {
+      if (ev.kind === 'heal') SFX.heal();
+      const target = findTargetElement(ev.targetId);
+      if (!target) return;
+      const tr = target.getBoundingClientRect(), br = bf.getBoundingClientRect();
+      const x = tr.left - br.left + tr.width/2, y = tr.top - br.top + tr.height/2;
+      const pop = document.createElement('div');
+      pop.className = 'dmg-pop ' + (ev.kind === 'heal' ? 'heal' : 'dmg');
+      pop.textContent = (ev.kind === 'heal' ? '+' : '-') + ev.amount;
+      pop.style.left = (x-12) + 'px'; pop.style.top = (y-16) + 'px';
+      bf.appendChild(pop); setTimeout(() => pop.remove(), 900);
+      target.classList.add('atk-flash');
+      setTimeout(() => target.classList.remove('atk-flash'), 250);
+    }, i * 120);
+  });
+}
+
+// ── Arrow ─────────────────────────────────────────────────────────────────
+function setupCanvas() {
+  const cv = document.getElementById('ac'), bf = document.getElementById('board');
+  function r() { cv.width = bf.offsetWidth; cv.height = bf.offsetHeight; }
+  r(); window.addEventListener('resize', () => { r(); drawArrow(); });
+}
+function drawArrow() {
+  const cv = document.getElementById('ac'), ctx = cv.getContext('2d');
+  ctx.clearRect(0, 0, cv.width, cv.height);
+  if (!selAtk && !pendingSpell && !heroPowerMode && !healMode) return;
+  const sx = dragStart.x, sy = dragStart.y, ex = dragCurrent.x, ey = dragCurrent.y;
+  if (Math.abs(ex-sx) < 5 && Math.abs(ey-sy) < 5) return;
+  const color = selAtk ? '#e67e22'
+    : (pendingSpellIsHeal || healMode) ? '#27ae60'
+    : heroPowerMode ? '#8e44ad'
+    : '#3a7ac0';
+  ctx.beginPath(); ctx.moveTo(sx, sy);
+  ctx.quadraticCurveTo((sx+ex)/2, (sy+ey)/2-20, ex, ey);
+  ctx.strokeStyle = color; ctx.lineWidth = 3; ctx.setLineDash([6,4]); ctx.stroke(); ctx.setLineDash([]);
+  const angle = Math.atan2(ey-((sy+ey)/2-20), ex-(sx+ex)/2), al = 12, aw = 5;
+  ctx.beginPath(); ctx.moveTo(ex, ey);
+  ctx.lineTo(ex-al*Math.cos(angle-aw/3), ey-al*Math.sin(angle-aw/3));
+  ctx.lineTo(ex-al*Math.cos(angle+aw/3), ey-al*Math.sin(angle+aw/3));
+  ctx.closePath(); ctx.fillStyle = color; ctx.fill();
+  ctx.beginPath(); ctx.arc(sx, sy, 5, 0, Math.PI*2); ctx.fillStyle = color; ctx.fill();
+}
+document.addEventListener('mousemove', e => {
+  if (!selAtk && !pendingSpell && !heroPowerMode && !healMode) return;
+  const bf = document.getElementById('board'), r = bf.getBoundingClientRect();
+  dragCurrent = { x:e.clientX-r.left, y:e.clientY-r.top };
+  drawArrow();
+});
+document.addEventListener('touchmove', e => {
+  if (!selAtk && !pendingSpell && !heroPowerMode && !healMode) return;
+  const t = e.touches[0];
+  const bf = document.getElementById('board'), r = bf.getBoundingClientRect();
+  dragCurrent = { x:t.clientX-r.left, y:t.clientY-r.top };
+  drawArrow();
+}, {passive:true});
+document.addEventListener('click', e => {
+  const onBoard = e.target.closest('.minion') || e.target.closest('.hero-port') || e.target.closest('.hp-gem');
+  if ((selAtk || heroPowerMode || healMode || pendingSpell) && !onBoard) {
+    cancelModes(); if (gameState) render(gameState);
+  }
+});
+
+// ── Effects ───────────────────────────────────────────────────────────────
+function showFx(txt) {
+  if (!txt) return;
+  const bf = document.getElementById('board');
+  const p = document.createElement('div'); p.className = 'fx-label'; p.textContent = txt;
+  bf.appendChild(p); setTimeout(() => p.remove(), 900);
+}
+function showGameOver(state) {
+  const won = state.winner === myId;
+  document.getElementById('got').textContent = won ? '🏆 Zwycięstwo!' : '📉 Przegrana!';
+  document.getElementById('gos').textContent = won
+    ? 'Wygrałeś! Twoje księgi są bezbłędne.'
+    : 'Przegrałeś. Urząd Skarbowy przejął kontrolę.';
+  document.getElementById('goov').style.display = 'flex';
+  if (won) SFX.win(); else SFX.lose();
+}
+function log(m) { const el = document.getElementById('lg'); if (el) el.textContent = m; }
+
+// ── Class defs (client-side) ───────────────────────────────────────────────
+const CLASSES = {
+  mage:    { art:'🧙', cls:'Mag Podatkowy',    heroPowerArt:'🔥', heroPowerText:'Zadaj 1 obrażenie dowolnemu celowi.' },
+  warrior: { art:'⚔️', cls:'Wojownik Księgi',  heroPowerArt:'🛡️', heroPowerText:'Zyskaj 2 pancerza.' },
+  rogue:   { art:'🃏', cls:'Łotr Podatkowy',   heroPowerArt:'🗡️', heroPowerText:'Wyekwipuj sztylet 1/2.' },
+  priest:  { art:'✝️', cls:'Kapłan Bilansowy', heroPowerArt:'💚', heroPowerText:'Przywróć 2 HP dowolnemu celowi.' },
+};
+
+// ── Init ──────────────────────────────────────────────────────────────────
+setupCanvas();
+
+const urlRoom = new URLSearchParams(location.search).get('room');
+if (urlRoom) {
+  document.getElementById('join-code-input').value = urlRoom.toUpperCase();
+  document.getElementById('lobby-create').innerHTML = `
+    <div style="font-size:13px;color:var(--gold);font-weight:700;text-align:center">Dołączasz do pokoju: <span style="font-family:monospace;letter-spacing:3px">${urlRoom.toUpperCase()}</span></div>
+    <button class="start-btn" onclick="joinRoom()" style="margin-top:8px">Dołącz do Gry ▶</button>
+  `;
+  roomId = urlRoom.toUpperCase();
+}
+</script>
+</body>
+</html>

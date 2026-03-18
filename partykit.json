@@ -1,0 +1,6 @@
+{
+  "name": "serce-ksiag",
+  "main": "party/server.ts",
+  "compatibilityDate": "2023-11-01",
+  "serve": "public"
+}
