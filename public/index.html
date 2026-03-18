@@ -7,14 +7,14 @@
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html,body{height:100%;overflow:hidden}
-:root{--bg:#e8dcc8;--bg2:#f5ecd8;--bg3:#d4c4a0;--gold:#8b6914;--gold2:#a07820;--mana:#2266cc;--red:#c0392b;--green:#27ae60;--font:'Georgia',serif;--card-bg:#faf3e0;--card-border:#b89a5a;--shadow:0 1px 4px rgba(0,0,0,.15)}
+:root{--bg:#f0ebe0;--bg2:#f7f2e8;--bg3:#d8d0c0;--gold:#6b4c14;--gold2:#8a6a30;--mana:#2a5a9a;--red:#8b2020;--green:#2a6a3a;--font:'Georgia',serif;--card-bg:#f5f0e4;--card-border:#a08a5a;--shadow:0 1px 4px rgba(0,0,0,.12)}
 body{background:#2a2a2a;display:flex;align-items:center;justify-content:center;height:100dvh;font-family:var(--font);touch-action:manipulation}
 #G{width:100vw;height:100dvh;max-width:390px;max-height:844px;background:var(--bg);overflow:hidden;display:flex;flex-direction:column;position:relative;color:#3a2a10;border-radius:0;box-shadow:0 0 40px rgba(0,0,0,.5)}
 @media (min-width:420px){#G{border-radius:20px;border:3px solid #444}}
 .scr{display:none;flex-direction:column;flex:1}.scr.on{display:flex}
 
 /* ── Lobby ── */
-#lobby{align-items:center;justify-content:center;padding:20px 14px;background:linear-gradient(180deg,#f0e6d0,#ddd0b0);gap:10px;overflow-y:auto}
+#lobby{align-items:center;justify-content:center;padding:20px 14px;background:linear-gradient(180deg,#f5f0e4,#e8e0d0);gap:10px;overflow-y:auto}
 .logo{font-size:44px;filter:drop-shadow(0 2px 6px rgba(139,105,20,.4))}
 .title{font-size:24px;font-weight:700;color:var(--gold);letter-spacing:2px;text-shadow:0 1px 2px rgba(0,0,0,.15)}
 .sub{font-size:12px;color:#6a5a3a;text-align:center;line-height:1.5;max-width:320px}
@@ -42,22 +42,24 @@ body{background:#2a2a2a;display:flex;align-items:center;justify-content:center;h
 .diff-label{font-size:9px;color:var(--gold);font-weight:700;text-align:center;margin-top:2px}
 
 /* ── Board ── */
-#board{flex:1;display:flex;flex-direction:column;position:relative;overflow:hidden}
+#board{flex:1;display:flex;flex-direction:column;position:relative;overflow:hidden;box-shadow:inset 0 0 60px rgba(0,0,0,.25)}
 .bg-art{position:absolute;inset:0;z-index:0}
-.bg-left{position:absolute;left:0;top:0;bottom:0;width:30px;background:linear-gradient(to right,#b8a878,transparent)}
-.bg-right{position:absolute;right:0;top:0;bottom:0;width:30px;background:linear-gradient(to left,#b8a878,transparent)}
-.bg-center{position:absolute;left:30px;right:30px;top:0;bottom:0;background:linear-gradient(180deg,#c4d8a0 0%,#8ab868 20%,#6a9848 50%,#8ab868 80%,#c4d8a0 100%)}
-.bg-line{position:absolute;left:10px;right:10px;top:50%;height:2px;background:linear-gradient(90deg,transparent,#8b6914,transparent);transform:translateY(-50%)}
+.bg-left{position:absolute;left:0;top:0;bottom:0;width:30px;background:linear-gradient(to right,#c8b898,#d8d0b8)}
+.bg-right{position:absolute;right:0;top:0;bottom:0;width:30px;background:linear-gradient(to left,#c8b898,#d8d0b8)}
+.bg-center{position:absolute;left:30px;right:30px;top:0;bottom:0;background:linear-gradient(180deg,#e8e4d4 0%,#d8e0c8 15%,#c8d8b0 50%,#d8e0c8 85%,#e8e4d4 100%)}
+.bg-center::after{content:'';position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 19px,rgba(100,140,80,.12) 19px,rgba(100,140,80,.12) 20px);pointer-events:none}
+.bg-line{position:absolute;left:10px;right:10px;top:50%;transform:translateY(-50%);height:0;border-top:1px solid rgba(139,105,20,.5);border-bottom:1px solid rgba(139,105,20,.5);padding:1px 0}
+.bg-line::after{content:'⚜';position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:16px;background:rgba(74,122,40,.95);padding:0 6px;color:#c8a040;filter:drop-shadow(0 1px 2px rgba(0,0,0,.4))}
 #ac{position:absolute;inset:0;pointer-events:none;z-index:50}
 .sidebar{position:absolute;right:2px;top:50%;transform:translateY(-50%);z-index:10;display:flex;flex-direction:column;align-items:center;gap:4px}
-.eot-btn{background:linear-gradient(135deg,#5a9a30,#3a7a10);border:2px solid #8c8;color:#fff;font-size:9px;font-family:var(--font);font-weight:700;padding:10px 2px;border-radius:8px;cursor:pointer;width:44px;text-align:center;transition:all .15s;box-shadow:var(--shadow);line-height:1.3;letter-spacing:.5px}
+.eot-btn{background:linear-gradient(135deg,#3a6a28,#2a5018);border:2px solid #5a8a48;color:#fff;font-size:9px;font-family:var(--font);font-weight:700;padding:10px 2px;border-radius:8px;cursor:pointer;width:44px;text-align:center;transition:all .15s;box-shadow:var(--shadow);line-height:1.3;letter-spacing:.5px}
 .eot-btn:not(:disabled){animation:eotPulse 1.4s infinite alternate;box-shadow:0 0 8px rgba(88,200,88,.6)}
 @keyframes eotPulse{from{box-shadow:0 0 4px rgba(88,200,88,.3)}to{box-shadow:0 0 16px rgba(88,200,88,1),0 0 6px #fff2}}
 .eot-btn:hover:not(:disabled){transform:scale(1.08)}
 .eot-btn:disabled{background:#6a5a4a;color:#8a7a5a;border-color:#7a6a4a;cursor:default;transform:none;animation:none;box-shadow:var(--shadow)}
 
 /* ── Top bar ── */
-.top-bar{display:flex;align-items:center;justify-content:space-between;padding:4px 8px;background:linear-gradient(90deg,#8b6914,#a07820,#8b6914);border-bottom:2px solid #a08830;z-index:10}
+.top-bar{display:flex;align-items:center;justify-content:space-between;padding:4px 8px;background:linear-gradient(90deg,#3a2a18,#4a3a24,#3a2a18);border-bottom:2px solid #6a5a3a;z-index:10}
 .bar-title{font-size:14px;color:#fff;font-weight:700;letter-spacing:1px;text-shadow:0 1px 2px rgba(0,0,0,.3);white-space:nowrap}
 .bar-phase{font-size:12px;padding:4px 12px;border-radius:99px;font-weight:700;transition:all .3s;white-space:nowrap}
 .bar-phase.yours{background:#27ae60;color:#fff;border:1px solid #1e8449;box-shadow:0 0 8px rgba(39,174,96,.6);animation:yourTurnBadge .9s infinite alternate}
@@ -102,19 +104,22 @@ body{background:#2a2a2a;display:flex;align-items:center;justify-content:center;h
 .minion-row{display:flex;align-items:center;justify-content:center;gap:5px;flex-wrap:nowrap}
 
 /* ── Minion (mobile) ── */
-.minion{width:74px;min-height:86px;background:radial-gradient(ellipse at center,#faf3e0 60%,#e8d8b0 100%);border:2px solid var(--card-border);border-radius:50% 50% 48% 48% / 42% 42% 52% 52%;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:6px 3px 16px;cursor:pointer;transition:all .18s;position:relative;user-select:none;box-shadow:var(--shadow)}
+.minion{width:74px;min-height:86px;background:radial-gradient(ellipse at center,#f5f0e4 60%,#e0d8c0 100%);border:2px solid var(--card-border);border-radius:50% 50% 48% 48% / 42% 42% 52% 52%;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:6px 3px 16px;cursor:pointer;transition:all .18s;position:relative;user-select:none;box-shadow:var(--shadow)}
 .minion:hover{transform:translateY(-3px) scale(1.06);z-index:10}
 .minion.sel{border-color:#e67e22;box-shadow:0 0 14px rgba(230,126,34,.65);transform:translateY(-5px) scale(1.08);z-index:20}
 .minion.can-atk{border-color:#e67e22;animation:glow .9s infinite alternate}
-.minion.taunt{border-color:#3a6a9f;border-width:3px;border-style:solid;box-shadow:0 0 12px rgba(58,106,159,.6),inset 0 0 10px rgba(58,106,159,.2);background:radial-gradient(ellipse at center,#e0ecf8 60%,#b0c8e0 100%);border-radius:6px 6px 0 0;clip-path:polygon(0% 0%,100% 0%,100% 62%,50% 100%,0% 62%)}
-.minion.taunt::before{content:'🛡';position:absolute;top:-12px;left:50%;transform:translateX(-50%);font-size:14px;filter:drop-shadow(0 1px 2px rgba(0,0,0,.4))}
+.minion.taunt{border-color:#3a6a9f;border-width:3px;border-style:double;box-shadow:0 0 14px rgba(58,106,159,.5),inset 0 0 12px rgba(58,106,159,.15);background:radial-gradient(ellipse at center,#e0ecf8 60%,#b0c8e0 100%)}
+.minion.taunt::before{content:'🛡';position:absolute;top:-12px;left:50%;transform:translateX(-50%);font-size:14px;filter:drop-shadow(0 1px 2px rgba(0,0,0,.4));z-index:5}
 .minion.targeted{border-color:var(--red);box-shadow:0 0 12px rgba(192,57,43,.55)}
 .minion.exh{opacity:.55;filter:grayscale(.3)}
 .minion.healable{border-color:var(--green);box-shadow:0 0 12px rgba(39,174,96,.45)}
 .minion.dying{animation:die .4s forwards}
 .minion.spawning{animation:spawn .3s forwards}
-.minion.legendary{box-shadow:0 0 10px #ffd700,inset 0 0 6px rgba(255,215,0,.1);border-color:#ffd700}
+.minion.legendary{box-shadow:0 0 10px #ffd700,inset 0 0 6px rgba(255,215,0,.1);border-color:#ffd700;overflow:visible}
+.minion.legendary::after{content:'';position:absolute;inset:-3px;border-radius:inherit;background:linear-gradient(135deg,transparent 30%,rgba(255,215,0,.35) 50%,transparent 70%);background-size:250% 250%;animation:shimmer 2.5s ease infinite;pointer-events:none;z-index:-1}
+@keyframes shimmer{0%{background-position:200% 200%}100%{background-position:-200% -200%}}
 .minion.legendary.can-atk{box-shadow:0 0 14px #ffd700,0 0 10px rgba(230,126,34,.5)}
+.minion.damaged-glow{box-shadow:0 0 6px rgba(192,57,43,.3),inset 0 0 10px rgba(192,57,43,.15)}
 @keyframes glow{from{box-shadow:0 0 3px rgba(230,126,34,.2)}to{box-shadow:0 0 14px rgba(230,126,34,.65)}}
 @keyframes die{0%{transform:scale(1);opacity:1}50%{transform:scale(1.2);opacity:.4}100%{transform:scale(0);opacity:0}}
 @keyframes spawn{0%{transform:scale(0) rotate(-10deg);opacity:0}65%{transform:scale(1.1) rotate(2deg)}100%{transform:scale(1) rotate(0);opacity:1}}
@@ -127,26 +132,29 @@ body{background:#2a2a2a;display:flex;align-items:center;justify-content:center;h
 .m-cost{position:absolute;top:-6px;left:-6px;background:linear-gradient(135deg,#48f,#2a5aff);border:2px solid #8af;border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff;box-shadow:0 1px 3px rgba(0,0,0,.3)}
 .m-ds{position:absolute;inset:0;border-radius:50% 50% 48% 48% / 42% 42% 52% 52%;border:2px solid #ffd700;box-shadow:0 0 8px #ffd700;pointer-events:none}
 .combo-badge{position:absolute;top:-7px;right:-6px;background:#9040c0;border:1px solid #c080f0;border-radius:3px;padding:1px 3px;font-size:7px;color:#fff;font-weight:700;z-index:5}
+.dr-badge{position:absolute;top:-7px;right:-6px;background:#2a8a40;border:1px solid #6f8;border-radius:3px;padding:1px 3px;font-size:7px;color:#fff;font-weight:700;z-index:5}
+.eot-badge{position:absolute;top:-7px;right:-6px;background:#c08020;border:1px solid #e0a040;border-radius:3px;padding:1px 3px;font-size:7px;color:#fff;font-weight:700;z-index:5}
 
 /* ── Hand ── */
 .hand-area{display:flex;justify-content:center;align-items:flex-end;padding:2px 44px 6px 4px;z-index:3;min-height:100px;position:relative}
 .hand-row{display:flex;justify-content:center;align-items:center;gap:3px}
-.hand-card{width:68px;height:110px;background:linear-gradient(180deg,#faf3e0,#ece0c4);border:2px solid var(--card-border);border-radius:8px;display:flex;flex-direction:column;align-items:center;padding:3px 3px 28px;cursor:pointer;transition:all .2s;position:relative;user-select:none;box-shadow:var(--shadow);overflow:hidden;box-sizing:border-box}
+.hand-card{width:76px;height:118px;background:linear-gradient(180deg,#f5f0e4,#e8e0d0);border:2px solid var(--card-border);border-radius:8px;display:flex;flex-direction:column;align-items:center;padding:3px 3px 28px;cursor:pointer;transition:all .2s;position:relative;user-select:none;box-shadow:var(--shadow);overflow:hidden;box-sizing:border-box}
 .hand-card:hover{transform:translateY(-14px) scale(1.12);z-index:20;border-color:var(--gold)}
 .hand-card.playable{border-color:var(--green);box-shadow:0 0 8px rgba(39,174,96,.4)}
 .hand-card.unplayable{opacity:.55}
 .hand-card.spell{background:linear-gradient(180deg,#dce8f8,#c0d4f0);border-color:#6a8abf}
-.hand-card.spell.playable{border-color:#3a7ac0;box-shadow:0 0 8px rgba(58,122,192,.4)}
+.hand-card.spell.playable{border-color:#3a7ac0;box-shadow:0 0 8px rgba(58,122,192,.4);animation:spellGlow 1.5s infinite alternate}
+@keyframes spellGlow{from{box-shadow:0 0 6px rgba(58,122,192,.3)}to{box-shadow:0 0 14px rgba(58,122,192,.7),0 0 4px #fff2}}
 .hand-card.weapon{background:linear-gradient(180deg,#f0e8d0,#e0d0a8);border-color:#c8a040}
 .hand-card.weapon.playable{border-color:#dab050;box-shadow:0 0 8px rgba(218,176,80,.4)}
 .hand-card.legendary{border-color:#ffd700;box-shadow:0 0 8px #ffd700}
 .hand-card.taunt-card{border-width:3px;border-style:double;border-color:#3a6a9f;background:linear-gradient(180deg,#e0ecf8,#c0d4e8)}
 .hand-card.taunt-card.playable{border-color:#2a5a8f;box-shadow:0 0 8px rgba(42,90,143,.5)}
 .hc-art{font-size:26px;line-height:1}
-.hc-name{font-size:10px;color:var(--gold);font-weight:700;text-align:center;line-height:1.2;max-width:62px;word-break:break-word}
+.hc-name{font-size:10px;color:var(--gold);font-weight:700;text-align:center;line-height:1.1;max-width:70px;word-break:break-word}
 .hc-type{font-size:9px;color:#7a6a4a;text-align:center;white-space:nowrap}
-.hc-desc{font-size:9px;color:#5a4a2a;text-align:center;line-height:1.3;margin:1px 0;max-width:62px;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
-.hc-combo{font-size:9px;color:#9040c0;text-align:center;font-style:italic;max-width:62px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hc-desc{font-size:8px;color:#5a4a2a;text-align:center;line-height:1.2;margin:1px 0;max-width:70px;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.hc-combo{font-size:8px;color:#9040c0;text-align:center;font-style:italic;max-width:70px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .hc-atk{position:absolute;bottom:2px;left:4px;width:22px;height:22px;background:#d4a020;clip-path:polygon(50% 0%,100% 38%,82% 100%,18% 100%,0% 38%);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff;z-index:2}
 .hc-hp{position:absolute;bottom:2px;right:4px;background:var(--red);border:2px solid rgba(0,0,0,.2);border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff;z-index:2}
 
@@ -163,14 +171,42 @@ body{background:#2a2a2a;display:flex;align-items:center;justify-content:center;h
 .atk-flash{animation:flash .25s forwards}
 @keyframes flash{0%,100%{filter:brightness(1)}50%{filter:brightness(2)}}
 
+/* ── Card fly animation ── */
+.minion.card-flying{transition:transform .35s cubic-bezier(.2,.8,.3,1),opacity .35s;z-index:100}
+
+/* ── Turn banner ── */
+.turn-banner{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) scale(0);font-size:22px;font-weight:900;color:#fff;padding:14px 40px;border-radius:10px;border:3px solid #ffe8a0;z-index:200;pointer-events:none;text-shadow:0 2px 6px rgba(0,0,0,.6);box-shadow:0 4px 30px rgba(0,0,0,.4);white-space:nowrap;opacity:0}
+.turn-banner.yours{background:linear-gradient(135deg,#2a9a50,#1a7a3a);border-color:#6fd080}
+.turn-banner.theirs{background:linear-gradient(135deg,#8a3a20,#6a2a10);border-color:#c87050}
+.turn-banner.show{animation:turnBannerIn 1.4s ease forwards}
+@keyframes turnBannerIn{0%{opacity:0;transform:translate(-50%,-50%) scale(0)}12%{opacity:1;transform:translate(-50%,-50%) scale(1.15)}22%{transform:translate(-50%,-50%) scale(1)}70%{opacity:1;transform:translate(-50%,-50%) scale(1)}100%{opacity:0;transform:translate(-50%,-50%) scale(.7)}}
+
 /* ── Log ── */
-.log-bar{padding:5px 10px;background:linear-gradient(90deg,#d4c4a0,#e8dcc8,#d4c4a0);border-top:2px solid var(--card-border);font-size:13px;color:#5a4a2a;text-align:center;min-height:26px;z-index:5;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.log-bar{padding:5px 10px;background:linear-gradient(90deg,#e8e0d0,#f0ebe0,#e8e0d0);border-top:2px solid var(--card-border);font-size:13px;color:#3a2a18;text-align:center;min-height:26px;z-index:5;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:flex;align-items:center;justify-content:center;gap:6px}
+.log-toggle{background:none;border:none;font-size:14px;cursor:pointer;padding:2px;opacity:.6;transition:opacity .2s}
+.log-toggle:hover{opacity:1}
+.log-panel{position:absolute;right:0;top:0;bottom:0;width:170px;background:rgba(30,24,14,.92);overflow-y:auto;z-index:180;padding:8px 6px;font-size:10px;color:#c8b888;transform:translateX(100%);transition:transform .25s ease;border-left:2px solid #6a5a3a;font-family:var(--font)}
+.log-panel.open{transform:translateX(0)}
+.log-panel-title{font-size:11px;font-weight:700;color:#e0d0a0;text-align:center;margin-bottom:6px;padding-bottom:4px;border-bottom:1px solid #4a3a20}
+.log-entry{padding:3px 2px;border-bottom:1px solid rgba(100,80,40,.3);line-height:1.3;word-break:break-word}
 
 /* ── Game over ── */
-#goov{display:none;position:absolute;inset:0;background:rgba(0,0,0,.5);align-items:center;justify-content:center;z-index:300}
-.goc{background:linear-gradient(180deg,#faf3e0,#ece0c4);border:3px solid var(--gold);border-radius:14px;padding:24px;max-width:280px;text-align:center;box-shadow:0 4px 24px rgba(0,0,0,.3)}
-.got{font-size:22px;font-weight:700;color:var(--gold);margin-bottom:8px}
-.gos{font-size:13px;color:#5a4a2a;margin-bottom:14px;line-height:1.5}
+#goov{display:none;position:absolute;inset:0;align-items:center;justify-content:center;z-index:300;transition:background .4s}
+#goov.win-bg{background:radial-gradient(ellipse at center,rgba(139,105,20,.3),rgba(0,0,0,.7))}
+#goov.lose-bg{background:radial-gradient(ellipse at center,rgba(120,20,20,.3),rgba(0,0,0,.8))}
+.goc{background:linear-gradient(180deg,#faf3e0,#ece0c4);border:3px solid var(--gold);border-radius:16px;padding:28px 24px;max-width:300px;width:90%;text-align:center;box-shadow:0 8px 40px rgba(0,0,0,.5);animation:goSlideIn .5s ease-out}
+@keyframes goSlideIn{from{opacity:0;transform:translateY(30px) scale(.9)}to{opacity:1;transform:translateY(0) scale(1)}}
+.got{font-size:26px;font-weight:700;color:var(--gold);margin-bottom:6px}
+.got.win{color:#2a9a50;text-shadow:0 0 20px rgba(42,154,80,.4)}
+.got.lose{color:#8b2020;text-shadow:0 0 20px rgba(139,32,32,.4)}
+.gos{font-size:13px;color:#5a4a2a;margin-bottom:10px;line-height:1.5}
+.go-stats{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:14px;font-size:11px;color:#5a4a2a}
+.go-stat{background:rgba(139,105,20,.08);border:1px solid rgba(139,105,20,.2);border-radius:6px;padding:6px 4px;text-align:center}
+.go-stat-val{font-size:16px;font-weight:700;color:var(--gold)}
+.go-stat-label{font-size:9px;color:#7a6a4a}
+.go-particles{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.go-particle{position:absolute;width:6px;height:6px;border-radius:50%;animation:particleFall linear forwards;opacity:0}
+@keyframes particleFall{0%{opacity:1;transform:translateY(0) rotate(0)}100%{opacity:0;transform:translateY(200px) rotate(360deg)}}
 
 /* ── Spell target overlay ── */
 #spell-overlay{display:none;position:absolute;inset:0;z-index:150;background:rgba(58,122,192,.1);border:3px solid #3a7ac0;border-radius:0;align-items:flex-start;justify-content:center;pointer-events:none;padding-top:8px}
@@ -331,6 +367,8 @@ body{background:#2a2a2a;display:flex;align-items:center;justify-content:center;h
     </div>
     <div class="hand-area"><div class="hand-row" id="my-hand"></div></div>
 
+    <div class="log-panel" id="log-panel"><div class="log-panel-title">📜 Historia</div><div id="log-entries"></div></div>
+    <div class="turn-banner" id="turn-banner"></div>
     <div id="spell-overlay"><div class="spell-msg" id="spell-msg-txt">Wybierz cel czaru</div></div>
 
     <!-- Mulligan overlay -->
@@ -342,15 +380,17 @@ body{background:#2a2a2a;display:flex;align-items:center;justify-content:center;h
       <div class="mul-wait" id="mulligan-wait">⏳ Czekam na przeciwnika...</div>
     </div>
   </div>
-  <div class="log-bar" id="lg">Łączenie z serwerem...</div>
+  <div class="log-bar" id="lg"><span id="lg-text">Łączenie z serwerem...</span><button class="log-toggle" onclick="toggleLog()" title="Historia">📜</button></div>
 </div>
 
 <!-- GAME OVER -->
-<div id="goov" style="position:absolute;inset:0;background:rgba(0,0,0,.5);display:none;align-items:center;justify-content:center;z-index:300">
+<div id="goov">
+  <div class="go-particles" id="go-particles"></div>
   <div class="goc">
     <div class="got" id="got">Koniec!</div>
     <div class="gos" id="gos"></div>
-    <button class="start-btn" onclick="location.reload()" style="font-size:12px;padding:8px 20px">Nowa Gra</button>
+    <div class="go-stats" id="go-stats"></div>
+    <button class="start-btn" onclick="location.reload()" style="font-size:12px;padding:8px 20px">Zagraj Ponownie ▶</button>
   </div>
 </div>
 
@@ -371,6 +411,10 @@ let mulliganSelected = new Set();
 let mulliganConfirmed = false;
 let botDifficulty = 1;
 let isBotGame = false;
+let prevActivePlayer = null;
+let stats = { damageDealt: 0, cardsPlayed: 0, minionsKilled: 0, turnsPlayed: 0 };
+let prevBoardUids = new Set();
+let handCardPositions = {};
 
 // ── Sound ─────────────────────────────────────────────────────────────────
 let AC = null;
@@ -398,6 +442,62 @@ const SFX = {
   lose:   () => [440,330,220].forEach((f,i)=>setTimeout(()=>beep(f,.4),i*120)),
 };
 
+// ── Card Art SVGs ─────────────────────────────────────────────────────────
+const CARD_ART = {
+  // ── Mage ──
+  m1:  `<svg viewBox="0 0 48 48"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#ffe44d"/><stop offset="100%" stop-color="#ff8800"/></linearGradient></defs><path d="M24 6l4 14h14l-11 8 4 14-11-8-11 8 4-14L6 20h14z" fill="url(#g)" stroke="#c66a00" stroke-width="1.5"/><circle cx="24" cy="22" r="4" fill="#fff8" stroke="#c66a00" stroke-width=".8"/></svg>`,
+  m2:  `<svg viewBox="0 0 48 48"><ellipse cx="24" cy="26" rx="14" ry="10" fill="#4a8c4a" stroke="#2a5a2a" stroke-width="1.5"/><path d="M14 18c0-6 20-6 20 0v8c0 6-20 6-20 0z" fill="#5ca85c" stroke="#2a5a2a" stroke-width="1.5"/><circle cx="19" cy="17" r="2.5" fill="#ff0" stroke="#c80" stroke-width="1"/><circle cx="29" cy="17" r="2.5" fill="#ff0" stroke="#c80" stroke-width="1"/><path d="M18 23c2 2 10 2 12 0" stroke="#2a5a2a" stroke-width="1.5" fill="none"/><path d="M16 13l-3-5M32 13l3-5" stroke="#2a5a2a" stroke-width="1.5"/></svg>`,
+  ms1: `<svg viewBox="0 0 48 48"><rect x="10" y="6" width="28" height="36" rx="2" fill="#f5e8c8" stroke="#8a6a30" stroke-width="1.5"/><line x1="15" y1="14" x2="33" y2="14" stroke="#a08a5a" stroke-width="1"/><line x1="15" y1="19" x2="33" y2="19" stroke="#a08a5a" stroke-width="1"/><line x1="15" y1="24" x2="33" y2="24" stroke="#a08a5a" stroke-width="1"/><line x1="15" y1="29" x2="28" y2="29" stroke="#a08a5a" stroke-width="1"/><circle cx="34" cy="36" r="6" fill="#c8a040" stroke="#8a6a30" stroke-width="1.5"/><path d="M31 36h6M34 33v6" stroke="#fff" stroke-width="1.5"/></svg>`,
+  ms2: `<svg viewBox="0 0 48 48"><circle cx="24" cy="24" r="16" fill="none" stroke="#4488cc" stroke-width="2" opacity=".3"/><circle cx="24" cy="24" r="11" fill="none" stroke="#4488cc" stroke-width="2" opacity=".5"/><circle cx="24" cy="24" r="6" fill="#4488cc" stroke="#2a5a9a" stroke-width="1.5"/><path d="M24 8c8 8-8 8 0 16c-8-8 8-8 0-16" fill="#6ab8ff" opacity=".6"/></svg>`,
+  m3:  `<svg viewBox="0 0 48 48"><rect x="14" y="10" width="20" height="28" rx="2" fill="#8a7a5a" stroke="#5a4a2a" stroke-width="1.5"/><rect x="18" y="14" width="12" height="4" rx="1" fill="#c8b898"/><rect x="18" y="20" width="12" height="4" rx="1" fill="#c8b898"/><rect x="18" y="26" width="12" height="4" rx="1" fill="#c8b898"/><path d="M12 10h24M12 38h24" stroke="#5a4a2a" stroke-width="2"/><circle cx="24" cy="8" r="3" fill="#c8a040" stroke="#8a6a30" stroke-width="1"/></svg>`,
+  ms3: `<svg viewBox="0 0 48 48"><circle cx="24" cy="24" r="14" fill="#ff4400" opacity=".2"/><circle cx="24" cy="24" r="9" fill="#ff6600" opacity=".4"/><circle cx="24" cy="24" r="5" fill="#ffaa00"/><path d="M24 10c-4 6-2 10 0 14s4 8 0 14" stroke="#ff4400" stroke-width="2" fill="none"/><path d="M18 16c2 4 6 4 8 6s4 6 2 12" stroke="#ff6600" stroke-width="1.5" fill="none"/></svg>`,
+  mw1: `<svg viewBox="0 0 48 48"><line x1="24" y1="8" x2="24" y2="34" stroke="#8a6a30" stroke-width="3" stroke-linecap="round"/><circle cx="24" cy="10" r="5" fill="#9040c0" stroke="#6a2090" stroke-width="1.5"/><circle cx="24" cy="10" r="2" fill="#e0a0ff"/><rect x="16" y="30" width="16" height="4" rx="2" fill="#8a6a30" stroke="#5a4a2a" stroke-width="1"/><circle cx="24" cy="40" r="3" fill="#c8a040"/></svg>`,
+  m4:  `<svg viewBox="0 0 48 48"><circle cx="24" cy="22" r="12" fill="#e8e8f0" opacity=".5" stroke="#8888aa" stroke-width="1"/><circle cx="20" cy="19" r="2" fill="#222"/><circle cx="28" cy="19" r="2" fill="#222"/><path d="M18 26c2 2 10 2 12 0" stroke="#888" stroke-width="1.2" fill="none"/><path d="M14 14c-4-6 0-10 4-8M34 14c4-6 0-10-4-8" stroke="#8888aa" stroke-width="1.5" fill="none"/><path d="M10 30l6-4M38 30l-6-4M12 36l8-6M36 36l-8-6" stroke="#8888aa" stroke-width="1" opacity=".4"/></svg>`,
+  m5:  `<svg viewBox="0 0 48 48"><path d="M24 8c-4 8-12 12-8 22 2 4 6 8 8 10 2-2 6-6 8-10 4-10-4-14-8-22z" fill="#ff6600" stroke="#cc4400" stroke-width="1.5"/><path d="M24 14c-2 5-6 8-4 15 1 2 3 5 4 6 1-1 3-4 4-6 2-7-2-10-4-15z" fill="#ffaa00"/><path d="M24 22c-1 3-3 5-2 9 .5 1 1.5 3 2 3.5.5-.5 1.5-2.5 2-3.5 1-4-1-6-2-9z" fill="#ffe066"/></svg>`,
+  mL:  `<svg viewBox="0 0 48 48"><circle cx="24" cy="24" r="16" fill="#1a3a6a" stroke="#4488cc" stroke-width="2"/><circle cx="24" cy="24" r="10" fill="#2a5a9a" stroke="#6ab8ff" stroke-width="1"/><circle cx="24" cy="24" r="5" fill="#6ab8ff"/><path d="M24 8v32M8 24h32" stroke="#4488cc" stroke-width="1" opacity=".4"/><path d="M13 13l22 22M35 13l-22 22" stroke="#4488cc" stroke-width="1" opacity=".3"/><circle cx="24" cy="24" r="2" fill="#fff"/></svg>`,
+  // ── Warrior ──
+  w1:  `<svg viewBox="0 0 48 48"><path d="M24 6l-6 16h-6l10 12-4 8h12l-4-8 10-12h-6z" fill="#888" stroke="#555" stroke-width="1.5"/><rect x="22" y="28" width="4" height="12" rx="1" fill="#8a6a30" stroke="#5a4a2a" stroke-width="1"/><circle cx="24" cy="32" r="2" fill="#c8a040"/></svg>`,
+  w2:  `<svg viewBox="0 0 48 48"><circle cx="24" cy="20" r="10" fill="#c8a040" stroke="#8a6a30" stroke-width="2"/><path d="M14 20c0 12 20 12 20 0" fill="#a08020"/><path d="M18 17c0-2 4-2 4 0M26 17c0-2 4-2 4 0" stroke="#5a4a2a" stroke-width="1.5" fill="none"/><path d="M20 24c1.5 2 6.5 2 8 0" stroke="#5a4a2a" stroke-width="1.5" fill="none"/><rect x="14" y="32" width="20" height="8" rx="3" fill="#c8a040" stroke="#8a6a30" stroke-width="1.5"/></svg>`,
+  w3:  `<svg viewBox="0 0 48 48"><ellipse cx="24" cy="24" rx="14" ry="16" fill="#5a8050" stroke="#3a5a2a" stroke-width="2"/><ellipse cx="24" cy="24" rx="8" ry="10" fill="#4a7040" stroke="#3a5a2a" stroke-width="1"/><circle cx="20" cy="20" r="2" fill="#223" opacity=".6"/><circle cx="28" cy="20" r="2" fill="#223" opacity=".6"/><path d="M20 28c1 2 6 2 8 0" stroke="#3a5a2a" stroke-width="1" fill="none"/><path d="M10 24h4M34 24h4" stroke="#3a5a2a" stroke-width="2" stroke-linecap="round"/></svg>`,
+  ws1: `<svg viewBox="0 0 48 48"><rect x="10" y="12" width="28" height="24" rx="3" fill="#8a7a5a" stroke="#5a4a2a" stroke-width="2"/><rect x="14" y="16" width="20" height="16" rx="2" fill="#a09070"/><path d="M8 14l4-6h24l4 6" stroke="#5a4a2a" stroke-width="2" fill="#8a7a5a"/><rect x="20" y="18" width="8" height="12" rx="1" fill="#6a5a3a"/><path d="M14 36h20v4H14z" fill="#8a7a5a" stroke="#5a4a2a" stroke-width="1"/></svg>`,
+  w4:  `<svg viewBox="0 0 48 48"><path d="M24 8l16 20-16 12-16-12z" fill="#b8a070" stroke="#8a6a30" stroke-width="2"/><circle cx="24" cy="22" r="6" fill="#c8a040"/><path d="M21 20l3 4 3-4" stroke="#5a4a2a" stroke-width="2" fill="none"/><path d="M8 28l16 12 16-12" fill="none" stroke="#8a6a30" stroke-width="1.5"/></svg>`,
+  ww1: `<svg viewBox="0 0 48 48"><path d="M14 8l20 16-20 16" fill="#aaa" stroke="#666" stroke-width="2"/><rect x="10" y="20" width="8" height="8" rx="1" fill="#8a6a30" stroke="#5a4a2a" stroke-width="1.5"/><path d="M34 24l6-2v4z" fill="#aaa" stroke="#666" stroke-width="1"/><line x1="14" y1="24" x2="34" y2="24" stroke="#888" stroke-width="2"/></svg>`,
+  ws2: `<svg viewBox="0 0 48 48"><circle cx="24" cy="24" r="12" fill="#ff4400" opacity=".15"/><path d="M24 12l3 8 8-3-5 7 8 3-8 3 5 7-8-3-3 8-3-8-8 3 5-7-8-3 8-3-5-7 8 3z" fill="#ff6600" stroke="#cc4400" stroke-width="1"/><circle cx="24" cy="24" r="4" fill="#ffaa00"/></svg>`,
+  w5:  `<svg viewBox="0 0 48 48"><path d="M24 8l14 10v14L24 40 10 32V18z" fill="#4a4a5a" stroke="#2a2a3a" stroke-width="2"/><path d="M24 14l8 6v8l-8 6-8-6v-8z" fill="#3a3a4a" stroke="#5a5a6a" stroke-width="1"/><circle cx="24" cy="24" r="4" fill="#2a2a3a"/><path d="M22 22l2 2 2-2" stroke="#8a8a9a" stroke-width="1.5" fill="none"/><path d="M20 28l4 4 4-4" stroke="#8a8a9a" stroke-width="1" fill="none" opacity=".5"/></svg>`,
+  w6:  `<svg viewBox="0 0 48 48"><circle cx="24" cy="20" r="12" fill="#2a2a4a" stroke="#4a4a6a" stroke-width="1.5"/><path d="M18 38c2-8 10-8 12 0" fill="#2a2a4a" stroke="#4a4a6a" stroke-width="1.5"/><circle cx="24" cy="10" r="5" fill="#ffe066" opacity=".3"/><path d="M20 14l4 6 4-6" fill="#ffe066" opacity=".6"/><circle cx="21" cy="19" r="1.5" fill="#ffe066"/><circle cx="27" cy="19" r="1.5" fill="#ffe066"/></svg>`,
+  wL:  `<svg viewBox="0 0 48 48"><path d="M24 6c-8 4-16 10-14 22 1 6 6 10 14 14 8-4 13-8 14-14 2-12-6-18-14-22z" fill="#8b2020" stroke="#5a1010" stroke-width="2"/><path d="M24 14c-4 2-8 6-7 12 .5 3 3 5 7 7 4-2 6.5-4 7-7 1-6-3-10-7-12z" fill="#aa3030"/><circle cx="20" cy="20" r="2" fill="#ff0" stroke="#c80" stroke-width=".8"/><circle cx="28" cy="20" r="2" fill="#ff0" stroke="#c80" stroke-width=".8"/><path d="M18 28l3-1 3 2 3-2 3 1" stroke="#ff4" stroke-width="1.5" fill="none"/></svg>`,
+  // ── Rogue ──
+  r1:  `<svg viewBox="0 0 48 48"><path d="M24 10c-6 0-12 4-12 12s8 16 12 18c4-2 12-10 12-18s-6-12-12-12z" fill="#c06020" stroke="#8a4010" stroke-width="1.5"/><circle cx="20" cy="20" r="2.5" fill="#223"/><circle cx="28" cy="20" r="2.5" fill="#223"/><path d="M20 14l-4-4M28 14l4-4" stroke="#c06020" stroke-width="2" stroke-linecap="round"/><path d="M22 28c1 1 3 1 4 0" stroke="#8a4010" stroke-width="1" fill="none"/><path d="M18 26l-3 2M30 26l3 2" stroke="#c06020" stroke-width="1.5"/></svg>`,
+  r2:  `<svg viewBox="0 0 48 48"><path d="M24 14l-16 8 16 16 16-16z" fill="#3a3a4a" stroke="#2a2a3a" stroke-width="1.5"/><path d="M8 22l16-8 16 8" fill="#4a4a5a" stroke="#2a2a3a" stroke-width="1.5"/><circle cx="20" cy="22" r="1.5" fill="#ff4444"/><circle cx="28" cy="22" r="1.5" fill="#ff4444"/><path d="M8 22c2 2 6 1 8-1M40 22c-2 2-6 1-8-1" stroke="#3a3a4a" stroke-width="1.5" fill="none"/></svg>`,
+  r3:  `<svg viewBox="0 0 48 48"><circle cx="24" cy="20" r="10" fill="#2a4a2a" stroke="#1a3a1a" stroke-width="1.5"/><path d="M14 28c0 8 20 8 20 0v-4c0 4-20 4-20 0z" fill="#2a4a2a" stroke="#1a3a1a" stroke-width="1.5"/><circle cx="21" cy="18" r="2" fill="#4a8a4a"/><circle cx="27" cy="18" r="2" fill="#4a8a4a"/><path d="M20 24l4 2 4-2" stroke="#1a3a1a" stroke-width="1.5" fill="none"/><rect x="18" y="10" width="12" height="4" rx="2" fill="#4a8a4a" stroke="#1a3a1a" stroke-width="1"/></svg>`,
+  r4:  `<svg viewBox="0 0 48 48"><path d="M24 10c-8 0-14 6-14 14l14 14 14-14c0-8-6-14-14-14z" fill="#4a2a4a" stroke="#3a1a3a" stroke-width="1.5"/><path d="M17 20c0-2 3-3 5-1M26 19c2-2 5-1 5 1" stroke="#222" stroke-width="1.5" fill="none"/><path d="M20 28c1.5 2 6.5 2 8 0" stroke="#3a1a3a" stroke-width="1.5" fill="none"/><circle cx="24" cy="24" r="1.5" fill="#ff0" opacity=".6"/></svg>`,
+  rs1: `<svg viewBox="0 0 48 48"><path d="M20 8l4 12 4-12" fill="#5a2a5a" stroke="#3a1a3a" stroke-width="1.5"/><circle cx="24" cy="24" r="10" fill="#5a2a5a" opacity=".3"/><path d="M16 20c-4 8 0 16 8 18s12-2 12-10" stroke="#8a4a8a" stroke-width="2" fill="none"/><circle cx="24" cy="28" r="4" fill="#5a2a5a" stroke="#3a1a3a" stroke-width="1"/><path d="M22 27l2 2 2-2" stroke="#aa6aaa" stroke-width="1.5" fill="none"/></svg>`,
+  rs2: `<svg viewBox="0 0 48 48"><line x1="14" y1="38" x2="34" y2="8" stroke="#aaa" stroke-width="3" stroke-linecap="round"/><line x1="14" y1="38" x2="34" y2="8" stroke="#ccc" stroke-width="1.5"/><path d="M32 6l4 4-6 2z" fill="#aaa" stroke="#888" stroke-width="1"/><circle cx="14" cy="38" r="3" fill="#8a6a30" stroke="#5a4a2a" stroke-width="1"/></svg>`,
+  rw1: `<svg viewBox="0 0 48 48"><line x1="12" y1="36" x2="36" y2="12" stroke="#888" stroke-width="3"/><line x1="12" y1="36" x2="36" y2="12" stroke="#bbb" stroke-width="1.5"/><path d="M34 10l4 4-4 4-4-4z" fill="#aaa" stroke="#666" stroke-width="1"/><line x1="20" y1="36" x2="36" y2="20" stroke="#888" stroke-width="3"/><path d="M34 18l4 4-4 4-4-4z" fill="#aaa" stroke="#666" stroke-width="1"/><circle cx="12" cy="36" r="3" fill="#8a6a30"/></svg>`,
+  r5:  `<svg viewBox="0 0 48 48"><ellipse cx="24" cy="24" rx="12" ry="8" fill="#5a8a5a" stroke="#3a6a3a" stroke-width="1.5"/><circle cx="24" cy="18" r="6" fill="#5a8a5a" stroke="#3a6a3a" stroke-width="1.5"/><circle cx="22" cy="17" r="1.5" fill="#223"/><circle cx="26" cy="17" r="1.5" fill="#223"/><path d="M12 24l-4 4M36 24l4 4M14 28l-6 6M34 28l6 6" stroke="#5a8a5a" stroke-width="2" stroke-linecap="round"/><path d="M22 22c1 1 3 1 4 0" stroke="#3a6a3a" stroke-width="1" fill="none"/></svg>`,
+  r6:  `<svg viewBox="0 0 48 48"><circle cx="24" cy="20" r="10" fill="#3a4a5a" stroke="#2a3a4a" stroke-width="1.5"/><rect x="20" y="30" width="8" height="10" rx="2" fill="#3a4a5a" stroke="#2a3a4a" stroke-width="1"/><circle cx="24" cy="18" r="4" fill="#4a8acc" stroke="#2a5a9a" stroke-width="1"/><path d="M20 18h8M24 14v8" stroke="#6ab8ff" stroke-width="1" opacity=".6"/><line x1="18" y1="10" x2="14" y2="4" stroke="#6ab8ff" stroke-width="1.5"/><line x1="30" y1="10" x2="34" y2="4" stroke="#6ab8ff" stroke-width="1.5"/><circle cx="14" cy="4" r="2" fill="#6ab8ff" opacity=".5"/><circle cx="34" cy="4" r="2" fill="#6ab8ff" opacity=".5"/></svg>`,
+  rL:  `<svg viewBox="0 0 48 48"><circle cx="24" cy="22" r="14" fill="#2a2a3a" stroke="#4a4a5a" stroke-width="2"/><path d="M16 18c0-4 6-6 8-2 2-4 8-2 8 2s-4 8-8 12c-4-4-8-8-8-12z" fill="#4a4a6a"/><circle cx="21" cy="18" r="2" fill="#aaf" opacity=".8"/><circle cx="27" cy="18" r="2" fill="#aaf" opacity=".8"/><path d="M20 26c1.5 2 6.5 2 8 0" stroke="#6a6a8a" stroke-width="1.5" fill="none"/><path d="M10 28l-4 6M38 28l4 6" stroke="#4a4a5a" stroke-width="2"/></svg>`,
+  // ── Priest ──
+  p1:  `<svg viewBox="0 0 48 48"><ellipse cx="24" cy="20" rx="8" ry="10" fill="#e8e4f0" stroke="#a8a0c0" stroke-width="1.5"/><path d="M16 30c0 8 16 8 16 0" fill="#e8e4f0" stroke="#a8a0c0" stroke-width="1.5"/><circle cx="21" cy="18" r="1.5" fill="#445"/><circle cx="27" cy="18" r="1.5" fill="#445"/><path d="M12 12l6 4M36 12l-6 4M10 16l8 2M38 16l-8 2" stroke="#c8c0d8" stroke-width="1.5" fill="none"/></svg>`,
+  p2:  `<svg viewBox="0 0 48 48"><circle cx="24" cy="20" r="10" fill="#8a6a30" stroke="#5a4a2a" stroke-width="1.5"/><path d="M14 28c0 8 20 8 20 0" fill="#8a6a30" stroke="#5a4a2a" stroke-width="1.5"/><circle cx="20" cy="18" r="3" fill="#ff0" stroke="#c80" stroke-width="1"/><circle cx="28" cy="18" r="3" fill="#ff0" stroke="#c80" stroke-width="1"/><circle cx="20" cy="18" r="1.5" fill="#222"/><circle cx="28" cy="18" r="1.5" fill="#222"/><path d="M14 12c2-4 6-2 6 0M28 12c0-2 4-4 6 0" stroke="#8a6a30" stroke-width="2" fill="none"/></svg>`,
+  p3:  `<svg viewBox="0 0 48 48"><ellipse cx="24" cy="22" rx="14" ry="16" fill="#7a5a30" stroke="#5a3a10" stroke-width="2"/><circle cx="19" cy="18" r="2.5" fill="#223"/><circle cx="29" cy="18" r="2.5" fill="#223"/><ellipse cx="24" cy="26" rx="4" ry="3" fill="#5a3a10"/><path d="M12 12c0-4 4-6 6-4M36 12c0-4-4-6-6-4" stroke="#7a5a30" stroke-width="2.5" fill="none"/></svg>`,
+  p4:  `<svg viewBox="0 0 48 48"><circle cx="24" cy="22" r="12" fill="#4a7a4a" stroke="#2a5a2a" stroke-width="1.5"/><path d="M24 14v16M18 22h12" stroke="#8fc88f" stroke-width="3"/><circle cx="24" cy="22" r="5" fill="#4a7a4a" stroke="#8fc88f" stroke-width="1"/><path d="M12 32l4-4M36 32l-4-4" stroke="#4a7a4a" stroke-width="2"/></svg>`,
+  ps1: `<svg viewBox="0 0 48 48"><path d="M24 6l6 12h-4v10h-4V18h-4z" fill="#ffe066" stroke="#c8a040" stroke-width="1"/><path d="M24 28c-8 0-14 4-14 8v4h28v-4c0-4-6-8-14-8z" fill="#ffe066" opacity=".3" stroke="#c8a040" stroke-width="1"/><circle cx="24" cy="22" r="3" fill="#fff" opacity=".6"/></svg>`,
+  ps2: `<svg viewBox="0 0 48 48"><path d="M8 24c4-16 32-16 32 0" fill="none" stroke="#ff4444" stroke-width="2"/><path d="M8 24c4 16 32 16 32 0" fill="none" stroke="#ff8844" stroke-width="2"/><path d="M8 24c4-8 32-8 32 0" fill="none" stroke="#ffcc44" stroke-width="1.5"/><path d="M8 24c4 8 32 8 32 0" fill="none" stroke="#44cc44" stroke-width="1.5"/><circle cx="24" cy="24" r="4" fill="#ffe066" stroke="#c8a040" stroke-width="1"/><path d="M22 23l2 2 2-2" stroke="#c8a040" stroke-width="1.5" fill="none"/></svg>`,
+  ps3: `<svg viewBox="0 0 48 48"><path d="M24 6l3 8 8 0-6 5 2 8-7-4-7 4 2-8-6-5h8z" fill="#ffe066" stroke="#c8a040" stroke-width="1.5"/><circle cx="24" cy="18" r="6" fill="#fff" opacity=".3"/><path d="M24 30v10M18 34h12" stroke="#c8a040" stroke-width="2"/></svg>`,
+  p5:  `<svg viewBox="0 0 48 48"><circle cx="24" cy="22" r="8" fill="#f0e8d0" stroke="#c8a040" stroke-width="1.5"/><circle cx="22" cy="20" r="1.5" fill="#445"/><circle cx="26" cy="20" r="1.5" fill="#445"/><path d="M21 25c1.5 1.5 4.5 1.5 6 0" stroke="#c8a040" stroke-width="1" fill="none"/><circle cx="24" cy="22" r="12" fill="none" stroke="#ffe066" stroke-width="1" opacity=".4"/><path d="M12 14c2-4 8 0 12-6 4 6 10 2 12 6" stroke="#ffe066" stroke-width="1.5" fill="none" opacity=".5"/><path d="M14 30l-4 8M34 30l4 8M18 32l-2 10M30 32l2 10" stroke="#e8e0d0" stroke-width="1.5"/></svg>`,
+  p6:  `<svg viewBox="0 0 48 48"><path d="M24 8c-4 4-8 10-8 18h16c0-8-4-14-8-18z" fill="#ff8800" opacity=".6" stroke="#cc6600" stroke-width="1"/><path d="M24 14c-2 3-4 7-4 12h8c0-5-2-9-4-12z" fill="#ffcc44"/><path d="M24 22c-1 2-2 3-2 6h4c0-3-1-4-2-6z" fill="#fff" opacity=".6"/><rect x="20" y="36" width="8" height="6" rx="2" fill="#8a6a30" stroke="#5a4a2a" stroke-width="1"/><circle cx="24" cy="38" r="1" fill="#c8a040"/></svg>`,
+  pL:  `<svg viewBox="0 0 48 48"><circle cx="24" cy="22" r="14" fill="#e8d0f0" stroke="#9060a0" stroke-width="2"/><path d="M18 16c0-4 4-6 6-4s6-0 6 4" fill="#e8d0f0" stroke="#9060a0" stroke-width="1.5"/><circle cx="20" cy="20" r="2" fill="#6030a0"/><circle cx="28" cy="20" r="2" fill="#6030a0"/><path d="M20 26c2 3 6 3 8 0" stroke="#9060a0" stroke-width="1.5" fill="none"/><path d="M24 8v-2M24 6l-4-2M24 6l4-2M24 6l0-4" stroke="#c090d0" stroke-width="2" stroke-linecap="round"/></svg>`,
+  // ── Neutral ──
+  coin:`<svg viewBox="0 0 48 48"><circle cx="24" cy="24" r="14" fill="#c8a040" stroke="#8a6a30" stroke-width="2"/><circle cx="24" cy="24" r="10" fill="#dab050" stroke="#8a6a30" stroke-width="1"/><text x="24" y="29" font-size="16" font-weight="700" fill="#5a4a2a" text-anchor="middle" font-family="serif">1</text></svg>`,
+};
+
+function renderArt(card, size) {
+  const svg = CARD_ART[card.id];
+  if (svg) return `<div style="width:${size}px;height:${size}px;line-height:0">${svg}</div>`;
+  return card.art;
+}
+
 // ── Card Hover Preview ────────────────────────────────────────────────────
 const preview = document.createElement('div');
 preview.id = 'card-preview';
@@ -414,10 +514,10 @@ function showPreview(card, x, y) {
   preview.style.background = bg;
   preview.style.borderColor = bc;
   let h = `<div style="position:absolute;top:-6px;left:-6px;background:linear-gradient(135deg,#48f,#2a5aff);border:2px solid #8af;border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;color:#fff;box-shadow:0 1px 3px rgba(0,0,0,.3)">${card.cost}</div>`;
-  h += `<div style="font-size:36px;text-align:center;line-height:1">${card.art}</div>`;
+  h += `<div style="text-align:center;line-height:1">${renderArt(card, 48)}</div>`;
   h += `<div style="font-size:13px;font-weight:700;color:${isLeg?'#ffd700':'#8b6914'};text-align:center;line-height:1.2;word-break:break-word">${card.name}</div>`;
   h += `<div style="font-size:11px;color:#7a6a4a;text-align:center;white-space:nowrap">${card.type==='spell'?'✨ Czar':card.type==='weapon'?'⚔️ Broń':'Minionek'}</div>`;
-  const descs = [card.bcText, card.drText, card.spellText, card.comboText].filter(Boolean);
+  const descs = [card.bcText, card.drText, card.eotText, card.spellText, card.comboText].filter(Boolean);
   if (descs.length) h += `<div style="font-size:10px;color:#5a4a2a;text-align:center;line-height:1.3;margin:2px 0;word-break:break-word">${descs.join('<br>')}</div>`;
   if (isLeg) h += `<div style="font-size:10px;color:#ffd700;text-align:center;font-weight:700">⭐ LEGENDARNY</div>`;
   if (card.type === 'minion') {
@@ -437,10 +537,13 @@ function showPreview(card, x, y) {
   preview.style.top = py + 'px';
 }
 function hidePreview() { preview.style.display = 'none'; }
+const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
 function attachPreview(el, card) {
+  if (isTouchDevice) return; // no hover preview on touch devices
   el.addEventListener('mouseenter', e => showPreview(card, e.clientX, e.clientY));
   el.addEventListener('mousemove',  e => showPreview(card, e.clientX, e.clientY));
   el.addEventListener('mouseleave', hidePreview);
+  el.addEventListener('click', hidePreview);
 }
 
 // ── Lobby helpers ─────────────────────────────────────────────────────────
@@ -543,7 +646,43 @@ function onStateUpdate(state, events = []) {
 
   if (state.phase === 'over') { showGameOver(state); return; }
 
+  // Turn banner + stats
+  if (state.phase === 'playing' && prevActivePlayer !== null && prevActivePlayer !== state.activePlayer) {
+    const isMine = state.activePlayer === myId;
+    showTurnBanner(isMine ? 'TWOJA TURA!' : 'TURA PRZECIWNIKA', isMine);
+    if (isMine) stats.turnsPlayed++;
+  }
+  prevActivePlayer = state.activePlayer;
+
+  // Track damage from events
+  if (events.length) {
+    const oppId = state.playerOrder.find(id => id !== myId);
+    const oppIdx = state.playerOrder.indexOf(oppId);
+    events.forEach(ev => {
+      if (ev.kind === 'damage') {
+        const isOppTarget = ev.targetId === `hero_${oppIdx}` || (oppId && state.players[oppId]?.board?.some(m => m.uid === ev.targetId));
+        if (isOppTarget) stats.damageDealt += ev.amount;
+      }
+    });
+  }
+
+  // Snapshot hand card positions before render for FLIP animation
+  snapshotHandPositions();
+  const oldBoardUids = new Set(prevBoardUids);
+
   render(state);
+
+  // Animate new minions flying from hand to board
+  if (state.players[myId]) {
+    const newBoardUids = new Set(state.players[myId].board.map(c => c.uid));
+    newBoardUids.forEach(uid => {
+      if (!oldBoardUids.has(uid) && handCardPositions[uid]) {
+        animateCardToBoard(uid, handCardPositions[uid]);
+      }
+    });
+    prevBoardUids = newBoardUids;
+  }
+
   if (events.length) requestAnimationFrame(() => playAnimEvents(events));
 }
 
@@ -577,7 +716,7 @@ function showMulligan(state) {
     const hasTnt = c.keywords?.includes('taunt');
     div.innerHTML = `
       <div class="m-cost">${c.cost}</div>
-      <div class="hc-art" style="font-size:22px;margin:2px 0">${c.art}</div>
+      <div class="hc-art" style="margin:2px 0">${renderArt(c, 28)}</div>
       <div class="hc-name" style="font-size:8px;color:var(--gold);font-weight:700;text-align:center;max-width:64px">${c.name}</div>
       ${isCoin ? '<div style="font-size:7px;color:#8a7a5a;text-align:center">Moneta</div>' : ''}
       ${c.type==='minion' ? `<div class="hc-atk">${c.atk??0}</div><div class="hc-hp">${c.curHp??c.hp??0}</div>` : ''}
@@ -605,6 +744,7 @@ function confirmMulligan() {
 
 // ── Render ────────────────────────────────────────────────────────────────
 function render(state) {
+  hidePreview();
   const me = state.players[myId];
   const oppId = state.playerOrder.find(id => id !== myId);
   const opp = oppId ? state.players[oppId] : null;
@@ -714,17 +854,20 @@ function renderBoard(elId, cards, side, isMyTurn) {
       + (isSel ? ' sel' : canA ? ' can-atk' : (!canA && side === 'me' && !isHeal ? ' exh' : ''))
       + (isTgt ? ' targeted' : '')
       + (isHeal ? ' healable' : '')
-      + (hasTnt ? ' taunt' : '');
+      + (hasTnt ? ' taunt' : '')
+      + (c.curHp < c.maxHp && !isTgt && !isHeal ? ' damaged-glow' : '');
     div.dataset.uid = c.uid;
     div.innerHTML = `<div class="m-cost">${c.cost}</div>
-      <div class="m-art">${c.art}</div>
+      <div class="m-art">${renderArt(c, 32)}</div>
       <div class="m-name">${c.name}</div>
       ${hasTnt ? '<div class="m-kw">Prowokacja</div>' : ''}
       ${c.keywords?.includes('charge') ? '<div class="m-kw">Szarża</div>' : ''}
       <div class="m-atk">${c.atk??0}</div>
       <div class="m-hp${c.curHp < c.maxHp ? ' hurt' : ''}">${c.curHp}</div>
       ${c.divineShield ? '<div class="m-ds"></div>' : ''}
-      ${(c.combo && side === 'me') ? '<div class="combo-badge">COMBO</div>' : ''}`;
+      ${(c.combo && side === 'me') ? '<div class="combo-badge">COMBO</div>' : ''}
+      ${(c.deathrattle && !c.silenced) ? '<div class="dr-badge">💀</div>' : ''}
+      ${(c.endOfTurn && !c.silenced) ? '<div class="eot-badge">⏰</div>' : ''}`;
     if (side === 'me') div.onclick = e => { e.stopPropagation(); clickMyMinion(c, div); };
     else div.onclick = e => { e.stopPropagation(); clickOppMinion(c); };
     attachPreview(div, c);
@@ -741,10 +884,11 @@ function renderHand(me, isMyTurn) {
     const legClass = c.legendary ? ' legendary' : '';
     const tauntClass = c.keywords?.includes('taunt') ? ' taunt-card' : '';
     div.className = 'hand-card' + typeClass + legClass + tauntClass + ' ' + (pl ? 'playable' : 'unplayable');
+    div.dataset.uid = c.uid;
     const showCombo = me.playedThisTurn && c.comboText;
-    const desc = c.bcText || c.spellText || '';
+    const desc = c.bcText || c.spellText || c.drText || c.eotText || '';
     div.innerHTML = `<div class="m-cost">${c.cost}</div>
-      <div class="hc-art">${c.art}</div>
+      <div class="hc-art">${renderArt(c, 32)}</div>
       <div class="hc-name">${c.name}</div>
       <div class="hc-type">${c.type==='spell'?'✨ Czar':c.type==='weapon'?'⚔️ Broń':'Minionek'}</div>
       ${desc ? `<div class="hc-desc">${desc}</div>` : ''}
@@ -778,7 +922,7 @@ function clickHandCard(card, el) {
     if (gameState) render(gameState);
     return;
   }
-  SFX.play();
+  SFX.play(); stats.cardsPlayed++;
   send({ type:'play_card', cardUid:card.uid });
   showFx(card.type==='spell' ? '✨ Czar!' : card.type==='weapon' ? '⚔️ Broń!' : '');
 }
@@ -800,6 +944,7 @@ function clickMyMinion(card, el) {
     SFX.heal(); showFx('💚 Uzdrowienie!'); cancelModes(); return;
   }
   if (pendingSpell && pendingSpellIsHeal) {
+    stats.cardsPlayed++;
     send({ type:'play_card', cardUid:pendingSpell.uid, targetUid:card.uid, targetType:'minion_me' });
     SFX.heal(); showFx('💚 Uzdrowienie!'); cancelModes(); return;
   }
@@ -822,11 +967,12 @@ function clickOppMinion(card) {
     SFX.heal(); showFx('💚 Uzdrowienie!'); cancelModes(); return;
   }
   if (pendingSpell && pendingSpellIsHeal) {
+    stats.cardsPlayed++;
     send({ type:'play_card', cardUid:pendingSpell.uid, targetUid:card.uid, targetType:'minion_opp' });
     SFX.heal(); showFx('💚 Uzdrowienie!'); cancelModes(); return;
   }
   if (pendingSpell) {
-    SFX.play();
+    SFX.play(); stats.cardsPlayed++;
     send({ type:'play_card', cardUid:pendingSpell.uid, targetUid:card.uid, targetType:'minion_opp' });
     showFx('✨ Czar!'); cancelModes(); return;
   }
@@ -857,12 +1003,13 @@ function targetHero(side) {
     SFX.heal(); showFx('💚 Uzdrowienie!'); cancelModes(); return;
   }
   if (pendingSpell && pendingSpellIsHeal && side === 'opp') {
+    stats.cardsPlayed++;
     send({ type:'play_card', cardUid:pendingSpell.uid, targetType:'hero_opp' });
     SFX.heal(); showFx('💚 Uzdrowienie!'); cancelModes(); return;
   }
   if (side !== 'opp') return;
   if (pendingSpell) {
-    SFX.play();
+    SFX.play(); stats.cardsPlayed++;
     send({ type:'play_card', cardUid:pendingSpell.uid, targetType:'hero' });
     showFx('✨ Czar!'); cancelModes(); return;
   }
@@ -884,6 +1031,7 @@ function heroSelfClick() {
     SFX.heal(); showFx('💚 Uzdrowienie!'); cancelModes(); return;
   }
   if (pendingSpell && pendingSpellIsHeal) {
+    stats.cardsPlayed++;
     send({ type:'play_card', cardUid:pendingSpell.uid, targetType:'hero_me' });
     SFX.heal(); showFx('💚 Uzdrowienie!'); cancelModes(); return;
   }
@@ -963,21 +1111,44 @@ function findTargetElement(targetId) {
 function playAnimEvents(events) {
   const bf = document.getElementById('board');
   if (!bf) return;
-  events.forEach((ev, i) => {
-    setTimeout(() => {
-      if (ev.kind === 'heal') SFX.heal();
-      const target = findTargetElement(ev.targetId);
-      if (!target) return;
-      const tr = target.getBoundingClientRect(), br = bf.getBoundingClientRect();
-      const x = tr.left - br.left + tr.width/2, y = tr.top - br.top + tr.height/2;
-      const pop = document.createElement('div');
-      pop.className = 'dmg-pop ' + (ev.kind === 'heal' ? 'heal' : 'dmg');
-      pop.textContent = (ev.kind === 'heal' ? '+' : '-') + ev.amount;
-      pop.style.left = (x-12) + 'px'; pop.style.top = (y-16) + 'px';
-      bf.appendChild(pop); setTimeout(() => pop.remove(), 900);
-      target.classList.add('atk-flash');
-      setTimeout(() => target.classList.remove('atk-flash'), 250);
-    }, i * 120);
+  let delay = 0;
+  events.forEach((ev) => {
+    if (ev.kind === 'attack_anim') {
+      setTimeout(() => {
+        const atk = findTargetElement(ev.attackerId);
+        const tgt = findTargetElement(ev.targetId);
+        if (!atk || !tgt) return;
+        SFX.attack();
+        const ar = atk.getBoundingClientRect(), tr = tgt.getBoundingClientRect();
+        const dx = (tr.left + tr.width/2 - ar.left - ar.width/2) * 0.4;
+        const dy = (tr.top + tr.height/2 - ar.top - ar.height/2) * 0.4;
+        atk.style.transition = 'transform 0.15s ease-in';
+        atk.style.transform = `translate(${dx}px, ${dy}px)`;
+        atk.style.zIndex = '100';
+        setTimeout(() => {
+          atk.style.transition = 'transform 0.1s ease-out';
+          atk.style.transform = '';
+          setTimeout(() => { atk.style.transition = ''; atk.style.zIndex = ''; }, 120);
+        }, 160);
+      }, delay);
+      delay += 280;
+    } else {
+      setTimeout(() => {
+        if (ev.kind === 'heal') SFX.heal();
+        const target = findTargetElement(ev.targetId);
+        if (!target) return;
+        const tr = target.getBoundingClientRect(), br = bf.getBoundingClientRect();
+        const x = tr.left - br.left + tr.width/2, y = tr.top - br.top + tr.height/2;
+        const pop = document.createElement('div');
+        pop.className = 'dmg-pop ' + (ev.kind === 'heal' ? 'heal' : 'dmg');
+        pop.textContent = (ev.kind === 'heal' ? '+' : '-') + ev.amount;
+        pop.style.left = (x-12) + 'px'; pop.style.top = (y-16) + 'px';
+        bf.appendChild(pop); setTimeout(() => pop.remove(), 900);
+        target.classList.add('atk-flash');
+        setTimeout(() => target.classList.remove('atk-flash'), 250);
+      }, delay);
+      delay += 120;
+    }
   });
 }
 
@@ -1046,6 +1217,40 @@ document.addEventListener('click', e => {
 });
 
 // ── Effects ───────────────────────────────────────────────────────────────
+function snapshotHandPositions() {
+  handCardPositions = {};
+  const handEl = document.getElementById('my-hand');
+  if (!handEl) return;
+  const cards = handEl.querySelectorAll('.hand-card');
+  cards.forEach(el => {
+    const uid = el.dataset?.uid;
+    if (uid) handCardPositions[uid] = el.getBoundingClientRect();
+  });
+}
+function animateCardToBoard(uid, fromRect) {
+  const el = document.querySelector(`#my-board [data-uid="${uid}"]`);
+  if (!el) return;
+  const toRect = el.getBoundingClientRect();
+  const dx = fromRect.left - toRect.left + (fromRect.width - toRect.width)/2;
+  const dy = fromRect.top - toRect.top + (fromRect.height - toRect.height)/2;
+  el.style.transform = `translate(${dx}px, ${dy}px) scale(0.75)`;
+  el.style.opacity = '0.7';
+  el.classList.add('card-flying');
+  el.classList.remove('spawning');
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    el.style.transform = '';
+    el.style.opacity = '';
+    setTimeout(() => el.classList.remove('card-flying'), 400);
+  }));
+}
+function showTurnBanner(text, isMine) {
+  const b = document.getElementById('turn-banner');
+  b.textContent = text;
+  b.className = 'turn-banner ' + (isMine ? 'yours' : 'theirs');
+  void b.offsetWidth; // force reflow
+  b.classList.add('show');
+  setTimeout(() => { b.classList.remove('show'); }, 1500);
+}
 function showFx(txt) {
   if (!txt) return;
   const bf = document.getElementById('board');
@@ -1054,14 +1259,65 @@ function showFx(txt) {
 }
 function showGameOver(state) {
   const won = state.winner === myId;
-  document.getElementById('got').textContent = won ? '🏆 Zwycięstwo!' : '📉 Przegrana!';
+  const gotEl = document.getElementById('got');
+  gotEl.textContent = won ? '🏆 Zwycięstwo!' : '💀 Przegrana!';
+  gotEl.className = 'got ' + (won ? 'win' : 'lose');
   document.getElementById('gos').textContent = won
     ? 'Wygrałeś! Twoje księgi są bezbłędne.'
     : 'Przegrałeś. Urząd Skarbowy przejął kontrolę.';
-  document.getElementById('goov').style.display = 'flex';
+  const goov = document.getElementById('goov');
+  goov.className = won ? 'win-bg' : 'lose-bg';
+  goov.style.display = 'flex';
+
+  // Stats — all values are internal integers, safe for innerHTML
+  const statsEl = document.getElementById('go-stats');
+  statsEl.innerHTML = `
+    <div class="go-stat"><div class="go-stat-val">${Number(stats.damageDealt)}</div><div class="go-stat-label">⚔️ Obrażenia</div></div>
+    <div class="go-stat"><div class="go-stat-val">${Number(stats.cardsPlayed)}</div><div class="go-stat-label">🃏 Karty zagrane</div></div>
+    <div class="go-stat"><div class="go-stat-val">${Number(stats.turnsPlayed)}</div><div class="go-stat-label">🔄 Tury</div></div>
+    <div class="go-stat"><div class="go-stat-val">${Number(state.turn)}</div><div class="go-stat-label">📊 Łączne tury</div></div>`;
+
+  // Particles
+  if (won) {
+    const pc = document.getElementById('go-particles');
+    pc.innerHTML = '';
+    const colors = ['#ffd700','#ffaa00','#fff4cc','#e8c840'];
+    for (let i = 0; i < 30; i++) {
+      const p = document.createElement('div');
+      p.className = 'go-particle';
+      p.style.left = Math.random()*100+'%';
+      p.style.top = '-10px';
+      p.style.background = colors[Math.floor(Math.random()*colors.length)];
+      p.style.width = (4+Math.random()*6)+'px';
+      p.style.height = p.style.width;
+      p.style.animationDuration = (2+Math.random()*3)+'s';
+      p.style.animationDelay = Math.random()*2+'s';
+      pc.appendChild(p);
+    }
+  }
   if (won) SFX.win(); else SFX.lose();
 }
-function log(m) { const el = document.getElementById('lg'); if (el) el.textContent = m; }
+const logHistory = [];
+function log(m) {
+  const el = document.getElementById('lg-text');
+  if (el) el.textContent = m;
+  if (m && m !== logHistory[logHistory.length - 1]) {
+    logHistory.push(m);
+    if (logHistory.length > 30) logHistory.shift();
+    const entries = document.getElementById('log-entries');
+    if (entries) {
+      const d = document.createElement('div');
+      d.className = 'log-entry';
+      d.textContent = m;
+      entries.appendChild(d);
+      entries.scrollTop = entries.scrollHeight;
+      if (entries.children.length > 30) entries.removeChild(entries.firstChild);
+    }
+  }
+}
+function toggleLog() {
+  document.getElementById('log-panel').classList.toggle('open');
+}
 
 // ── Class defs (client-side) ───────────────────────────────────────────────
 const CLASSES = {

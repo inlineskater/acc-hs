@@ -29,6 +29,8 @@ const MAGE_CARDS = [
   { id:"m3",  name:"Strażnik KPiR",     art:"🗿",  cost:4, type:"minion", atk:1, hp:7, keywords:["taunt"],  bcText:"Prowokacja." },
   { id:"ms3", name:"Kulka Ognia",       art:"☄️",  cost:4, type:"spell",  spellEffect:"deal4face", spellText:"Zadaj 4 obrażenia dowolnemu celowi." },
   { id:"mw1", name:"Różdżka Kontroli",  art:"🔮",  cost:3, type:"weapon", weaponAtk:3, durability:2, bcText:"Broń: 3/2" },
+  { id:"m4",  name:"Audytor Duchów",   art:"👻",  cost:2, type:"minion", atk:2, hp:2, deathrattle:"deal2random", drText:"Pośm.: 2 dmg losowemu wrogowi." },
+  { id:"m5",  name:"Płomyk Audytu",  art:"🔥",  cost:3, type:"minion", atk:2, hp:3, endOfTurn:"deal1random", eotText:"Koniec tury: 1 dmg losowemu wrogowi." },
   { id:"mL",  name:"Wielki Inkasent",   art:"🧿",  cost:7, type:"minion", atk:5, hp:7, battlecry:"deal1all_draw1", bcText:"Okrzyk: 1 dmg wszystkim wrogom i dobierz kartę.", legendary:true },
 ];
 
@@ -40,6 +42,8 @@ const WAR_CARDS = [
   { id:"w4",  name:"Komornik Sądowy",   art:"🦅",  cost:3, type:"minion", atk:4, hp:2, battlecry:"armor3",  bcText:"Okrzyk: +3 pancerza." },
   { id:"ww1", name:"Topór Amortyzacji", art:"⚒️",  cost:2, type:"weapon", weaponAtk:3, durability:2, bcText:"Broń: 3/2" },
   { id:"ws2", name:"Nalot Komornika",   art:"💥",  cost:4, type:"spell",  spellEffect:"deal3all",  spellText:"Zadaj 3 obrażenia wszystkim wrogim minionkom." },
+  { id:"w5",  name:"Tarcza Duszy",      art:"💀",  cost:3, type:"minion", atk:2, hp:4, keywords:["taunt"], deathrattle:"armor3", drText:"Prowokacja. Pośm.: +3 pancerza." },
+  { id:"w6",  name:"Strażnik Nocny",  art:"🌙",  cost:4, type:"minion", atk:3, hp:5, endOfTurn:"buff1_0", eotText:"Koniec tury: +1 ATK losowemu minionkowi." },
   { id:"wL",  name:"Generał Długów",    art:"🐲",  cost:7, type:"minion", atk:7, hp:7, keywords:["taunt"], battlecry:"armor4", bcText:"Prowokacja. Okrzyk: +4 pancerza.", legendary:true },
 ];
 
@@ -51,6 +55,8 @@ const ROGUE_CARDS = [
   { id:"rs1", name:"Trucizna Faktur",   art:"☠️",  cost:2, type:"spell",  spellEffect:"deal2all",  spellText:"Zadaj 2 obrażenia wszystkim wrogom." },
   { id:"rs2", name:"Sztylet Audytu",    art:"🗡️",  cost:3, type:"spell",  spellEffect:"deal4face", spellText:"Zadaj 4 obrażenia dowolnemu celowi." },
   { id:"rw1", name:"Sztylet Egzekutora",art:"⚔️",  cost:3, type:"weapon", weaponAtk:3, durability:3, bcText:"Broń: 3/3" },
+  { id:"r5",  name:"Szpieg Wieczny",    art:"🦎",  cost:2, type:"minion", atk:2, hp:1, deathrattle:"draw1", drText:"Pośm.: dobierz kartę." },
+  { id:"r6",  name:"Podrzutnik Danych",art:"📡", cost:3, type:"minion", atk:2, hp:3, endOfTurn:"deal1random", eotText:"Koniec tury: 1 dmg losowemu wrogowi." },
   { id:"rL",  name:"Mistrz Cienia",     art:"🐺",  cost:6, type:"minion", atk:6, hp:5, battlecry:"draw1", bcText:"Okrzyk: dobierz kartę.", combo:"deal3", comboText:"Combo: 3 dmg bohaterowi.", legendary:true },
 ];
 
@@ -62,6 +68,8 @@ const PRIEST_CARDS = [
   { id:"ps1", name:"Modlitwa Audytu",   art:"✨",  cost:1, type:"spell",  spellEffect:"heal2self",   spellText:"Przywróć 2 HP swojemu bohaterowi." },
   { id:"ps2", name:"Uzdrowienie Masowe",art:"🌈",  cost:3, type:"spell",  spellEffect:"heal2all",    spellText:"Przywróć 2 HP wszystkim swoim minionkom i bohaterowi." },
   { id:"ps3", name:"Wielka Łaska",      art:"🌟",  cost:5, type:"spell",  spellEffect:"heal6target", spellText:"Przywróć 6 HP dowolnemu celowi." },
+  { id:"p5",  name:"Anioł Rejestrowy",  art:"👼",  cost:4, type:"minion", atk:2, hp:5, deathrattle:"heal3self", drText:"Pośm.: przywróć 3 HP bohaterowi." },
+  { id:"p6",  name:"Mnich Wieczorny", art:"🕯️", cost:2, type:"minion", atk:1, hp:4, endOfTurn:"heal2self", eotText:"Koniec tury: przywróć 2 HP bohaterowi." },
   { id:"pL",  name:"Arcykapłan VAT",    art:"🦄",  cost:7, type:"minion", atk:5, hp:8, keywords:["taunt"], battlecry:"heal4target", bcText:"Prowokacja. Okrzyk: przywróć 4 HP dowolnemu.", legendary:true },
 ];
 
@@ -83,7 +91,9 @@ function buildDeck(cls) {
   const pool = CLASSES[cls].cards;
   const standards = pool.filter(c => !c.legendary);
   const legendary = pool.find(c => c.legendary);
-  return shuffle([...standards, ...standards, legendary]).map(c => cloneCard(c));
+  // 15 cards: 8 standards + 6 random duplicates + 1 legendary
+  const extra = shuffle(standards).slice(0, 6);
+  return shuffle([...standards, ...extra, legendary]).map(c => cloneCard(c));
 }
 
 function hasTaunt(board) { return board.some(c => !c.silenced && c.keywords?.includes('taunt')); }
@@ -252,7 +262,6 @@ class GameRoom {
         } else if (card.type === 'weapon') {
           me.weapon = { uid:uid(), name:card.name, art:card.art, atk:card.weaponAtk, durability:card.durability, cost:card.cost };
           me.heroAtkVal = card.weaponAtk;
-          me.canHeroAtk = true;
           s.log = `${me.cls}: wyekwipowano ${card.name}`;
         }
         this.checkDead(me, opp);
@@ -266,6 +275,8 @@ class GameRoom {
         if (attacker.fresh && !attacker.keywords?.includes('charge')) return;
         if (msg.targetType === 'hero') {
           if (hasTaunt(opp.board)) return;
+          const oppIdx = s.playerOrder.indexOf(oppId);
+          this.pendingEvents.push({ kind:'attack_anim', attackerId:attacker.uid, targetId:`hero_${oppIdx}`, amount:0 });
           this.dealDamageToHero(opp, attacker.atk);
           attacker.canAtk = false;
           s.log = `${attacker.name} atakuje bohatera za ${attacker.atk}!`;
@@ -273,6 +284,7 @@ class GameRoom {
           const defender = opp.board.find(c => c.uid === msg.targetUid);
           if (!defender) return;
           if (!defender.keywords?.includes('taunt') && hasTaunt(opp.board)) return;
+          this.pendingEvents.push({ kind:'attack_anim', attackerId:attacker.uid, targetId:defender.uid, amount:0 });
           this.minionCombat(attacker, defender);
           s.log = `${attacker.name} atakuje ${defender.name}`;
         }
@@ -283,14 +295,18 @@ class GameRoom {
 
       case 'hero_attack': {
         if (!me.canHeroAtk || me.heroAtkVal === 0) return;
+        const meIdx = s.playerOrder.indexOf(senderId);
         if (msg.targetType === 'hero') {
           if (hasTaunt(opp.board)) return;
+          const oppIdx = s.playerOrder.indexOf(oppId);
+          this.pendingEvents.push({ kind:'attack_anim', attackerId:`hero_${meIdx}`, targetId:`hero_${oppIdx}`, amount:0 });
           this.dealDamageToHero(opp, me.heroAtkVal);
           s.log = `${me.cls} atakuje bohaterem za ${me.heroAtkVal}!`;
         } else {
           const def = opp.board.find(c => c.uid === msg.targetUid);
           if (!def) return;
           if (!def.keywords?.includes('taunt') && hasTaunt(opp.board)) return;
+          this.pendingEvents.push({ kind:'attack_anim', attackerId:`hero_${meIdx}`, targetId:def.uid, amount:0 });
           def.curHp -= me.heroAtkVal;
           this.pendingEvents.push({ kind:'damage', targetId:def.uid, amount:me.heroAtkVal });
           s.log = `Bohater atakuje ${def.name}`;
@@ -337,6 +353,12 @@ class GameRoom {
       }
 
       case 'end_turn': {
+        // Apply end-of-turn effects before passing
+        this.applyEndOfTurnEffects(me, opp);
+        this.checkDead(me, opp);
+        this.checkWin(me, opp);
+        if (s.phase === 'over') break;
+
         me.board.forEach(c => { c.fresh = false; c.canAtk = true; });
         me.playedThisTurn = false;
         s.activePlayer = oppId;
@@ -510,8 +532,80 @@ class GameRoom {
   }
 
   checkDead(me, opp) {
-    me.board  = me.board.filter(c => c.curHp > 0);
-    opp.board = opp.board.filter(c => c.curHp > 0);
+    let changed = true;
+    while (changed) {
+      changed = false;
+      const meDead = me.board.filter(c => c.curHp <= 0);
+      const oppDead = opp.board.filter(c => c.curHp <= 0);
+      if (meDead.length || oppDead.length) {
+        changed = true;
+        me.board = me.board.filter(c => c.curHp > 0);
+        opp.board = opp.board.filter(c => c.curHp > 0);
+        meDead.forEach(c => { if (c.deathrattle && !c.silenced) this.applyDeathrattle(c, me, opp); });
+        oppDead.forEach(c => { if (c.deathrattle && !c.silenced) this.applyDeathrattle(c, opp, me); });
+      }
+    }
+  }
+
+  applyDeathrattle(card, owner, enemy) {
+    switch (card.deathrattle) {
+      case 'deal2random': {
+        const targets = [...enemy.board];
+        if (targets.length) {
+          const t = targets[Math.floor(Math.random() * targets.length)];
+          t.curHp -= 2;
+          this.pendingEvents.push({ kind:'damage', targetId:t.uid, amount:2 });
+        } else {
+          this.dealDamageToHero(enemy, 2);
+        }
+        break;
+      }
+      case 'armor3':
+        owner.armor += 3;
+        break;
+      case 'draw1':
+        this.drawCards(owner, 1);
+        break;
+      case 'heal3self': {
+        owner.hp = Math.min(30, owner.hp + 3);
+        const ownerIdx = this.state.playerOrder.indexOf(owner.id);
+        this.pendingEvents.push({ kind:'heal', targetId:`hero_${ownerIdx}`, amount:3 });
+        break;
+      }
+    }
+  }
+
+  applyEndOfTurnEffects(me, opp) {
+    me.board.forEach(c => {
+      if (!c.endOfTurn || c.silenced) return;
+      switch (c.endOfTurn) {
+        case 'deal1random': {
+          const targets = [...opp.board];
+          if (targets.length) {
+            const t = targets[Math.floor(Math.random() * targets.length)];
+            t.curHp -= 1;
+            this.pendingEvents.push({ kind:'damage', targetId:t.uid, amount:1 });
+          } else {
+            this.dealDamageToHero(opp, 1);
+          }
+          break;
+        }
+        case 'buff1_0': {
+          const friends = me.board.filter(f => f.uid !== c.uid);
+          if (friends.length) {
+            const t = friends[Math.floor(Math.random() * friends.length)];
+            t.atk = (t.atk ?? 0) + 1;
+          }
+          break;
+        }
+        case 'heal2self': {
+          me.hp = Math.min(30, me.hp + 2);
+          const meIdx = this.state.playerOrder.indexOf(me.id);
+          this.pendingEvents.push({ kind:'heal', targetId:`hero_${meIdx}`, amount:2 });
+          break;
+        }
+      }
+    });
   }
 
   checkWin(me, opp) {
@@ -543,14 +637,42 @@ class GameRoom {
     const human = s.players[humanId];
     const lvl = bot.botLevel;
 
+    const taunts = human.board.filter(c => !c.silenced && c.keywords?.includes('taunt'));
     const attackers = bot.board.filter(c => c.canAtk);
     const playable  = bot.hand.filter(c => c.cost <= bot.mana && (c.type !== 'minion' || bot.board.length < 4));
+
+    // L4: Check for lethal
+    if (lvl >= 4 && taunts.length === 0) {
+      const totalBoardDmg = attackers.reduce((s, c) => s + (c.atk ?? 0), 0);
+      const heroDmg = bot.canHeroAtk ? bot.heroAtkVal : 0;
+      const spellDmg = playable.filter(c => c.spellEffect?.includes('deal') && !c.spellEffect?.includes('all'))
+        .reduce((s, c) => {
+          if (c.spellEffect === 'deal4face') return s + 4;
+          if (c.spellEffect === 'deal6face') return s + 6;
+          return s;
+        }, 0);
+      const effectiveHp = human.hp + human.armor;
+      if (totalBoardDmg + heroDmg + spellDmg >= effectiveHp) {
+        const dmgSpell = playable.find(c => ['deal4face','deal6face'].includes(c.spellEffect ?? ''));
+        if (dmgSpell) return this.botBuildPlayCard(dmgSpell, bot, human, lvl);
+        if (attackers.length > 0) return { type:'attack', attackerUid:attackers[0].uid, targetType:'hero' };
+        if (bot.canHeroAtk && bot.heroAtkVal > 0) return { type:'hero_attack', targetType:'hero' };
+      }
+    }
 
     if (playable.length > 0) {
       let card;
       if (lvl === 1) card = playable[Math.floor(Math.random() * playable.length)];
       else if (lvl === 2) card = [...playable].sort((a,b) => a.cost - b.cost)[0];
-      else card = [...playable].sort((a,b) => b.cost - a.cost)[0];
+      else if (lvl === 3) card = [...playable].sort((a,b) => b.cost - a.cost)[0];
+      else {
+        const spells = playable.filter(c => c.type === 'spell' && c.spellEffect?.includes('deal'));
+        if (spells.length > 0 && human.board.length > 0) {
+          card = spells.sort((a, b) => b.cost - a.cost)[0];
+        } else {
+          card = [...playable].sort((a, b) => b.cost - a.cost)[0];
+        }
+      }
       return this.botBuildPlayCard(card, bot, human, lvl);
     }
 
