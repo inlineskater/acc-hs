@@ -2,1354 +2,2194 @@
 <html lang="pl">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Serce Ksiąg – Multiplayer</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Serce Ksiag - Cyberpunk PvE</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html,body{height:100%;overflow:hidden}
-:root{--bg:#f0ebe0;--bg2:#f7f2e8;--bg3:#d8d0c0;--gold:#6b4c14;--gold2:#8a6a30;--mana:#2a5a9a;--red:#8b2020;--green:#2a6a3a;--font:'Georgia',serif;--card-bg:#f5f0e4;--card-border:#a08a5a;--shadow:0 1px 4px rgba(0,0,0,.12)}
-body{background:#2a2a2a;display:flex;align-items:center;justify-content:center;height:100dvh;font-family:var(--font);touch-action:manipulation}
-#G{width:100vw;height:100dvh;max-width:390px;max-height:844px;background:var(--bg);overflow:hidden;display:flex;flex-direction:column;position:relative;color:#3a2a10;border-radius:0;box-shadow:0 0 40px rgba(0,0,0,.5)}
-@media (min-width:420px){#G{border-radius:20px;border:3px solid #444}}
-.scr{display:none;flex-direction:column;flex:1}.scr.on{display:flex}
+:root{
+  --bg:#0a0a0f;--bg2:#0f0f1a;--bg3:#1a1a2e;
+  --cyan:#00ffff;--purple:#9b00ff;--pink:#ff0090;
+  --amber:#ffb000;--green:#00ff88;
+  --card-bg:#12121e;--font:'Courier New',monospace;
+  --glow-cyan:0 0 8px #00ffff,0 0 20px #00ffff44;
+  --glow-pink:0 0 8px #ff0090,0 0 20px #ff009044;
+  --glow-amber:0 0 8px #ffb000,0 0 20px #ffb00044;
+  --red:#ff4444;--mana:#00ffff;
+}
+body{background:#0a0a0f;display:flex;align-items:center;justify-content:center;height:100dvh;font-family:var(--font);touch-action:manipulation;color:#e0e8ff}
+#G{width:100vw;height:100dvh;max-width:420px;max-height:900px;background:var(--bg);overflow:hidden;display:flex;flex-direction:column;position:relative;color:#e0e8ff;border-radius:0}
+@media(min-width:440px){#G{border-radius:16px;border:2px solid var(--cyan);box-shadow:var(--glow-cyan)}}
+.scr{display:none;flex-direction:column;flex:1;overflow:hidden}.scr.on{display:flex}
 
-/* ── Lobby ── */
-#lobby{align-items:center;justify-content:center;padding:20px 14px;background:linear-gradient(180deg,#f5f0e4,#e8e0d0);gap:10px;overflow-y:auto}
-.logo{font-size:44px;filter:drop-shadow(0 2px 6px rgba(139,105,20,.4))}
-.title{font-size:24px;font-weight:700;color:var(--gold);letter-spacing:2px;text-shadow:0 1px 2px rgba(0,0,0,.15)}
-.sub{font-size:12px;color:#6a5a3a;text-align:center;line-height:1.5;max-width:320px}
+/* ---- Glitch effect ---- */
+@keyframes glitch{0%,100%{text-shadow:2px 0 var(--cyan),-2px 0 var(--pink)}25%{text-shadow:-2px 0 var(--cyan),2px 0 var(--pink)}50%{text-shadow:1px 1px var(--purple),-1px -1px var(--amber)}75%{text-shadow:-1px 0 var(--pink),1px 0 var(--cyan)}}
+.glitch{animation:glitch 3s infinite}
+
+/* ---- Lobby ---- */
+#lobby{align-items:center;justify-content:flex-start;padding:18px 14px;background:var(--bg);gap:8px;overflow-y:auto}
+.logo{font-size:48px;filter:drop-shadow(0 0 12px #00ffff88);margin-top:8px}
+.title{font-size:22px;font-weight:700;color:var(--cyan);letter-spacing:3px;text-transform:uppercase}
+.sub{font-size:11px;color:#8899bb;text-align:center;line-height:1.5;max-width:320px}
 .class-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;max-width:320px;width:100%}
-.class-card{background:linear-gradient(135deg,#faf3e0,#ece0c4);border:2px solid var(--card-border);border-radius:10px;padding:10px;text-align:center;cursor:pointer;transition:all .18s;box-shadow:var(--shadow)}
-.class-card:hover,.class-card.sel{border-color:var(--gold);box-shadow:0 0 10px rgba(139,105,20,.35);transform:translateY(-2px)}
+.class-card{background:var(--bg3);border:2px solid #333;border-radius:10px;padding:10px;text-align:center;cursor:pointer;transition:all .2s}
+.class-card:hover{border-color:var(--cyan);box-shadow:var(--glow-cyan)}
+.class-card.sel{border-color:var(--pink);box-shadow:var(--glow-pink);background:#1a1030}
 .cl-art{font-size:28px;margin-bottom:2px}
-.cl-name{font-size:11px;font-weight:700;color:var(--gold)}
-.cl-hp{font-size:8px;color:#7a6a4a}
-.start-btn{background:linear-gradient(135deg,#c8a040,#a08020);border:2px solid var(--gold);color:#fff;font-size:13px;font-weight:700;padding:10px 28px;border-radius:8px;cursor:pointer;font-family:var(--font);letter-spacing:1px;transition:all .18s;box-shadow:0 2px 10px rgba(139,105,20,.3);text-shadow:0 1px 2px rgba(0,0,0,.3)}
-.start-btn:hover{transform:scale(1.03);background:linear-gradient(135deg,#dab050,#b09030)}
-.start-btn:disabled{background:#b8a878;color:#8a7a5a;border-color:#a09060;cursor:default;transform:none}
-.room-box{background:#faf3e0;border:2px solid var(--card-border);border-radius:10px;padding:10px 16px;text-align:center;max-width:300px;width:100%;box-shadow:var(--shadow)}
-.room-code{font-size:28px;font-weight:700;color:var(--gold);letter-spacing:6px;font-family:monospace}
-.room-hint{font-size:10px;color:#7a6a4a;margin-top:3px}
-.status-dot{width:8px;height:8px;border-radius:50%;background:#c44;display:inline-block;margin-right:4px}
-.status-dot.ready{background:var(--green)}
-.join-row{display:flex;gap:6px;max-width:300px;width:100%}
-.join-input{flex:1;background:#faf3e0;border:2px solid var(--card-border);border-radius:8px;padding:8px 10px;color:var(--gold);font-size:16px;font-family:monospace;letter-spacing:4px;text-align:center;text-transform:uppercase;outline:none}
-.join-input:focus{border-color:var(--gold)}
-.join-btn{background:linear-gradient(135deg,#3a7ac0,#2a5a90);border:2px solid #48f;color:#fff;font-size:12px;font-weight:700;padding:8px 14px;border-radius:8px;cursor:pointer;font-family:var(--font)}
-.conn-status{font-size:9px;color:#888;min-height:14px}
-.diff-btn{width:40px;height:34px;border:2px solid var(--card-border);border-radius:8px;background:linear-gradient(135deg,#faf3e0,#ece0c4);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:13px;transition:all .15s;box-shadow:var(--shadow)}
-.diff-btn:hover,.diff-btn.sel{border-color:var(--gold);box-shadow:0 0 10px rgba(139,105,20,.35);transform:translateY(-2px);background:linear-gradient(135deg,#ffe8a0,#e8c840)}
-.diff-label{font-size:9px;color:var(--gold);font-weight:700;text-align:center;margin-top:2px}
+.cl-name{font-size:11px;font-weight:700;color:var(--cyan)}
+.cl-hp{font-size:8px;color:var(--amber)}
+.cl-desc{font-size:8px;color:#6677aa;margin-top:2px}
+.mode-row{display:flex;flex-direction:column;gap:8px;max-width:320px;width:100%;align-items:center}
+.mode-section{background:var(--bg3);border:1px solid #333;border-radius:10px;padding:10px 14px;width:100%}
+.mode-label{font-size:10px;color:var(--amber);font-weight:700;margin-bottom:6px;text-transform:uppercase;letter-spacing:1px}
+.opt-row{display:flex;gap:6px;justify-content:center;margin-bottom:6px}
+.opt-btn{width:40px;height:32px;border:2px solid #444;border-radius:6px;background:var(--bg2);color:#ccc;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:12px;font-family:var(--font);transition:all .15s}
+.opt-btn:hover{border-color:var(--cyan)}
+.opt-btn.sel{border-color:var(--cyan);color:var(--cyan);box-shadow:var(--glow-cyan);background:#0a1a2e}
+.start-btn{background:linear-gradient(135deg,#002233,#003344);border:2px solid var(--cyan);color:var(--cyan);font-size:13px;font-weight:700;padding:10px 28px;border-radius:8px;cursor:pointer;font-family:var(--font);letter-spacing:1px;transition:all .2s;text-shadow:var(--glow-cyan);text-transform:uppercase}
+.start-btn:hover{background:#004455;box-shadow:var(--glow-cyan)}
+.start-btn:disabled{background:#111;color:#444;border-color:#333;cursor:default;text-shadow:none;box-shadow:none}
+.campaign-btn{background:linear-gradient(135deg,#1a0a2a,#2a1040);border:2px solid var(--purple);color:var(--purple);font-size:13px;font-weight:700;padding:10px 28px;border-radius:8px;cursor:pointer;font-family:var(--font);letter-spacing:1px;transition:all .2s}
+.campaign-btn:hover{box-shadow:0 0 12px #9b00ff66;background:#2a1050}
+.diff-labels{display:flex;gap:6px;justify-content:center}
+.diff-label{font-size:8px;color:#6677aa;width:40px;text-align:center}
 
-/* ── Board ── */
-#board{flex:1;display:flex;flex-direction:column;position:relative;overflow:hidden;box-shadow:inset 0 0 60px rgba(0,0,0,.25)}
-.bg-art{position:absolute;inset:0;z-index:0}
-.bg-left{position:absolute;left:0;top:0;bottom:0;width:30px;background:linear-gradient(to right,#c8b898,#d8d0b8)}
-.bg-right{position:absolute;right:0;top:0;bottom:0;width:30px;background:linear-gradient(to left,#c8b898,#d8d0b8)}
-.bg-center{position:absolute;left:30px;right:30px;top:0;bottom:0;background:linear-gradient(180deg,#e8e4d4 0%,#d8e0c8 15%,#c8d8b0 50%,#d8e0c8 85%,#e8e4d4 100%)}
-.bg-center::after{content:'';position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 19px,rgba(100,140,80,.12) 19px,rgba(100,140,80,.12) 20px);pointer-events:none}
-.bg-line{position:absolute;left:10px;right:10px;top:50%;transform:translateY(-50%);height:0;border-top:1px solid rgba(139,105,20,.5);border-bottom:1px solid rgba(139,105,20,.5);padding:1px 0}
-.bg-line::after{content:'⚜';position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:16px;background:rgba(74,122,40,.95);padding:0 6px;color:#c8a040;filter:drop-shadow(0 1px 2px rgba(0,0,0,.4))}
-#ac{position:absolute;inset:0;pointer-events:none;z-index:50}
-.sidebar{position:absolute;right:2px;top:50%;transform:translateY(-50%);z-index:10;display:flex;flex-direction:column;align-items:center;gap:4px}
-.eot-btn{background:linear-gradient(135deg,#3a6a28,#2a5018);border:2px solid #5a8a48;color:#fff;font-size:9px;font-family:var(--font);font-weight:700;padding:10px 2px;border-radius:8px;cursor:pointer;width:44px;text-align:center;transition:all .15s;box-shadow:var(--shadow);line-height:1.3;letter-spacing:.5px}
-.eot-btn:not(:disabled){animation:eotPulse 1.4s infinite alternate;box-shadow:0 0 8px rgba(88,200,88,.6)}
-@keyframes eotPulse{from{box-shadow:0 0 4px rgba(88,200,88,.3)}to{box-shadow:0 0 16px rgba(88,200,88,1),0 0 6px #fff2}}
-.eot-btn:hover:not(:disabled){transform:scale(1.08)}
-.eot-btn:disabled{background:#6a5a4a;color:#8a7a5a;border-color:#7a6a4a;cursor:default;transform:none;animation:none;box-shadow:var(--shadow)}
+/* ---- Campaign Map ---- */
+#campaign-map{align-items:center;padding:16px 14px;background:var(--bg);gap:6px;overflow-y:auto}
+.cm-title{font-size:18px;color:var(--purple);font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:8px}
+.cm-back{font-size:11px;color:var(--cyan);cursor:pointer;margin-bottom:8px;text-decoration:underline}
+#campaign-nodes{display:flex;flex-direction:column;gap:8px;width:100%;max-width:320px}
+.campaign-node{background:var(--bg3);border:2px solid #333;border-radius:10px;padding:10px 14px;cursor:default;transition:all .2s;position:relative;overflow:hidden}
+.campaign-node.unlocked{border-color:var(--cyan);cursor:pointer}
+.campaign-node.unlocked:hover{box-shadow:var(--glow-cyan);background:#0a1a2e}
+.campaign-node.completed{border-color:var(--green);background:#0a1a0a}
+.campaign-node.locked{opacity:.4;border-color:#222}
+.campaign-node.locked::after{content:'ZABLOKOWANE';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:10px;color:#ff4444;font-weight:700;letter-spacing:2px}
+.cn-num{font-size:18px;font-weight:700;color:var(--cyan);display:inline-block;margin-right:8px}
+.completed .cn-num{color:var(--green)}
+.cn-title{font-size:11px;color:#ccc;display:inline}
+.cn-rule{font-size:9px;color:var(--amber);margin-top:4px}
+.cn-bots{font-size:9px;color:#6677aa;margin-top:2px}
 
-/* ── Top bar ── */
-.top-bar{display:flex;align-items:center;justify-content:space-between;padding:4px 8px;background:linear-gradient(90deg,#3a2a18,#4a3a24,#3a2a18);border-bottom:2px solid #6a5a3a;z-index:10}
-.bar-title{font-size:14px;color:#fff;font-weight:700;letter-spacing:1px;text-shadow:0 1px 2px rgba(0,0,0,.3);white-space:nowrap}
-.bar-phase{font-size:12px;padding:4px 12px;border-radius:99px;font-weight:700;transition:all .3s;white-space:nowrap}
-.bar-phase.yours{background:#27ae60;color:#fff;border:1px solid #1e8449;box-shadow:0 0 8px rgba(39,174,96,.6);animation:yourTurnBadge .9s infinite alternate}
-@keyframes yourTurnBadge{from{box-shadow:0 0 4px rgba(39,174,96,.3)}to{box-shadow:0 0 12px rgba(39,174,96,.9)}}
-.bar-phase.theirs{background:#c0392b;color:#fff;border:1px solid #922b21;animation:none}
-.bar-phase.waiting{background:#fff3cd;color:#856404;border:1px solid #ffeeba;animation:none}
+/* ---- Chapter Intro ---- */
+#chapter-intro{align-items:center;justify-content:center;padding:20px 14px;background:var(--bg);gap:12px}
+.ci-box{background:var(--bg3);border:2px solid var(--purple);border-radius:12px;padding:16px;max-width:320px;text-align:center}
+#ci-title{font-size:16px;color:var(--purple);font-weight:700;margin-bottom:8px}
+#ci-story{font-size:11px;color:#aab;line-height:1.5;margin-bottom:8px}
+#ci-rule{font-size:10px;color:var(--amber);background:#1a1800;border:1px solid var(--amber);border-radius:6px;padding:6px;margin-bottom:8px;display:none}
+#ci-bots{font-size:10px;color:var(--cyan);margin-bottom:10px}
+.ci-back{font-size:10px;color:var(--cyan);cursor:pointer;text-decoration:underline;margin-top:6px}
 
-/* ── Hero area ── */
-.hero-area{display:flex;justify-content:center;align-items:center;padding:2px 44px 2px 4px;gap:4px;z-index:3;position:relative}
-.hero-port{width:52px;height:52px;border-radius:50%;border:2px solid var(--card-border);background:var(--card-bg);display:flex;align-items:center;justify-content:center;font-size:26px;position:relative;cursor:pointer;transition:all .15s;flex-shrink:0;box-shadow:0 1px 4px rgba(0,0,0,.25)}
-.hero-port.attackable{border-color:var(--red);box-shadow:0 0 10px rgba(192,57,43,.55);animation:prd .8s infinite alternate}
-.hero-port.can-hero-atk{border-color:#e67e22;box-shadow:0 0 8px rgba(230,126,34,.5);cursor:pointer}
-.hero-port.healable{border-color:var(--green);box-shadow:0 0 10px rgba(39,174,96,.45)}
-@keyframes prd{from{box-shadow:0 0 4px rgba(192,57,43,.2)}to{box-shadow:0 0 12px rgba(192,57,43,.7)}}
-.hero-hp{position:absolute;bottom:-4px;right:-4px;background:var(--red);border:2px solid #fff;border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff}
-.hero-armor{position:absolute;top:-3px;right:-3px;background:#5a8abf;border:2px solid #fff;border-radius:50%;width:20px;height:20px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff}
-.hero-name{font-size:12px;color:var(--gold);text-align:center;max-width:64px;line-height:1.2;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.hero-cls{font-size:10px;color:#7a6a4a;text-align:center;max-width:64px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.deck-ct{background:var(--card-bg);border:2px solid var(--card-border);border-radius:6px;padding:3px 6px;font-size:13px;color:var(--gold);text-align:center;font-weight:700;box-shadow:var(--shadow)}
-.fatigue-badge{color:var(--red);font-size:10px;display:none}
-.mana-row{display:flex;gap:2px;flex-wrap:wrap;max-width:80px;justify-content:center}
-.pip{width:13px;height:13px;border-radius:50%;border:1.5px solid #3a7ac0;background:linear-gradient(135deg,#48f,#2a5aff);box-shadow:0 0 3px rgba(68,136,255,.4)}
-.pip.empty{background:#c8c0a8;border-color:#a09878;box-shadow:none}
-.mana-txt{font-size:13px;color:var(--mana);font-weight:700;white-space:nowrap}
-/* ── Hero Power gem ── */
-.hp-gem-wrap{display:flex;align-items:center;justify-content:center;width:44px;flex-shrink:0}
-.hp-gem{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#8a50c0,#5a2090);border:2px solid #c090f8;color:#fff;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;font-size:18px;line-height:1;transition:all .2s;box-shadow:0 1px 6px rgba(100,40,160,.4);font-family:var(--font);padding:0}
-.hp-gem:not(.used):not(.active):hover{transform:scale(1.1);box-shadow:0 0 12px rgba(200,140,255,.6)}
-.hp-gem.used{background:linear-gradient(135deg,#6a5a4a,#4a3a2a);border-color:#8a7a5a;cursor:default;filter:grayscale(.5);opacity:.7}
-.hp-gem.active{border-color:#ffe8a0;box-shadow:0 0 14px rgba(255,232,160,.9);animation:hpGlow .6s infinite alternate}
-@keyframes hpGlow{from{box-shadow:0 0 4px rgba(255,232,160,.4)}to{box-shadow:0 0 14px rgba(255,232,160,1)}}
-.hp-gem-cost{font-size:8px;color:#ddf;line-height:1;font-weight:700}
-/* ── Weapon slot ── */
-.wpn-slot{width:40px;min-height:46px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.wpn-card{width:36px;height:46px;background:linear-gradient(180deg,#f0e8d0,#e0d0a8);border:2px solid #c8a040;border-radius:7px 7px 50% 50% / 7px 7px 28% 28%;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:default;position:relative;box-shadow:var(--shadow);padding-bottom:8px}
-.wpn-art{font-size:16px;line-height:1}
-.wpn-atk{position:absolute;bottom:-4px;left:-4px;width:18px;height:18px;background:#d4a020;clip-path:polygon(50% 0%,100% 38%,82% 100%,18% 100%,0% 38%);display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:#fff}
-.wpn-dur{position:absolute;bottom:-4px;right:-4px;background:#4a80c0;border:1.5px solid #fff;border-radius:50%;width:18px;height:18px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:#fff}
+/* ---- Mulligan ---- */
+#mulligan{align-items:center;justify-content:center;padding:20px 14px;background:var(--bg);gap:12px}
+.mul-title{font-size:16px;color:var(--cyan);font-weight:700}
+.mul-sub{font-size:10px;color:#8899bb}
+#mulligan-cards{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;max-width:340px}
+.selected-replace{outline:3px solid var(--pink)!important;box-shadow:var(--glow-pink)!important}
 
-/* ── Battle zone ── */
-.battle-zone{flex:1;display:flex;align-items:center;justify-content:center;padding:2px 44px 2px 4px;z-index:3;min-height:80px;position:relative}
-.minion-row{display:flex;align-items:center;justify-content:center;gap:5px;flex-wrap:nowrap}
+/* ---- Board ---- */
+#board{flex:1;display:flex;flex-direction:column;position:relative;overflow:hidden;
+  background-image:linear-gradient(rgba(0,255,255,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(0,255,255,.03) 1px,transparent 1px);
+  background-size:20px 20px;background-color:var(--bg)}
+.top-bar{display:flex;align-items:center;justify-content:space-between;padding:4px 8px;background:var(--bg2);border-bottom:1px solid #222;z-index:10;min-height:36px;flex-shrink:0}
+.bar-title{font-size:11px;color:var(--cyan);font-weight:700;letter-spacing:2px}
+.bar-phase{font-size:10px;padding:2px 8px;border-radius:4px;font-weight:700}
+.bar-phase.yours{color:var(--green);border:1px solid var(--green)}
+.bar-phase.theirs{color:var(--red);border:1px solid var(--red)}
+.eot-btn{background:linear-gradient(135deg,#1a0a0a,#2a1010);border:2px solid var(--amber);color:var(--amber);font-size:10px;font-weight:700;padding:4px 10px;border-radius:6px;cursor:pointer;font-family:var(--font);line-height:1.2;transition:all .2s}
+.eot-btn:hover{box-shadow:var(--glow-amber);background:#2a1a00}
+.eot-btn:disabled{opacity:.3;cursor:default;box-shadow:none}
 
-/* ── Minion (mobile) ── */
-.minion{width:74px;min-height:86px;background:radial-gradient(ellipse at center,#f5f0e4 60%,#e0d8c0 100%);border:2px solid var(--card-border);border-radius:50% 50% 48% 48% / 42% 42% 52% 52%;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:6px 3px 16px;cursor:pointer;transition:all .18s;position:relative;user-select:none;box-shadow:var(--shadow)}
-.minion:hover{transform:translateY(-3px) scale(1.06);z-index:10}
-.minion.sel{border-color:#e67e22;box-shadow:0 0 14px rgba(230,126,34,.65);transform:translateY(-5px) scale(1.08);z-index:20}
-.minion.can-atk{border-color:#e67e22;animation:glow .9s infinite alternate}
-.minion.taunt{border-color:#3a6a9f;border-width:3px;border-style:double;box-shadow:0 0 14px rgba(58,106,159,.5),inset 0 0 12px rgba(58,106,159,.15);background:radial-gradient(ellipse at center,#e0ecf8 60%,#b0c8e0 100%)}
-.minion.taunt::before{content:'🛡';position:absolute;top:-12px;left:50%;transform:translateX(-50%);font-size:14px;filter:drop-shadow(0 1px 2px rgba(0,0,0,.4));z-index:5}
-.minion.targeted{border-color:var(--red);box-shadow:0 0 12px rgba(192,57,43,.55)}
-.minion.exh{opacity:.55;filter:grayscale(.3)}
-.minion.healable{border-color:var(--green);box-shadow:0 0 12px rgba(39,174,96,.45)}
-.minion.dying{animation:die .4s forwards}
-.minion.spawning{animation:spawn .3s forwards}
-.minion.legendary{box-shadow:0 0 10px #ffd700,inset 0 0 6px rgba(255,215,0,.1);border-color:#ffd700;overflow:visible}
-.minion.legendary::after{content:'';position:absolute;inset:-3px;border-radius:inherit;background:linear-gradient(135deg,transparent 30%,rgba(255,215,0,.35) 50%,transparent 70%);background-size:250% 250%;animation:shimmer 2.5s ease infinite;pointer-events:none;z-index:-1}
-@keyframes shimmer{0%{background-position:200% 200%}100%{background-position:-200% -200%}}
-.minion.legendary.can-atk{box-shadow:0 0 14px #ffd700,0 0 10px rgba(230,126,34,.5)}
-.minion.damaged-glow{box-shadow:0 0 6px rgba(192,57,43,.3),inset 0 0 10px rgba(192,57,43,.15)}
-@keyframes glow{from{box-shadow:0 0 3px rgba(230,126,34,.2)}to{box-shadow:0 0 14px rgba(230,126,34,.65)}}
-@keyframes die{0%{transform:scale(1);opacity:1}50%{transform:scale(1.2);opacity:.4}100%{transform:scale(0);opacity:0}}
-@keyframes spawn{0%{transform:scale(0) rotate(-10deg);opacity:0}65%{transform:scale(1.1) rotate(2deg)}100%{transform:scale(1) rotate(0);opacity:1}}
-.m-art{font-size:38px;line-height:1;margin:0}
-.m-name{display:none}
-.m-kw{display:none}
-.m-atk{position:absolute;bottom:-6px;left:-6px;width:26px;height:26px;background:#d4a020;clip-path:polygon(50% 0%,100% 38%,82% 100%,18% 100%,0% 38%);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff}
-.m-hp{position:absolute;bottom:-6px;right:-6px;background:var(--red);border:2px solid rgba(0,0,0,.2);border-radius:50%;width:26px;height:26px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff}
-.m-hp.hurt{background:#8b0000}
-.m-cost{position:absolute;top:-6px;left:-6px;background:linear-gradient(135deg,#48f,#2a5aff);border:2px solid #8af;border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff;box-shadow:0 1px 3px rgba(0,0,0,.3)}
-.m-ds{position:absolute;inset:0;border-radius:50% 50% 48% 48% / 42% 42% 52% 52%;border:2px solid #ffd700;box-shadow:0 0 8px #ffd700;pointer-events:none}
-.combo-badge{position:absolute;top:-7px;right:-6px;background:#9040c0;border:1px solid #c080f0;border-radius:3px;padding:1px 3px;font-size:7px;color:#fff;font-weight:700;z-index:5}
-.dr-badge{position:absolute;top:-7px;right:-6px;background:#2a8a40;border:1px solid #6f8;border-radius:3px;padding:1px 3px;font-size:7px;color:#fff;font-weight:700;z-index:5}
-.eot-badge{position:absolute;top:-7px;right:-6px;background:#c08020;border:1px solid #e0a040;border-radius:3px;padding:1px 3px;font-size:7px;color:#fff;font-weight:700;z-index:5}
+/* ---- Enemy zones ---- */
+#enemy-zones{overflow-y:auto;flex:1;min-height:0}
+.enemy-zone{padding:4px 6px;border-bottom:1px solid #1a1a2e;transition:background .3s}
+.enemy-zone.active-bot{background:#0a0a1a;border-bottom-color:var(--purple)}
+.hand-backs-row{display:flex;gap:2px;margin-left:auto}
+.bck{width:14px;height:20px;background:var(--purple);border-radius:3px;border:1px solid #6a00aa;opacity:.6}
+.hero-area{display:flex;align-items:center;gap:8px;padding:2px 0}
+.hero-port{width:44px;height:44px;border-radius:50%;border:2px solid #444;display:flex;align-items:center;justify-content:center;cursor:pointer;position:relative;background:var(--bg2);transition:all .2s;flex-shrink:0}
+.hero-port.attackable{border-color:var(--red);box-shadow:0 0 8px #ff444466}
+.hero-port.can-hero-atk{border-color:var(--amber);box-shadow:var(--glow-amber)}
+.hero-hp{position:absolute;bottom:-4px;right:-4px;background:var(--red);color:#fff;font-size:9px;font-weight:700;width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:1px solid #fff}
+.hero-armor{position:absolute;bottom:-4px;left:-4px;background:#4488ff;color:#fff;font-size:8px;font-weight:700;width:16px;height:16px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:1px solid #88aaff}
 
-/* ── Hand ── */
-.hand-area{display:flex;justify-content:center;align-items:flex-end;padding:2px 44px 6px 4px;z-index:3;min-height:100px;position:relative}
-.hand-row{display:flex;justify-content:center;align-items:center;gap:3px}
-.hand-card{width:76px;height:118px;background:linear-gradient(180deg,#f5f0e4,#e8e0d0);border:2px solid var(--card-border);border-radius:8px;display:flex;flex-direction:column;align-items:center;padding:3px 3px 28px;cursor:pointer;transition:all .2s;position:relative;user-select:none;box-shadow:var(--shadow);overflow:hidden;box-sizing:border-box}
-.hand-card:hover{transform:translateY(-14px) scale(1.12);z-index:20;border-color:var(--gold)}
-.hand-card.playable{border-color:var(--green);box-shadow:0 0 8px rgba(39,174,96,.4)}
-.hand-card.unplayable{opacity:.55}
-.hand-card.spell{background:linear-gradient(180deg,#dce8f8,#c0d4f0);border-color:#6a8abf}
-.hand-card.spell.playable{border-color:#3a7ac0;box-shadow:0 0 8px rgba(58,122,192,.4);animation:spellGlow 1.5s infinite alternate}
-@keyframes spellGlow{from{box-shadow:0 0 6px rgba(58,122,192,.3)}to{box-shadow:0 0 14px rgba(58,122,192,.7),0 0 4px #fff2}}
-.hand-card.weapon{background:linear-gradient(180deg,#f0e8d0,#e0d0a8);border-color:#c8a040}
-.hand-card.weapon.playable{border-color:#dab050;box-shadow:0 0 8px rgba(218,176,80,.4)}
-.hand-card.legendary{border-color:#ffd700;box-shadow:0 0 8px #ffd700}
-.hand-card.taunt-card{border-width:3px;border-style:double;border-color:#3a6a9f;background:linear-gradient(180deg,#e0ecf8,#c0d4e8)}
-.hand-card.taunt-card.playable{border-color:#2a5a8f;box-shadow:0 0 8px rgba(42,90,143,.5)}
-.hc-art{font-size:26px;line-height:1}
-.hc-name{font-size:10px;color:var(--gold);font-weight:700;text-align:center;line-height:1.1;max-width:70px;word-break:break-word}
-.hc-type{font-size:9px;color:#7a6a4a;text-align:center;white-space:nowrap}
-.hc-desc{font-size:8px;color:#5a4a2a;text-align:center;line-height:1.2;margin:1px 0;max-width:70px;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
-.hc-combo{font-size:8px;color:#9040c0;text-align:center;font-style:italic;max-width:70px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.hc-atk{position:absolute;bottom:2px;left:4px;width:22px;height:22px;background:#d4a020;clip-path:polygon(50% 0%,100% 38%,82% 100%,18% 100%,0% 38%);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff;z-index:2}
-.hc-hp{position:absolute;bottom:2px;right:4px;background:var(--red);border:2px solid rgba(0,0,0,.2);border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff;z-index:2}
+/* ---- Battle line ---- */
+.battle-line{text-align:center;font-size:10px;color:var(--cyan);padding:2px 0;letter-spacing:2px;border-top:1px solid var(--cyan);border-bottom:1px solid var(--cyan);background:linear-gradient(90deg,transparent,#00ffff08,transparent);flex-shrink:0;opacity:.7}
 
-/* ── Bot hand backs ── */
-.bot-hand-area{display:flex;justify-content:center;align-items:center;padding:4px 44px 4px 4px;z-index:3;min-height:52px;position:relative}
-.bck{width:32px;height:46px;background:linear-gradient(135deg,#8b6914,#c8a040);border-radius:6px 6px 50% 50% / 6px 6px 30% 30%;border:1.5px solid #dab050;margin:0 2px;box-shadow:var(--shadow)}
+/* ---- Player zone ---- */
+#player-zone{flex-shrink:0;display:flex;flex-direction:column;background:var(--bg2);border-top:1px solid #222}
+.player-hero-area{display:flex;align-items:center;gap:6px;padding:4px 8px}
+.my-hero-port{width:48px;height:48px;border-radius:50%;border:2px solid #444;display:flex;align-items:center;justify-content:center;cursor:pointer;position:relative;background:var(--bg2);transition:all .2s;flex-shrink:0}
+.my-hero-port.can-hero-atk{border-color:var(--amber);box-shadow:var(--glow-amber);cursor:pointer}
+.my-hero-port.sel-hero{border-color:var(--pink);box-shadow:var(--glow-pink)}
+.hp-gem{width:40px;height:40px;border-radius:50%;border:2px solid #444;background:var(--bg3);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:all .2s;flex-shrink:0}
+.hp-gem:hover:not(:disabled):not(.used){border-color:var(--cyan);box-shadow:var(--glow-cyan)}
+.hp-gem.used{opacity:.3;cursor:default}
+.hp-gem.active{border-color:var(--pink);box-shadow:var(--glow-pink)}
+.hp-art{font-size:16px}
+.hp-cost{font-size:8px;color:var(--mana)}
+.wpn-slot{width:36px;height:36px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.wpn-card{position:relative;width:32px;height:32px;border-radius:6px;border:2px solid var(--amber);background:var(--bg3);display:flex;align-items:center;justify-content:center}
+.wpn-art{font-size:16px}
+.wpn-atk{position:absolute;bottom:-3px;left:-3px;background:var(--amber);color:#000;font-size:8px;font-weight:700;width:14px;height:14px;border-radius:50%;display:flex;align-items:center;justify-content:center}
+.wpn-dur{position:absolute;bottom:-3px;right:-3px;background:#888;color:#fff;font-size:8px;font-weight:700;width:14px;height:14px;border-radius:50%;display:flex;align-items:center;justify-content:center}
+.mana-txt{font-size:11px;color:var(--mana);font-weight:700;flex-shrink:0;margin-left:auto}
+.hero-info{display:flex;flex-direction:column;gap:1px}
+.hero-cls-name{font-size:10px;color:var(--cyan)}
+.deck-info{font-size:9px;color:#6677aa}
 
-/* ── Effects ── */
-.dmg-pop{position:absolute;font-size:20px;font-weight:900;pointer-events:none;z-index:100;animation:popUp .8s forwards;text-shadow:0 0 4px #fff,1px 1px 0 rgba(0,0,0,.5)}
-.dmg-pop.dmg{color:#c0392b}.dmg-pop.heal{color:#27ae60}
-@keyframes popUp{0%{opacity:1;transform:translateY(0) scale(1)}100%{opacity:0;transform:translateY(-30px) scale(1.4)}}
-.fx-label{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:14px;font-weight:900;color:#fff;background:rgba(139,105,20,.9);padding:5px 12px;border-radius:6px;border:2px solid #dab050;z-index:200;pointer-events:none;animation:lPop .8s forwards;white-space:nowrap}
-@keyframes lPop{0%{opacity:0;transform:translate(-50%,-50%) scale(.5)}30%{opacity:1;transform:translate(-50%,-50%) scale(1.1)}70%{opacity:1}100%{opacity:0;transform:translate(-50%,-50%) scale(.8)}}
-.atk-flash{animation:flash .25s forwards}
-@keyframes flash{0%,100%{filter:brightness(1)}50%{filter:brightness(2)}}
+/* ---- Minion row ---- */
+.battle-zone{padding:4px 4px;min-height:80px}
+.minion-row{display:flex;gap:8px;justify-content:center;align-items:center;min-height:74px;flex-wrap:wrap}
 
-/* ── Card fly animation ── */
-.minion.card-flying{transition:transform .35s cubic-bezier(.2,.8,.3,1),opacity .35s;z-index:100}
+/* ---- Hex minions (pointy-top) ---- */
+.minion-wrap{position:relative;display:inline-flex;flex-direction:column;align-items:center;cursor:pointer;transition:transform .15s}
+.minion-wrap:hover{transform:scale(1.05)}
+.minion{width:64px;height:74px;clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%);background:var(--card-bg);display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;border:none}
+.minion::before{content:'';position:absolute;inset:-2px;z-index:-1;clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%);background:var(--cyan);opacity:0;transition:opacity .2s}
+.minion-wrap.can-atk .minion::before{opacity:1;background:var(--amber)}
+.minion-wrap.sel .minion::before{opacity:1;background:var(--pink)}
+.minion-wrap.targeted .minion::before{opacity:1;background:var(--red)}
+.minion-wrap.taunt .minion::before{opacity:.6;background:#3a6aff}
+.minion-wrap.healable .minion::before{opacity:.5;background:var(--green)}
+.minion-wrap.legendary-wrap .minion{background:linear-gradient(135deg,#1a1a00,#2a2000)}
+.minion.divine-shield{box-shadow:inset 0 0 12px #ffff0066}
+.minion.damaged{}
+.m-cost{position:absolute;top:2px;left:50%;transform:translateX(-50%);font-size:9px;font-weight:700;color:var(--mana);background:#000a;border-radius:50%;width:16px;height:16px;display:flex;align-items:center;justify-content:center;z-index:2}
+.m-art{font-size:22px;margin-top:4px}
+.m-atk{position:absolute;bottom:-8px;left:-2px;background:var(--amber);color:#000;font-size:10px;font-weight:700;width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:1px solid #fff;z-index:5}
+.m-hp{position:absolute;bottom:-8px;right:-2px;background:var(--red);color:#fff;font-size:10px;font-weight:700;width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:1px solid #fff;z-index:5}
+.m-hp.hurt{background:#ff0000;animation:pulse-hp .6s infinite}
+@keyframes pulse-hp{0%,100%{box-shadow:0 0 4px #ff0000}50%{box-shadow:0 0 10px #ff0000}}
+.dr-badge{position:absolute;top:-4px;right:-4px;font-size:10px;z-index:5}
+.eot-badge{position:absolute;top:-4px;left:-4px;font-size:10px;z-index:5}
+.combo-badge{position:absolute;top:50%;left:-6px;font-size:9px;z-index:5;transform:translateY(-50%)}
+.ds-indicator{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:18px;z-index:3;filter:drop-shadow(0 0 6px #ffff00)}
 
-/* ── Turn banner ── */
-.turn-banner{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) scale(0);font-size:22px;font-weight:900;color:#fff;padding:14px 40px;border-radius:10px;border:3px solid #ffe8a0;z-index:200;pointer-events:none;text-shadow:0 2px 6px rgba(0,0,0,.6);box-shadow:0 4px 30px rgba(0,0,0,.4);white-space:nowrap;opacity:0}
-.turn-banner.yours{background:linear-gradient(135deg,#2a9a50,#1a7a3a);border-color:#6fd080}
-.turn-banner.theirs{background:linear-gradient(135deg,#8a3a20,#6a2a10);border-color:#c87050}
-.turn-banner.show{animation:turnBannerIn 1.4s ease forwards}
-@keyframes turnBannerIn{0%{opacity:0;transform:translate(-50%,-50%) scale(0)}12%{opacity:1;transform:translate(-50%,-50%) scale(1.15)}22%{transform:translate(-50%,-50%) scale(1)}70%{opacity:1;transform:translate(-50%,-50%) scale(1)}100%{opacity:0;transform:translate(-50%,-50%) scale(.7)}}
+/* ---- Hand ---- */
+.hand-area{padding:4px 4px 6px;overflow-x:auto;flex-shrink:0}
+.hand-row{display:flex;gap:4px;justify-content:center;min-height:90px;align-items:flex-end}
 
-/* ── Log ── */
-.log-bar{padding:5px 10px;background:linear-gradient(90deg,#e8e0d0,#f0ebe0,#e8e0d0);border-top:2px solid var(--card-border);font-size:13px;color:#3a2a18;text-align:center;min-height:26px;z-index:5;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:flex;align-items:center;justify-content:center;gap:6px}
-.log-toggle{background:none;border:none;font-size:14px;cursor:pointer;padding:2px;opacity:.6;transition:opacity .2s}
-.log-toggle:hover{opacity:1}
-.log-panel{position:absolute;right:0;top:0;bottom:0;width:170px;background:rgba(30,24,14,.92);overflow-y:auto;z-index:180;padding:8px 6px;font-size:10px;color:#c8b888;transform:translateX(100%);transition:transform .25s ease;border-left:2px solid #6a5a3a;font-family:var(--font)}
-.log-panel.open{transform:translateX(0)}
-.log-panel-title{font-size:11px;font-weight:700;color:#e0d0a0;text-align:center;margin-bottom:6px;padding-bottom:4px;border-bottom:1px solid #4a3a20}
-.log-entry{padding:3px 2px;border-bottom:1px solid rgba(100,80,40,.3);line-height:1.3;word-break:break-word}
+/* ---- Hand cards (flat-top hex) ---- */
+.hand-card{clip-path:polygon(25% 0%,75% 0%,100% 50%,75% 100%,25% 100%,0% 50%);width:76px;height:90px;background:var(--card-bg);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;position:relative;transition:transform .15s,box-shadow .15s;flex-shrink:0}
+.hand-card::before{content:'';position:absolute;inset:-2px;z-index:-1;clip-path:polygon(25% 0%,75% 0%,100% 50%,75% 100%,25% 100%,0% 50%);background:#333;transition:background .2s}
+.hand-card.playable::before{background:var(--green)}
+.hand-card.playable:hover{transform:translateY(-6px) scale(1.05)}
+.hand-card.spell::before{background:var(--purple)}
+.hand-card.weapon-card::before{background:var(--amber)}
+.hand-card.legendary::before{background:linear-gradient(135deg,var(--amber),var(--pink))}
+.hand-card .hc-cost{position:absolute;top:4px;left:50%;transform:translateX(-50%);font-size:10px;font-weight:700;color:var(--mana);background:#000c;border-radius:50%;width:18px;height:18px;display:flex;align-items:center;justify-content:center;z-index:2}
+.hand-card .hc-art{font-size:20px;margin-top:6px}
+.hand-card .hc-name{font-size:7px;color:#ccc;text-align:center;max-width:60px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-top:1px}
+.hand-card .hc-type{font-size:7px;color:#888;margin-top:0}
+.hand-card .hc-desc{font-size:6px;color:var(--amber);text-align:center;max-width:58px;margin-top:1px;line-height:1.2}
+.hand-card .hc-atk{position:absolute;bottom:6px;left:8px;font-size:9px;font-weight:700;color:var(--amber)}
+.hand-card .hc-hp{position:absolute;bottom:6px;right:8px;font-size:9px;font-weight:700;color:var(--red)}
 
-/* ── Game over ── */
-#goov{display:none;position:absolute;inset:0;align-items:center;justify-content:center;z-index:300;transition:background .4s}
-#goov.win-bg{background:radial-gradient(ellipse at center,rgba(139,105,20,.3),rgba(0,0,0,.7))}
-#goov.lose-bg{background:radial-gradient(ellipse at center,rgba(120,20,20,.3),rgba(0,0,0,.8))}
-.goc{background:linear-gradient(180deg,#faf3e0,#ece0c4);border:3px solid var(--gold);border-radius:16px;padding:28px 24px;max-width:300px;width:90%;text-align:center;box-shadow:0 8px 40px rgba(0,0,0,.5);animation:goSlideIn .5s ease-out}
-@keyframes goSlideIn{from{opacity:0;transform:translateY(30px) scale(.9)}to{opacity:1;transform:translateY(0) scale(1)}}
-.got{font-size:26px;font-weight:700;color:var(--gold);margin-bottom:6px}
-.got.win{color:#2a9a50;text-shadow:0 0 20px rgba(42,154,80,.4)}
-.got.lose{color:#8b2020;text-shadow:0 0 20px rgba(139,32,32,.4)}
-.gos{font-size:13px;color:#5a4a2a;margin-bottom:10px;line-height:1.5}
-.go-stats{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:14px;font-size:11px;color:#5a4a2a}
-.go-stat{background:rgba(139,105,20,.08);border:1px solid rgba(139,105,20,.2);border-radius:6px;padding:6px 4px;text-align:center}
-.go-stat-val{font-size:16px;font-weight:700;color:var(--gold)}
-.go-stat-label{font-size:9px;color:#7a6a4a}
-.go-particles{position:absolute;inset:0;pointer-events:none;overflow:hidden}
-.go-particle{position:absolute;width:6px;height:6px;border-radius:50%;animation:particleFall linear forwards;opacity:0}
-@keyframes particleFall{0%{opacity:1;transform:translateY(0) rotate(0)}100%{opacity:0;transform:translateY(200px) rotate(360deg)}}
+/* ---- Log bar ---- */
+.log-bar{font-size:9px;color:#8899bb;padding:3px 8px;text-align:center;background:var(--bg2);border-top:1px solid #1a1a2e;flex-shrink:0;min-height:20px}
 
-/* ── Spell target overlay ── */
-#spell-overlay{display:none;position:absolute;inset:0;z-index:150;background:rgba(58,122,192,.1);border:3px solid #3a7ac0;border-radius:0;align-items:flex-start;justify-content:center;pointer-events:none;padding-top:8px}
-#spell-overlay.on{display:flex}
-#spell-overlay.heal-mode{background:rgba(39,174,96,.1);border-color:var(--green)}
-.spell-msg{background:rgba(30,60,140,.92);color:#fff;font-size:13px;font-weight:700;padding:8px 18px;border-radius:8px;border:2px solid #6af;pointer-events:none;box-shadow:0 2px 12px rgba(0,0,0,.4);text-shadow:0 1px 2px rgba(0,0,0,.4);animation:spelMsgPop .2s ease-out}
-@keyframes spelMsgPop{from{opacity:0;transform:scale(.85)}to{opacity:1;transform:scale(1)}}
-#spell-overlay.heal-mode .spell-msg{background:rgba(20,100,40,.92);border-color:#6f8;color:#fff}
+/* ---- Turn banner ---- */
+.turn-banner{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:20px;font-weight:700;letter-spacing:4px;text-transform:uppercase;padding:10px 30px;border-radius:8px;z-index:200;pointer-events:none;opacity:0;transition:opacity .3s}
+.turn-banner.show{opacity:1;animation:banner-in .6s ease-out}
+@keyframes banner-in{0%{transform:translate(-50%,-50%) scale(2);opacity:0}50%{opacity:1}100%{transform:translate(-50%,-50%) scale(1)}}
+.turn-banner.yours{color:var(--green);background:#001a0aee;border:2px solid var(--green);box-shadow:0 0 20px #00ff8844}
+.turn-banner.theirs{color:var(--red);background:#1a0a0aee;border:2px solid var(--red);box-shadow:0 0 20px #ff444444}
 
-/* ── Mulligan overlay ── */
-#mulligan-overlay{display:none;position:absolute;inset:0;background:rgba(20,12,4,.92);z-index:250;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:16px}
-.mul-title{font-size:18px;font-weight:700;color:#ffe8a0;text-shadow:0 1px 4px rgba(0,0,0,.6);text-align:center}
-.mul-sub{font-size:11px;color:#c8b88a;text-align:center}
-.mul-hand{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
-.mul-card{width:72px;min-height:100px;background:linear-gradient(180deg,#faf3e0,#ece0c4);border:2px solid var(--card-border);border-radius:8px;display:flex;flex-direction:column;align-items:center;padding:3px 3px 14px;cursor:pointer;transition:all .18s;position:relative;user-select:none;box-shadow:var(--shadow)}
-.mul-card:hover{transform:translateY(-3px) scale(1.04)}
-.mul-card.selected{opacity:.45;border-color:var(--red);box-shadow:0 0 10px rgba(192,57,43,.4)}
-.mul-card .sel-x{position:absolute;inset:0;display:none;align-items:center;justify-content:center;font-size:26px;color:var(--red);font-weight:900;pointer-events:none;text-shadow:0 0 8px rgba(0,0,0,.4)}
-.mul-card.selected .sel-x{display:flex}
-.mul-card.coin-card{cursor:default;border-color:#d4a020;box-shadow:0 0 6px rgba(212,160,32,.3)}
-.mul-wait{font-size:11px;color:#c8b88a;display:none;text-align:center}
+/* ---- Spell overlay ---- */
+.spell-overlay{position:absolute;top:0;left:0;right:0;background:var(--bg2);border-bottom:2px solid var(--pink);padding:6px 10px;z-index:100;display:none;align-items:center;justify-content:space-between;font-size:11px;color:var(--pink)}
+.spell-overlay.show{display:flex}
+.spell-overlay button{background:var(--bg3);border:1px solid var(--pink);color:var(--pink);padding:3px 8px;border-radius:4px;cursor:pointer;font-family:var(--font);font-size:10px}
+
+/* ---- Damage/heal popups ---- */
+.dmg-pop{position:absolute;z-index:150;font-size:18px;font-weight:700;pointer-events:none;animation:pop-up .8s ease-out forwards}
+.dmg-pop.dmg{color:var(--red);text-shadow:0 0 8px #ff000088}
+.dmg-pop.heal{color:var(--green);text-shadow:0 0 8px #00ff8888}
+@keyframes pop-up{0%{opacity:1;transform:translateY(0)}100%{opacity:0;transform:translateY(-30px)}}
+
+/* ---- Attack flash ---- */
+@keyframes atk-flash-anim{0%,100%{filter:brightness(1)}50%{filter:brightness(2)}}
+.atk-flash{animation:atk-flash-anim .25s}
+
+/* ---- Game Over ---- */
+#goov{display:none;position:absolute;inset:0;z-index:300;align-items:center;justify-content:center;flex-direction:column}
+#goov.win-bg{background:radial-gradient(circle,#001a0acc,#000a)}
+#goov.lose-bg{background:radial-gradient(circle,#1a0000cc,#000a)}
+.goc{background:var(--bg3);border:2px solid var(--cyan);border-radius:12px;padding:20px;text-align:center;max-width:300px;display:flex;flex-direction:column;gap:6px;align-items:center}
+.got{font-size:22px;font-weight:700}
+.got.win{color:var(--green);text-shadow:0 0 12px #00ff8866}
+.got.lose{color:var(--red);text-shadow:0 0 12px #ff444466}
+.go-sub{font-size:11px;color:#aab}
 </style>
 </head>
 <body>
 <div id="G">
 
-<!-- LOBBY -->
+<!-- ======== LOBBY ======== -->
 <div id="lobby" class="scr on">
-  <div class="logo">📒</div>
-  <div class="title">SERCE KSIĄG</div>
-  <div class="sub">Gra karcianna dla 2 graczy · 15 kart · Muligan</div>
-
-  <div style="font-size:11px;color:var(--gold);font-weight:700;align-self:flex-start;max-width:340px;width:100%">Wybierz klasę:</div>
-  <div class="class-grid">
-    <div class="class-card sel" onclick="selClass(this,'mage')">
-      <div class="cl-art">🧙</div>
-      <div class="cl-name">Mag Podatkowy</div>
-      <div class="cl-hp">🔥 Hero Power: 1 dmg</div>
+  <div class="logo glitch">&#9878;&#65039;</div>
+  <div class="title glitch">SERCE KSIAG</div>
+  <div class="sub">Wybierz klase bohatera</div>
+  <div class="class-grid" id="class-grid"></div>
+  <div class="mode-row">
+    <div class="mode-section">
+      <div class="mode-label">Liczba botow</div>
+      <div class="opt-row" id="bot-count-row"></div>
+      <div class="mode-label">Poziom trudnosci</div>
+      <div class="opt-row" id="diff-row"></div>
+      <div class="diff-labels" id="diff-labels"></div>
+      <div style="text-align:center;margin-top:8px">
+        <button class="start-btn" id="start-quick-btn" disabled onclick="startQuickGame()">ROZPOCZNIJ GRE &#9654;</button>
+      </div>
     </div>
-    <div class="class-card" onclick="selClass(this,'warrior')">
-      <div class="cl-art">⚔️</div>
-      <div class="cl-name">Wojownik Księgi</div>
-      <div class="cl-hp">🛡️ Hero Power: +2 pancerza</div>
-    </div>
-    <div class="class-card" onclick="selClass(this,'rogue')">
-      <div class="cl-art">🃏</div>
-      <div class="cl-name">Łotr Podatkowy</div>
-      <div class="cl-hp">🗡️ Hero Power: Sztylet 1/2</div>
-    </div>
-    <div class="class-card" onclick="selClass(this,'priest')">
-      <div class="cl-art">✝️</div>
-      <div class="cl-name">Kapłan Bilansowy</div>
-      <div class="cl-hp">💚 Hero Power: Ulecz 2 HP</div>
-    </div>
+    <button class="campaign-btn" onclick="showCampaignMap()">&#9876;&#65039; TRYB KAMPANII</button>
   </div>
-
-  <div id="lobby-create" style="display:flex;flex-direction:column;align-items:center;gap:10px;width:100%;max-width:320px">
-    <button class="start-btn" onclick="createRoom()">Stwórz Pokój (2 graczy) ▶</button>
-    <div style="font-size:11px;color:#8a7a5a">— lub dołącz do istniejącego —</div>
-    <div class="join-row">
-      <input class="join-input" id="join-code-input" maxlength="4" placeholder="XXXX" oninput="this.value=this.value.toUpperCase()">
-      <button class="join-btn" onclick="joinRoom()">Dołącz</button>
-    </div>
-    <div style="border-top:1px solid #c8b888;width:100%;margin:2px 0"></div>
-    <div style="font-size:11px;color:#8a7a5a">— lub zagraj przeciwko botowi —</div>
-    <div style="display:flex;gap:6px;justify-content:center">
-      <div style="display:flex;flex-direction:column;align-items:center">
-        <div class="diff-btn sel" onclick="selDiff(this,1)" title="Żółtodziób">🌱</div>
-        <div class="diff-label">Łatwy</div>
-      </div>
-      <div style="display:flex;flex-direction:column;align-items:center">
-        <div class="diff-btn" onclick="selDiff(this,2)" title="Normalny">⚔️</div>
-        <div class="diff-label">Normalny</div>
-      </div>
-      <div style="display:flex;flex-direction:column;align-items:center">
-        <div class="diff-btn" onclick="selDiff(this,3)" title="Trudny">🔥</div>
-        <div class="diff-label">Trudny</div>
-      </div>
-      <div style="display:flex;flex-direction:column;align-items:center">
-        <div class="diff-btn" onclick="selDiff(this,4)" title="Ekspert">💀</div>
-        <div class="diff-label">Ekspert</div>
-      </div>
-    </div>
-    <button class="start-btn" style="font-size:12px;padding:8px 28px;background:linear-gradient(135deg,#7a3030,#5a1010);border-color:#c04040" onclick="createBotGame()">🤖 Graj vs Bot</button>
-  </div>
-
-  <div id="lobby-waiting" style="display:none;flex-direction:column;align-items:center;gap:10px;width:100%;max-width:320px">
-    <div class="room-box">
-      <div style="font-size:11px;color:#7a6a4a;margin-bottom:4px">Kod pokoju — podaj znajomemu:</div>
-      <div class="room-code" id="room-code-display">----</div>
-      <div class="room-hint" id="lobby-status"><span class="status-dot"></span>Oczekiwanie na gracza 2...</div>
-    </div>
-    <button class="start-btn" style="font-size:11px;padding:6px 18px;opacity:.7" onclick="copyLink()">📋 Skopiuj link zaproszenia</button>
-  </div>
-  <div class="conn-status" id="conn-status"></div>
 </div>
 
-<!-- GAME BOARD -->
-<div id="gs" class="scr">
+<!-- ======== CAMPAIGN MAP ======== -->
+<div id="campaign-map" class="scr">
+  <div class="cm-back" onclick="showScreen('lobby')">&larr; Powrot do menu</div>
+  <div class="cm-title glitch">KAMPANIA</div>
+  <div id="campaign-nodes"></div>
+</div>
+
+<!-- ======== CHAPTER INTRO ======== -->
+<div id="chapter-intro" class="scr">
+  <div style="flex:1;display:flex;align-items:center;justify-content:center">
+    <div class="ci-box">
+      <div id="ci-title"></div>
+      <div id="ci-story"></div>
+      <div id="ci-rule"></div>
+      <div id="ci-bots"></div>
+      <button class="start-btn" id="ci-start-btn">ROZPOCZNIJ &#9654;</button>
+      <div class="ci-back" onclick="showScreen('campaign-map')">&#8592; Powrot do mapy</div>
+    </div>
+  </div>
+</div>
+
+<!-- ======== MULLIGAN ======== -->
+<div id="mulligan" class="scr">
+  <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:14px">
+    <div class="mul-title">WYMIANA KART</div>
+    <div class="mul-sub">Kliknij karty, ktore chcesz wymienic</div>
+    <div id="mulligan-cards"></div>
+    <button class="start-btn" id="mulligan-confirm">POTWIERDZ &#9654;</button>
+  </div>
+</div>
+
+<!-- ======== BOARD ======== -->
+<div id="board" class="scr">
   <div class="top-bar">
-    <div class="bar-title">📒 SERCE KSIĄG</div>
-    <span style="font-size:10px;color:#ffe8a0" id="tnum">Tura 1</span>
-    <span class="bar-phase waiting" id="pbadge">Łączenie...</span>
+    <span class="bar-title glitch">SERCE KSIAG</span>
+    <span id="turn-badge" class="bar-phase">...</span>
+    <button class="eot-btn" id="eotn" onclick="sendEndTurn()">KONIEC<br>TURY</button>
   </div>
 
-  <div id="board">
-    <canvas id="ac"></canvas>
-    <div class="bg-art"><div class="bg-left"></div><div class="bg-center"></div><div class="bg-right"></div><div class="bg-line"></div></div>
+  <div id="enemy-zones" style="overflow-y:auto;flex:1;min-height:0"></div>
 
-    <div class="sidebar">
-      <button class="eot-btn" id="eotn" onclick="sendEndTurn()" disabled>KONIEC<br>TURY ▶</button>
+  <div class="battle-line">&#9889; LINIA BITWY &#9889;</div>
+
+  <div id="player-zone">
+    <div class="battle-zone">
+      <div class="minion-row" id="my-board"></div>
     </div>
-
-    <!-- OPP side -->
-    <div class="bot-hand-area"><div id="opp-hand-display" style="display:flex;gap:2px;align-items:flex-end"></div></div>
-    <div class="hero-area" id="opp-hero-area">
-      <div class="deck-ct">📚<br><span id="opp-deck">15</span><br><span class="fatigue-badge" id="opp-fatigue">💀<span id="opp-fatigue-val">0</span></span></div>
-      <div class="wpn-slot" id="opp-wpn-slot"></div>
-      <div style="display:flex;flex-direction:column;align-items:center;gap:2px">
-        <div class="hero-port" id="opp-port" onclick="targetHero('opp')">
-          <span id="opp-art">🤖</span>
-          <div class="hero-hp" id="opp-hp">30</div>
-          <div class="hero-armor" id="opp-armor" style="display:none">0</div>
-        </div>
-        <div class="hero-name" id="opp-name">Przeciwnik</div>
-        <div class="hero-cls" id="opp-cls"></div>
+    <div class="player-hero-area">
+      <div class="my-hero-port" id="my-port" onclick="heroSelfClick()">
+        <span style="font-size:26px" id="my-port-art"></span>
+        <div class="hero-hp" id="my-hp">15</div>
+        <div class="hero-armor" id="my-armor" style="display:none">0</div>
       </div>
-      <div style="width:64px"></div>
-      <div><div class="mana-txt" id="opp-mana">💎 1/1</div></div>
-    </div>
-    <div class="battle-zone"><div class="minion-row" id="opp-board"></div></div>
-
-    <div style="border-top:2px solid rgba(139,105,20,.3);margin:0 8px"></div>
-
-    <div class="battle-zone"><div class="minion-row" id="my-board"></div></div>
-    <div class="hero-area">
-      <div class="deck-ct">📚<br><span id="my-deck">15</span><br><span class="fatigue-badge" id="my-fatigue">💀<span id="my-fatigue-val">0</span></span></div>
       <div class="wpn-slot" id="my-wpn-slot"></div>
-      <div style="display:flex;flex-direction:column;align-items:center;gap:2px">
-        <div class="hero-port" id="my-port" onclick="heroSelfClick()">
-          <span id="my-art">🧙</span>
-          <div class="hero-hp" id="my-hp">30</div>
-          <div class="hero-armor" id="my-armor" style="display:none">0</div>
-        </div>
-        <div class="hero-name" id="my-name">Ty</div>
-        <div class="hero-cls" id="my-cls"></div>
+      <button class="hp-gem" id="hpbtn" onclick="clickHeroPower()">
+        <span class="hp-art" id="hp-art"></span>
+        <span class="hp-cost">2</span>
+      </button>
+      <div class="hero-info">
+        <div class="hero-cls-name" id="my-cls-name"></div>
+        <div class="deck-info" id="my-deck-info"></div>
       </div>
-      <div class="hp-gem-wrap">
-        <button class="hp-gem" id="hpbtn" onclick="activateHeroPower()">
-          <span id="hp-art">🔥</span>
-          <div class="hp-gem-cost">2💎</div>
-        </button>
-      </div>
-      <div style="display:flex;flex-direction:column;align-items:center;gap:2px">
-        <div class="mana-row" id="my-mana-row"></div>
-        <div class="mana-txt" id="my-mana-txt">1/1</div>
-      </div>
+      <div class="mana-txt" id="my-mana-txt"></div>
     </div>
-    <div class="hand-area"><div class="hand-row" id="my-hand"></div></div>
-
-    <div class="log-panel" id="log-panel"><div class="log-panel-title">📜 Historia</div><div id="log-entries"></div></div>
-    <div class="turn-banner" id="turn-banner"></div>
-    <div id="spell-overlay"><div class="spell-msg" id="spell-msg-txt">Wybierz cel czaru</div></div>
-
-    <!-- Mulligan overlay -->
-    <div id="mulligan-overlay">
-      <div class="mul-title">✨ Wymień karty</div>
-      <div class="mul-sub">Kliknij karty, które chcesz zamienić, potem zatwierdź</div>
-      <div class="mul-hand" id="mulligan-hand"></div>
-      <button class="start-btn" id="mulligan-btn" onclick="confirmMulligan()">Zatwierdź Muligan ▶</button>
-      <div class="mul-wait" id="mulligan-wait">⏳ Czekam na przeciwnika...</div>
+    <div class="hand-area">
+      <div class="hand-row" id="my-hand"></div>
     </div>
   </div>
-  <div class="log-bar" id="lg"><span id="lg-text">Łączenie z serwerem...</span><button class="log-toggle" onclick="toggleLog()" title="Historia">📜</button></div>
+
+  <div class="log-bar" id="lg-text">...</div>
+
+  <canvas id="ac" style="position:absolute;inset:0;pointer-events:none;z-index:50"></canvas>
+
+  <div id="turn-banner" class="turn-banner"></div>
+
+  <div id="spell-overlay" class="spell-overlay">
+    <span id="spell-msg-txt">Wybierz cel czaru</span>
+    <button onclick="cancelModes()">&#10005; Anuluj</button>
+  </div>
 </div>
 
-<!-- GAME OVER -->
+<!-- ======== GAME OVER ======== -->
 <div id="goov">
-  <div class="go-particles" id="go-particles"></div>
-  <div class="goc">
-    <div class="got" id="got">Koniec!</div>
-    <div class="gos" id="gos"></div>
-    <div class="go-stats" id="go-stats"></div>
-    <button class="start-btn" onclick="location.reload()" style="font-size:12px;padding:8px 20px">Zagraj Ponownie ▶</button>
+  <div class="goc" id="goc-inner">
+    <div id="got" class="got"></div>
+    <div id="gos" class="go-sub"></div>
+    <div id="go-bots" style="font-size:11px;color:var(--cyan);margin:8px 0"></div>
+    <div id="go-campaign-btns" style="display:none">
+      <button class="start-btn" id="go-next-btn">NASTEPNY ROZDZIAL &#9654;</button>
+    </div>
+    <button class="start-btn" onclick="restartLobby()" style="margin-top:8px">&#128260; POWROT DO MENU</button>
   </div>
 </div>
 
-</div>
+</div><!-- #G -->
 
 <script>
-// ── Config ────────────────────────────────────────────────────────────────
-const PARTYKIT_HOST = window.location.host;
+// ======================================================================
+// CARD DATA
+// ======================================================================
+const MAGE_CARDS = [
+  { id:"m1",  name:"Iskra Skarbowa",     art:"\u26A1", cost:1, type:"minion", atk:1, hp:2, keywords:["charge"], bcText:"Szar\u017Ca." },
+  { id:"m2",  name:"Gardziel Podatku",   art:"\uD83D\uDC09", cost:2, type:"minion", atk:2, hp:3, battlecry:"deal1", bcText:"Okrzyk: 1 dmg dowolnemu celowi." },
+  { id:"ms1", name:"Korekta Podatkowa",  art:"\uD83D\uDCDC", cost:1, type:"spell", spellEffect:"draw2", spellText:"Dobierz 2 karty." },
+  { id:"ms2", name:"Zawieja Audytu",     art:"\uD83C\uDF00", cost:3, type:"spell", spellEffect:"deal2all", spellText:"Zadaj 2 obra\u017Cenia wszystkim wrogom." },
+  { id:"m3",  name:"Stra\u017Cnik KPiR",      art:"\uD83D\uDDFF", cost:4, type:"minion", atk:1, hp:7, keywords:["taunt"], bcText:"Prowokacja." },
+  { id:"ms3", name:"Kulka Ognia",        art:"\u2604\uFE0F", cost:4, type:"spell", spellEffect:"deal4face", spellText:"Zadaj 4 obra\u017Cenia dowolnemu celowi." },
+  { id:"mw1", name:"R\u00F3\u017Cd\u017Cka Kontroli",   art:"\uD83D\uDD2E", cost:3, type:"weapon", weaponAtk:3, durability:2, bcText:"Bro\u0144: 3/2" },
+  { id:"m4",  name:"Audytor Duch\u00F3w",     art:"\uD83D\uDC7B", cost:2, type:"minion", atk:2, hp:2, deathrattle:"deal2random", drText:"Po\u015Bm.: 2 dmg losowemu wrogowi." },
+  { id:"m5",  name:"P\u0142omyk Audytu",      art:"\uD83D\uDD25", cost:3, type:"minion", atk:2, hp:3, endOfTurn:"deal1random", eotText:"Koniec tury: 1 dmg losowemu wrogowi." },
+  { id:"mL",  name:"Wielki Inkasent",    art:"\uD83E\uDDFF", cost:7, type:"minion", atk:5, hp:7, battlecry:"deal1all_draw1", bcText:"Okrzyk: 1 dmg wszystkim wrogom i dobierz kart\u0119.", legendary:true },
+];
+const WAR_CARDS = [
+  { id:"w1",  name:"Obl\u0119\u017Cnik Bilansu",   art:"\u26CF\uFE0F", cost:1, type:"minion", atk:2, hp:2 },
+  { id:"w2",  name:"Inkasent D\u0142ug\u00F3w",    art:"\uD83E\uDD81", cost:2, type:"minion", atk:2, hp:3, battlecry:"armor2", bcText:"Okrzyk: +2 pancerza." },
+  { id:"w3",  name:"Tarcza Leasingu",    art:"\uD83D\uDC22", cost:2, type:"minion", atk:1, hp:6, keywords:["taunt"], bcText:"Prowokacja." },
+  { id:"ws1", name:"Fortyfikacja",       art:"\uD83C\uDFF0", cost:3, type:"spell", spellEffect:"armor6", spellText:"Zyskaj 6 pancerza." },
+  { id:"w4",  name:"Komornik S\u0105dowy",    art:"\uD83E\uDD85", cost:3, type:"minion", atk:4, hp:2, battlecry:"armor3", bcText:"Okrzyk: +3 pancerza." },
+  { id:"ww1", name:"Top\u00F3r Amortyzacji",  art:"\u2692\uFE0F", cost:2, type:"weapon", weaponAtk:3, durability:2, bcText:"Bro\u0144: 3/2" },
+  { id:"ws2", name:"Nalot Komornika",    art:"\uD83D\uDCA5", cost:4, type:"spell", spellEffect:"deal3all", spellText:"Zadaj 3 obra\u017Cenia wszystkim wrogim minionkom." },
+  { id:"w5",  name:"Tarcza Duszy",       art:"\uD83D\uDC80", cost:3, type:"minion", atk:2, hp:4, keywords:["taunt"], deathrattle:"armor3", drText:"Prowokacja. Po\u015Bm.: +3 pancerza." },
+  { id:"w6",  name:"Stra\u017Cnik Nocny",     art:"\uD83C\uDF19", cost:4, type:"minion", atk:3, hp:5, endOfTurn:"buff1_0", eotText:"Koniec tury: +1 ATK losowemu minionkowi." },
+  { id:"wL",  name:"Genera\u0142 D\u0142ug\u00F3w",     art:"\uD83D\uDC32", cost:7, type:"minion", atk:7, hp:7, keywords:["taunt"], battlecry:"armor4", bcText:"Prowokacja. Okrzyk: +4 pancerza.", legendary:true },
+];
+const ROGUE_CARDS = [
+  { id:"r1",  name:"Kieszonkowiec VAT",  art:"\uD83E\uDD8A", cost:1, type:"minion", atk:1, hp:2, combo:"deal1", comboText:"Combo: 1 dmg bohaterowi." },
+  { id:"r2",  name:"Przemytnik Ulg",     art:"\uD83E\uDD87", cost:2, type:"minion", atk:3, hp:2, combo:"draw1", comboText:"Combo: dobierz kart\u0119." },
+  { id:"r3",  name:"Agent Rejestrowy",   art:"\uD83D\uDC0D", cost:3, type:"minion", atk:3, hp:2, battlecry:"draw1", bcText:"Okrzyk: dobierz kart\u0119." },
+  { id:"r4",  name:"Fa\u0142szerz Bilansu",   art:"\uD83E\uDD82", cost:3, type:"minion", atk:2, hp:4, combo:"deal2", comboText:"Combo: 2 dmg bohaterowi." },
+  { id:"rs1", name:"Trucizna Faktur",    art:"\u2620\uFE0F", cost:2, type:"spell", spellEffect:"deal2all", spellText:"Zadaj 2 obra\u017Cenia wszystkim wrogom." },
+  { id:"rs2", name:"Sztylet Audytu",     art:"\uD83D\uDDE1\uFE0F", cost:3, type:"spell", spellEffect:"deal4face", spellText:"Zadaj 4 obra\u017Cenia dowolnemu celowi." },
+  { id:"rw1", name:"Sztylet Egzekutora", art:"\u2694\uFE0F", cost:3, type:"weapon", weaponAtk:3, durability:3, bcText:"Bro\u0144: 3/3" },
+  { id:"r5",  name:"Szpieg Wieczny",     art:"\uD83E\uDD8E", cost:2, type:"minion", atk:2, hp:1, deathrattle:"draw1", drText:"Po\u015Bm.: dobierz kart\u0119." },
+  { id:"r6",  name:"Podrzutnik Danych",  art:"\uD83D\uDCE1", cost:3, type:"minion", atk:2, hp:3, endOfTurn:"deal1random", eotText:"Koniec tury: 1 dmg losowemu wrogowi." },
+  { id:"rL",  name:"Mistrz Cienia",      art:"\uD83D\uDC3A", cost:6, type:"minion", atk:6, hp:5, battlecry:"draw1", bcText:"Okrzyk: dobierz kart\u0119.", combo:"deal3", comboText:"Combo: 3 dmg bohaterowi.", legendary:true },
+];
+const PRIEST_CARDS = [
+  { id:"p1",  name:"M\u0142odszy Referent",   art:"\uD83D\uDD4A\uFE0F", cost:1, type:"minion", atk:1, hp:3 },
+  { id:"p2",  name:"Archiwista Duszy",   art:"\uD83E\uDD89", cost:2, type:"minion", atk:1, hp:4, battlecry:"heal2self", bcText:"Okrzyk: przywr\u00F3\u0107 2 HP sobie." },
+  { id:"p3",  name:"Mnich Podatkowy",    art:"\uD83D\uDC3B", cost:3, type:"minion", atk:2, hp:6, keywords:["taunt"], bcText:"Prowokacja." },
+  { id:"p4",  name:"Uzdrowiciel ZUS",    art:"\uD83E\uDD8C", cost:3, type:"minion", atk:2, hp:4, battlecry:"heal2target", bcText:"Okrzyk: przywr\u00F3\u0107 2 HP dowolnemu." },
+  { id:"ps1", name:"Modlitwa Audytu",    art:"\u2728", cost:1, type:"spell", spellEffect:"heal2self", spellText:"Przywr\u00F3\u0107 2 HP swojemu bohaterowi." },
+  { id:"ps2", name:"Uzdrowienie Masowe", art:"\uD83C\uDF08", cost:3, type:"spell", spellEffect:"heal2all", spellText:"Przywr\u00F3\u0107 2 HP wszystkim swoim minionkom i bohaterowi." },
+  { id:"ps3", name:"Wielka \u0141aska",       art:"\uD83C\uDF1F", cost:5, type:"spell", spellEffect:"heal6target", spellText:"Przywr\u00F3\u0107 6 HP dowolnemu celowi." },
+  { id:"p5",  name:"Anio\u0142 Rejestrowy",   art:"\uD83D\uDC7C", cost:4, type:"minion", atk:2, hp:5, deathrattle:"heal3self", drText:"Po\u015Bm.: przywr\u00F3\u0107 3 HP bohaterowi." },
+  { id:"p6",  name:"Mnich Wieczorny",    art:"\uD83D\uDD6F\uFE0F", cost:2, type:"minion", atk:1, hp:4, endOfTurn:"heal1self", eotText:"Koniec tury: przywr\u00F3\u0107 1 HP bohaterowi." },
+  { id:"pL",  name:"Arcykap\u0142an VAT",     art:"\uD83E\uDD84", cost:7, type:"minion", atk:5, hp:8, keywords:["taunt"], battlecry:"heal4target", bcText:"Prowokacja. Okrzyk: przywr\u00F3\u0107 4 HP dowolnemu.", legendary:true },
+];
+const CLASSES = {
+  mage:    { art:"\uD83E\uDDD9", cls:"Mag Podatkowy",    heroPowerText:"Zadaj 1 obra\u017Cenie dowolnemu celowi.", heroPowerArt:"\uD83D\uDD25", cards:MAGE_CARDS },
+  warrior: { art:"\u2694\uFE0F", cls:"Wojownik Ksi\u0119gi",  heroPowerText:"Zyskaj 2 pancerza.",                  heroPowerArt:"\uD83D\uDEE1\uFE0F", cards:WAR_CARDS },
+  rogue:   { art:"\uD83C\uDCCF", cls:"\u0141otr Podatkowy",   heroPowerText:"Wyekwipuj sztylet 1/2.",              heroPowerArt:"\uD83D\uDDE1\uFE0F", cards:ROGUE_CARDS },
+  priest:  { art:"\u271D\uFE0F", cls:"Kap\u0142an Bilansowy", heroPowerText:"Przywr\u00F3\u0107 2 HP dowolnemu celowi.",     heroPowerArt:"\uD83D\uDC9A", cards:PRIEST_CARDS },
+};
+const ALL_CLASSES = ['mage','warrior','rogue','priest'];
 
-// ── State ─────────────────────────────────────────────────────────────────
-let ws = null, myId = null, roomId = null, gameState = null;
-let selAtk = null, dragStart = {x:0,y:0}, dragCurrent = {x:0,y:0};
-let pendingSpell = null, pendingSpellIsHeal = false;
-let heroPowerMode = false, healMode = false;
-let playerClass = 'mage';
-let myIdx = -1;
+// ======================================================================
+// CAMPAIGN DATA
+// ======================================================================
+const CAMPAIGN = [
+  { id:1, title:"Rozdzia\u0142 1: Pierwsza Kontrola", story:"Urz\u0105d Skarbowy przys\u0142a\u0142 m\u0142odego inspektora. To tw\u00F3j pierwszy test.", bots:[{cls:'warrior',level:1}] },
+  { id:2, title:"Rozdzia\u0142 2: Dw\u00F3ch Urz\u0119dnik\u00F3w", story:"Tym razem przyszli we dw\u00F3jk\u0119. Dzia\u0142aj\u0105 razem.", bots:[{cls:'mage',level:1},{cls:'rogue',level:2}] },
+  { id:3, title:"Rozdzia\u0142 3: Naczelnik Wydzia\u0142u", story:"Naczelnik osobi\u015Bcie nadzoruje audyt z elit\u0105.", bots:[{cls:'warrior',level:2},{cls:'priest',level:2},{cls:'mage',level:2}] },
+  { id:4, title:"Rozdzia\u0142 4: Komisja Rewizyjna", story:"Czterech rewizor\u00F3w zjawia si\u0119 bez zapowiedzi. Chaos zaczyna si\u0119 teraz.", bots:[{cls:'mage',level:2},{cls:'warrior',level:3},{cls:'rogue',level:2},{cls:'priest',level:2}] },
+  { id:5, title:"Rozdzia\u0142 5: Dyrektor Departamentu", story:"Dyrektor przybywa z elit\u0105. Nie ma czasu do stracenia.", bots:[{cls:'warrior',level:3},{cls:'mage',level:3}] },
+  { id:6, title:"Rozdzia\u0142 6: Horda Urz\u0119dnik\u00F3w \u2605 PRE-BOSS", story:"Ca\u0142a horda zjawia si\u0119 razem. Dzia\u0142aj\u0105 jako jeden organizm \u2014 lecz\u0105 si\u0119 nawzajem.", bots:[{cls:'warrior',level:3},{cls:'mage',level:4},{cls:'rogue',level:3},{cls:'priest',level:4}], specialRule:"group_synergy", specialRuleText:"Synergia Grupy: Na koniec tury ka\u017Cdego bota, jeden losowy sojuszniczy minionek dostaje +1/+1" },
+  { id:7, title:"Rozdzia\u0142 7: MINISTER FINANS\u00D3W \u2605 BOSS", story:"Sam Minister przybywa rozliczy\u0107 ci\u0119 ostatecznie. 30 HP, specjalna moc, elitarni stra\u017Cnicy.", bots:[{cls:'warrior',level:4,isBoss:true}], specialRule:"boss_fight", specialRuleText:"Minister ma 30 HP i specjaln\u0105 moc bohatera!" },
+];
+
+function getCampaignProgress() { return parseInt(localStorage.getItem('serce_campaign')||'0'); }
+function saveCampaignProgress(chapterId) {
+  if (chapterId > getCampaignProgress()) localStorage.setItem('serce_campaign', String(chapterId));
+}
+
+// ======================================================================
+// GAME STATE
+// ======================================================================
+let G = { phase:"waiting", players:{}, playerOrder:[], activePlayer:"", turn:1, winner:null, log:"" };
+let myId = "human";
+let pendingEvents = [];
+let currentCampaignChapter = null;
+
+// UI State
+let selAtk = null;
+let pendingSpell = null;
+let pendingSpellIsHeal = false;
+let heroPowerMode = false;
+let healMode = false;
+let dragStart = {x:0,y:0}, dragCurrent = {x:0,y:0};
+let selectedClass = null;
+let selectedBotCount = 1;
+let selectedDifficulty = 2;
 let mulliganSelected = new Set();
-let mulliganConfirmed = false;
-let botDifficulty = 1;
-let isBotGame = false;
-let prevActivePlayer = null;
-let stats = { damageDealt: 0, cardsPlayed: 0, minionsKilled: 0, turnsPlayed: 0 };
-let prevBoardUids = new Set();
-let handCardPositions = {};
 
-// ── Sound ─────────────────────────────────────────────────────────────────
-let AC = null;
-function getAC() {
-  if (!AC) { try { AC = new (window.AudioContext || window.webkitAudioContext)(); } catch(e){} }
-  return AC;
-}
-function beep(freq, dur, type='sine', vol=0.3) {
-  try {
-    const ac = getAC(); if (!ac) return;
-    if (ac.state === 'suspended') ac.resume();
-    const o = ac.createOscillator(), g = ac.createGain();
-    o.connect(g); g.connect(ac.destination);
-    o.type = type; o.frequency.value = freq;
-    g.gain.setValueAtTime(vol, ac.currentTime);
-    g.gain.exponentialRampToValueAtTime(0.001, ac.currentTime + dur);
-    o.start(); o.stop(ac.currentTime + dur);
-  } catch(e) {}
-}
-const SFX = {
-  play:   () => { beep(440,.1); setTimeout(()=>beep(660,.15),80); },
-  attack: () => beep(120,.2,'sawtooth'),
-  heal:   () => { beep(660,.1); setTimeout(()=>beep(880,.15),100); },
-  win:    () => [440,550,660,880].forEach((f,i)=>setTimeout(()=>beep(f,.3),i*100)),
-  lose:   () => [440,330,220].forEach((f,i)=>setTimeout(()=>beep(f,.4),i*120)),
-};
+// ======================================================================
+// UTILITY
+// ======================================================================
+function uid() { return Math.random().toString(36).slice(2, 8); }
 
-// ── Card Art SVGs ─────────────────────────────────────────────────────────
-const CARD_ART = {
-  // ── Mage ──
-  m1:  `<svg viewBox="0 0 48 48"><path d="M24 6l4 14h14l-11 8 4 14-11-8-11 8 4-14L6 20h14z" fill="#ffaa00" stroke="#c66a00" stroke-width="1.5"/><circle cx="24" cy="22" r="4" fill="#fff8" stroke="#c66a00" stroke-width=".8"/></svg>`,
-  m2:  `<svg viewBox="0 0 48 48"><ellipse cx="24" cy="26" rx="14" ry="10" fill="#4a8c4a" stroke="#2a5a2a" stroke-width="1.5"/><path d="M14 18c0-6 20-6 20 0v8c0 6-20 6-20 0z" fill="#5ca85c" stroke="#2a5a2a" stroke-width="1.5"/><circle cx="19" cy="17" r="2.5" fill="#ff0" stroke="#c80" stroke-width="1"/><circle cx="29" cy="17" r="2.5" fill="#ff0" stroke="#c80" stroke-width="1"/><path d="M18 23c2 2 10 2 12 0" stroke="#2a5a2a" stroke-width="1.5" fill="none"/><path d="M16 13l-3-5M32 13l3-5" stroke="#2a5a2a" stroke-width="1.5"/></svg>`,
-  ms1: `<svg viewBox="0 0 48 48"><rect x="10" y="6" width="28" height="36" rx="2" fill="#f5e8c8" stroke="#8a6a30" stroke-width="1.5"/><line x1="15" y1="14" x2="33" y2="14" stroke="#a08a5a" stroke-width="1"/><line x1="15" y1="19" x2="33" y2="19" stroke="#a08a5a" stroke-width="1"/><line x1="15" y1="24" x2="33" y2="24" stroke="#a08a5a" stroke-width="1"/><line x1="15" y1="29" x2="28" y2="29" stroke="#a08a5a" stroke-width="1"/><circle cx="34" cy="36" r="6" fill="#c8a040" stroke="#8a6a30" stroke-width="1.5"/><path d="M31 36h6M34 33v6" stroke="#fff" stroke-width="1.5"/></svg>`,
-  ms2: `<svg viewBox="0 0 48 48"><circle cx="24" cy="24" r="16" fill="none" stroke="#4488cc" stroke-width="2" opacity=".3"/><circle cx="24" cy="24" r="11" fill="none" stroke="#4488cc" stroke-width="2" opacity=".5"/><circle cx="24" cy="24" r="6" fill="#4488cc" stroke="#2a5a9a" stroke-width="1.5"/><path d="M24 8c8 8-8 8 0 16c-8-8 8-8 0-16" fill="#6ab8ff" opacity=".6"/></svg>`,
-  m3:  `<svg viewBox="0 0 48 48"><rect x="14" y="10" width="20" height="28" rx="2" fill="#8a7a5a" stroke="#5a4a2a" stroke-width="1.5"/><rect x="18" y="14" width="12" height="4" rx="1" fill="#c8b898"/><rect x="18" y="20" width="12" height="4" rx="1" fill="#c8b898"/><rect x="18" y="26" width="12" height="4" rx="1" fill="#c8b898"/><path d="M12 10h24M12 38h24" stroke="#5a4a2a" stroke-width="2"/><circle cx="24" cy="8" r="3" fill="#c8a040" stroke="#8a6a30" stroke-width="1"/></svg>`,
-  ms3: `<svg viewBox="0 0 48 48"><circle cx="24" cy="24" r="14" fill="#ff4400" opacity=".2"/><circle cx="24" cy="24" r="9" fill="#ff6600" opacity=".4"/><circle cx="24" cy="24" r="5" fill="#ffaa00"/><path d="M24 10c-4 6-2 10 0 14s4 8 0 14" stroke="#ff4400" stroke-width="2" fill="none"/><path d="M18 16c2 4 6 4 8 6s4 6 2 12" stroke="#ff6600" stroke-width="1.5" fill="none"/></svg>`,
-  mw1: `<svg viewBox="0 0 48 48"><line x1="24" y1="8" x2="24" y2="34" stroke="#8a6a30" stroke-width="3" stroke-linecap="round"/><circle cx="24" cy="10" r="5" fill="#9040c0" stroke="#6a2090" stroke-width="1.5"/><circle cx="24" cy="10" r="2" fill="#e0a0ff"/><rect x="16" y="30" width="16" height="4" rx="2" fill="#8a6a30" stroke="#5a4a2a" stroke-width="1"/><circle cx="24" cy="40" r="3" fill="#c8a040"/></svg>`,
-  m4:  `<svg viewBox="0 0 48 48"><circle cx="24" cy="22" r="12" fill="#e8e8f0" opacity=".5" stroke="#8888aa" stroke-width="1"/><circle cx="20" cy="19" r="2" fill="#222"/><circle cx="28" cy="19" r="2" fill="#222"/><path d="M18 26c2 2 10 2 12 0" stroke="#888" stroke-width="1.2" fill="none"/><path d="M14 14c-4-6 0-10 4-8M34 14c4-6 0-10-4-8" stroke="#8888aa" stroke-width="1.5" fill="none"/><path d="M10 30l6-4M38 30l-6-4M12 36l8-6M36 36l-8-6" stroke="#8888aa" stroke-width="1" opacity=".4"/></svg>`,
-  m5:  `<svg viewBox="0 0 48 48"><path d="M24 8c-4 8-12 12-8 22 2 4 6 8 8 10 2-2 6-6 8-10 4-10-4-14-8-22z" fill="#ff6600" stroke="#cc4400" stroke-width="1.5"/><path d="M24 14c-2 5-6 8-4 15 1 2 3 5 4 6 1-1 3-4 4-6 2-7-2-10-4-15z" fill="#ffaa00"/><path d="M24 22c-1 3-3 5-2 9 .5 1 1.5 3 2 3.5.5-.5 1.5-2.5 2-3.5 1-4-1-6-2-9z" fill="#ffe066"/></svg>`,
-  mL:  `<svg viewBox="0 0 48 48"><circle cx="24" cy="24" r="16" fill="#1a3a6a" stroke="#4488cc" stroke-width="2"/><circle cx="24" cy="24" r="10" fill="#2a5a9a" stroke="#6ab8ff" stroke-width="1"/><circle cx="24" cy="24" r="5" fill="#6ab8ff"/><path d="M24 8v32M8 24h32" stroke="#4488cc" stroke-width="1" opacity=".4"/><path d="M13 13l22 22M35 13l-22 22" stroke="#4488cc" stroke-width="1" opacity=".3"/><circle cx="24" cy="24" r="2" fill="#fff"/></svg>`,
-  // ── Warrior ──
-  w1:  `<svg viewBox="0 0 48 48"><path d="M24 6l-6 16h-6l10 12-4 8h12l-4-8 10-12h-6z" fill="#888" stroke="#555" stroke-width="1.5"/><rect x="22" y="28" width="4" height="12" rx="1" fill="#8a6a30" stroke="#5a4a2a" stroke-width="1"/><circle cx="24" cy="32" r="2" fill="#c8a040"/></svg>`,
-  w2:  `<svg viewBox="0 0 48 48"><circle cx="24" cy="20" r="10" fill="#c8a040" stroke="#8a6a30" stroke-width="2"/><path d="M14 20c0 12 20 12 20 0" fill="#a08020"/><path d="M18 17c0-2 4-2 4 0M26 17c0-2 4-2 4 0" stroke="#5a4a2a" stroke-width="1.5" fill="none"/><path d="M20 24c1.5 2 6.5 2 8 0" stroke="#5a4a2a" stroke-width="1.5" fill="none"/><rect x="14" y="32" width="20" height="8" rx="3" fill="#c8a040" stroke="#8a6a30" stroke-width="1.5"/></svg>`,
-  w3:  `<svg viewBox="0 0 48 48"><ellipse cx="24" cy="24" rx="14" ry="16" fill="#5a8050" stroke="#3a5a2a" stroke-width="2"/><ellipse cx="24" cy="24" rx="8" ry="10" fill="#4a7040" stroke="#3a5a2a" stroke-width="1"/><circle cx="20" cy="20" r="2" fill="#223" opacity=".6"/><circle cx="28" cy="20" r="2" fill="#223" opacity=".6"/><path d="M20 28c1 2 6 2 8 0" stroke="#3a5a2a" stroke-width="1" fill="none"/><path d="M10 24h4M34 24h4" stroke="#3a5a2a" stroke-width="2" stroke-linecap="round"/></svg>`,
-  ws1: `<svg viewBox="0 0 48 48"><rect x="10" y="12" width="28" height="24" rx="3" fill="#8a7a5a" stroke="#5a4a2a" stroke-width="2"/><rect x="14" y="16" width="20" height="16" rx="2" fill="#a09070"/><path d="M8 14l4-6h24l4 6" stroke="#5a4a2a" stroke-width="2" fill="#8a7a5a"/><rect x="20" y="18" width="8" height="12" rx="1" fill="#6a5a3a"/><path d="M14 36h20v4H14z" fill="#8a7a5a" stroke="#5a4a2a" stroke-width="1"/></svg>`,
-  w4:  `<svg viewBox="0 0 48 48"><path d="M24 8l16 20-16 12-16-12z" fill="#b8a070" stroke="#8a6a30" stroke-width="2"/><circle cx="24" cy="22" r="6" fill="#c8a040"/><path d="M21 20l3 4 3-4" stroke="#5a4a2a" stroke-width="2" fill="none"/><path d="M8 28l16 12 16-12" fill="none" stroke="#8a6a30" stroke-width="1.5"/></svg>`,
-  ww1: `<svg viewBox="0 0 48 48"><path d="M14 8l20 16-20 16" fill="#aaa" stroke="#666" stroke-width="2"/><rect x="10" y="20" width="8" height="8" rx="1" fill="#8a6a30" stroke="#5a4a2a" stroke-width="1.5"/><path d="M34 24l6-2v4z" fill="#aaa" stroke="#666" stroke-width="1"/><line x1="14" y1="24" x2="34" y2="24" stroke="#888" stroke-width="2"/></svg>`,
-  ws2: `<svg viewBox="0 0 48 48"><circle cx="24" cy="24" r="12" fill="#ff4400" opacity=".15"/><path d="M24 12l3 8 8-3-5 7 8 3-8 3 5 7-8-3-3 8-3-8-8 3 5-7-8-3 8-3-5-7 8 3z" fill="#ff6600" stroke="#cc4400" stroke-width="1"/><circle cx="24" cy="24" r="4" fill="#ffaa00"/></svg>`,
-  w5:  `<svg viewBox="0 0 48 48"><path d="M24 8l14 10v14L24 40 10 32V18z" fill="#4a4a5a" stroke="#2a2a3a" stroke-width="2"/><path d="M24 14l8 6v8l-8 6-8-6v-8z" fill="#3a3a4a" stroke="#5a5a6a" stroke-width="1"/><circle cx="24" cy="24" r="4" fill="#2a2a3a"/><path d="M22 22l2 2 2-2" stroke="#8a8a9a" stroke-width="1.5" fill="none"/><path d="M20 28l4 4 4-4" stroke="#8a8a9a" stroke-width="1" fill="none" opacity=".5"/></svg>`,
-  w6:  `<svg viewBox="0 0 48 48"><circle cx="24" cy="20" r="12" fill="#2a2a4a" stroke="#4a4a6a" stroke-width="1.5"/><path d="M18 38c2-8 10-8 12 0" fill="#2a2a4a" stroke="#4a4a6a" stroke-width="1.5"/><circle cx="24" cy="10" r="5" fill="#ffe066" opacity=".3"/><path d="M20 14l4 6 4-6" fill="#ffe066" opacity=".6"/><circle cx="21" cy="19" r="1.5" fill="#ffe066"/><circle cx="27" cy="19" r="1.5" fill="#ffe066"/></svg>`,
-  wL:  `<svg viewBox="0 0 48 48"><path d="M24 6c-8 4-16 10-14 22 1 6 6 10 14 14 8-4 13-8 14-14 2-12-6-18-14-22z" fill="#8b2020" stroke="#5a1010" stroke-width="2"/><path d="M24 14c-4 2-8 6-7 12 .5 3 3 5 7 7 4-2 6.5-4 7-7 1-6-3-10-7-12z" fill="#aa3030"/><circle cx="20" cy="20" r="2" fill="#ff0" stroke="#c80" stroke-width=".8"/><circle cx="28" cy="20" r="2" fill="#ff0" stroke="#c80" stroke-width=".8"/><path d="M18 28l3-1 3 2 3-2 3 1" stroke="#ff4" stroke-width="1.5" fill="none"/></svg>`,
-  // ── Rogue ──
-  r1:  `<svg viewBox="0 0 48 48"><path d="M24 10c-6 0-12 4-12 12s8 16 12 18c4-2 12-10 12-18s-6-12-12-12z" fill="#c06020" stroke="#8a4010" stroke-width="1.5"/><circle cx="20" cy="20" r="2.5" fill="#223"/><circle cx="28" cy="20" r="2.5" fill="#223"/><path d="M20 14l-4-4M28 14l4-4" stroke="#c06020" stroke-width="2" stroke-linecap="round"/><path d="M22 28c1 1 3 1 4 0" stroke="#8a4010" stroke-width="1" fill="none"/><path d="M18 26l-3 2M30 26l3 2" stroke="#c06020" stroke-width="1.5"/></svg>`,
-  r2:  `<svg viewBox="0 0 48 48"><path d="M24 14l-16 8 16 16 16-16z" fill="#3a3a4a" stroke="#2a2a3a" stroke-width="1.5"/><path d="M8 22l16-8 16 8" fill="#4a4a5a" stroke="#2a2a3a" stroke-width="1.5"/><circle cx="20" cy="22" r="1.5" fill="#ff4444"/><circle cx="28" cy="22" r="1.5" fill="#ff4444"/><path d="M8 22c2 2 6 1 8-1M40 22c-2 2-6 1-8-1" stroke="#3a3a4a" stroke-width="1.5" fill="none"/></svg>`,
-  r3:  `<svg viewBox="0 0 48 48"><circle cx="24" cy="20" r="10" fill="#2a4a2a" stroke="#1a3a1a" stroke-width="1.5"/><path d="M14 28c0 8 20 8 20 0v-4c0 4-20 4-20 0z" fill="#2a4a2a" stroke="#1a3a1a" stroke-width="1.5"/><circle cx="21" cy="18" r="2" fill="#4a8a4a"/><circle cx="27" cy="18" r="2" fill="#4a8a4a"/><path d="M20 24l4 2 4-2" stroke="#1a3a1a" stroke-width="1.5" fill="none"/><rect x="18" y="10" width="12" height="4" rx="2" fill="#4a8a4a" stroke="#1a3a1a" stroke-width="1"/></svg>`,
-  r4:  `<svg viewBox="0 0 48 48"><path d="M24 10c-8 0-14 6-14 14l14 14 14-14c0-8-6-14-14-14z" fill="#4a2a4a" stroke="#3a1a3a" stroke-width="1.5"/><path d="M17 20c0-2 3-3 5-1M26 19c2-2 5-1 5 1" stroke="#222" stroke-width="1.5" fill="none"/><path d="M20 28c1.5 2 6.5 2 8 0" stroke="#3a1a3a" stroke-width="1.5" fill="none"/><circle cx="24" cy="24" r="1.5" fill="#ff0" opacity=".6"/></svg>`,
-  rs1: `<svg viewBox="0 0 48 48"><path d="M20 8l4 12 4-12" fill="#5a2a5a" stroke="#3a1a3a" stroke-width="1.5"/><circle cx="24" cy="24" r="10" fill="#5a2a5a" opacity=".3"/><path d="M16 20c-4 8 0 16 8 18s12-2 12-10" stroke="#8a4a8a" stroke-width="2" fill="none"/><circle cx="24" cy="28" r="4" fill="#5a2a5a" stroke="#3a1a3a" stroke-width="1"/><path d="M22 27l2 2 2-2" stroke="#aa6aaa" stroke-width="1.5" fill="none"/></svg>`,
-  rs2: `<svg viewBox="0 0 48 48"><line x1="14" y1="38" x2="34" y2="8" stroke="#aaa" stroke-width="3" stroke-linecap="round"/><line x1="14" y1="38" x2="34" y2="8" stroke="#ccc" stroke-width="1.5"/><path d="M32 6l4 4-6 2z" fill="#aaa" stroke="#888" stroke-width="1"/><circle cx="14" cy="38" r="3" fill="#8a6a30" stroke="#5a4a2a" stroke-width="1"/></svg>`,
-  rw1: `<svg viewBox="0 0 48 48"><line x1="12" y1="36" x2="36" y2="12" stroke="#888" stroke-width="3"/><line x1="12" y1="36" x2="36" y2="12" stroke="#bbb" stroke-width="1.5"/><path d="M34 10l4 4-4 4-4-4z" fill="#aaa" stroke="#666" stroke-width="1"/><line x1="20" y1="36" x2="36" y2="20" stroke="#888" stroke-width="3"/><path d="M34 18l4 4-4 4-4-4z" fill="#aaa" stroke="#666" stroke-width="1"/><circle cx="12" cy="36" r="3" fill="#8a6a30"/></svg>`,
-  r5:  `<svg viewBox="0 0 48 48"><ellipse cx="24" cy="24" rx="12" ry="8" fill="#5a8a5a" stroke="#3a6a3a" stroke-width="1.5"/><circle cx="24" cy="18" r="6" fill="#5a8a5a" stroke="#3a6a3a" stroke-width="1.5"/><circle cx="22" cy="17" r="1.5" fill="#223"/><circle cx="26" cy="17" r="1.5" fill="#223"/><path d="M12 24l-4 4M36 24l4 4M14 28l-6 6M34 28l6 6" stroke="#5a8a5a" stroke-width="2" stroke-linecap="round"/><path d="M22 22c1 1 3 1 4 0" stroke="#3a6a3a" stroke-width="1" fill="none"/></svg>`,
-  r6:  `<svg viewBox="0 0 48 48"><circle cx="24" cy="20" r="10" fill="#3a4a5a" stroke="#2a3a4a" stroke-width="1.5"/><rect x="20" y="30" width="8" height="10" rx="2" fill="#3a4a5a" stroke="#2a3a4a" stroke-width="1"/><circle cx="24" cy="18" r="4" fill="#4a8acc" stroke="#2a5a9a" stroke-width="1"/><path d="M20 18h8M24 14v8" stroke="#6ab8ff" stroke-width="1" opacity=".6"/><line x1="18" y1="10" x2="14" y2="4" stroke="#6ab8ff" stroke-width="1.5"/><line x1="30" y1="10" x2="34" y2="4" stroke="#6ab8ff" stroke-width="1.5"/><circle cx="14" cy="4" r="2" fill="#6ab8ff" opacity=".5"/><circle cx="34" cy="4" r="2" fill="#6ab8ff" opacity=".5"/></svg>`,
-  rL:  `<svg viewBox="0 0 48 48"><circle cx="24" cy="22" r="14" fill="#2a2a3a" stroke="#4a4a5a" stroke-width="2"/><path d="M16 18c0-4 6-6 8-2 2-4 8-2 8 2s-4 8-8 12c-4-4-8-8-8-12z" fill="#4a4a6a"/><circle cx="21" cy="18" r="2" fill="#aaf" opacity=".8"/><circle cx="27" cy="18" r="2" fill="#aaf" opacity=".8"/><path d="M20 26c1.5 2 6.5 2 8 0" stroke="#6a6a8a" stroke-width="1.5" fill="none"/><path d="M10 28l-4 6M38 28l4 6" stroke="#4a4a5a" stroke-width="2"/></svg>`,
-  // ── Priest ──
-  p1:  `<svg viewBox="0 0 48 48"><ellipse cx="24" cy="20" rx="8" ry="10" fill="#e8e4f0" stroke="#a8a0c0" stroke-width="1.5"/><path d="M16 30c0 8 16 8 16 0" fill="#e8e4f0" stroke="#a8a0c0" stroke-width="1.5"/><circle cx="21" cy="18" r="1.5" fill="#445"/><circle cx="27" cy="18" r="1.5" fill="#445"/><path d="M12 12l6 4M36 12l-6 4M10 16l8 2M38 16l-8 2" stroke="#c8c0d8" stroke-width="1.5" fill="none"/></svg>`,
-  p2:  `<svg viewBox="0 0 48 48"><circle cx="24" cy="20" r="10" fill="#8a6a30" stroke="#5a4a2a" stroke-width="1.5"/><path d="M14 28c0 8 20 8 20 0" fill="#8a6a30" stroke="#5a4a2a" stroke-width="1.5"/><circle cx="20" cy="18" r="3" fill="#ff0" stroke="#c80" stroke-width="1"/><circle cx="28" cy="18" r="3" fill="#ff0" stroke="#c80" stroke-width="1"/><circle cx="20" cy="18" r="1.5" fill="#222"/><circle cx="28" cy="18" r="1.5" fill="#222"/><path d="M14 12c2-4 6-2 6 0M28 12c0-2 4-4 6 0" stroke="#8a6a30" stroke-width="2" fill="none"/></svg>`,
-  p3:  `<svg viewBox="0 0 48 48"><ellipse cx="24" cy="22" rx="14" ry="16" fill="#7a5a30" stroke="#5a3a10" stroke-width="2"/><circle cx="19" cy="18" r="2.5" fill="#223"/><circle cx="29" cy="18" r="2.5" fill="#223"/><ellipse cx="24" cy="26" rx="4" ry="3" fill="#5a3a10"/><path d="M12 12c0-4 4-6 6-4M36 12c0-4-4-6-6-4" stroke="#7a5a30" stroke-width="2.5" fill="none"/></svg>`,
-  p4:  `<svg viewBox="0 0 48 48"><circle cx="24" cy="22" r="12" fill="#4a7a4a" stroke="#2a5a2a" stroke-width="1.5"/><path d="M24 14v16M18 22h12" stroke="#8fc88f" stroke-width="3"/><circle cx="24" cy="22" r="5" fill="#4a7a4a" stroke="#8fc88f" stroke-width="1"/><path d="M12 32l4-4M36 32l-4-4" stroke="#4a7a4a" stroke-width="2"/></svg>`,
-  ps1: `<svg viewBox="0 0 48 48"><path d="M24 6l6 12h-4v10h-4V18h-4z" fill="#ffe066" stroke="#c8a040" stroke-width="1"/><path d="M24 28c-8 0-14 4-14 8v4h28v-4c0-4-6-8-14-8z" fill="#ffe066" opacity=".3" stroke="#c8a040" stroke-width="1"/><circle cx="24" cy="22" r="3" fill="#fff" opacity=".6"/></svg>`,
-  ps2: `<svg viewBox="0 0 48 48"><path d="M8 24c4-16 32-16 32 0" fill="none" stroke="#ff4444" stroke-width="2"/><path d="M8 24c4 16 32 16 32 0" fill="none" stroke="#ff8844" stroke-width="2"/><path d="M8 24c4-8 32-8 32 0" fill="none" stroke="#ffcc44" stroke-width="1.5"/><path d="M8 24c4 8 32 8 32 0" fill="none" stroke="#44cc44" stroke-width="1.5"/><circle cx="24" cy="24" r="4" fill="#ffe066" stroke="#c8a040" stroke-width="1"/><path d="M22 23l2 2 2-2" stroke="#c8a040" stroke-width="1.5" fill="none"/></svg>`,
-  ps3: `<svg viewBox="0 0 48 48"><path d="M24 6l3 8 8 0-6 5 2 8-7-4-7 4 2-8-6-5h8z" fill="#ffe066" stroke="#c8a040" stroke-width="1.5"/><circle cx="24" cy="18" r="6" fill="#fff" opacity=".3"/><path d="M24 30v10M18 34h12" stroke="#c8a040" stroke-width="2"/></svg>`,
-  p5:  `<svg viewBox="0 0 48 48"><circle cx="24" cy="22" r="8" fill="#f0e8d0" stroke="#c8a040" stroke-width="1.5"/><circle cx="22" cy="20" r="1.5" fill="#445"/><circle cx="26" cy="20" r="1.5" fill="#445"/><path d="M21 25c1.5 1.5 4.5 1.5 6 0" stroke="#c8a040" stroke-width="1" fill="none"/><circle cx="24" cy="22" r="12" fill="none" stroke="#ffe066" stroke-width="1" opacity=".4"/><path d="M12 14c2-4 8 0 12-6 4 6 10 2 12 6" stroke="#ffe066" stroke-width="1.5" fill="none" opacity=".5"/><path d="M14 30l-4 8M34 30l4 8M18 32l-2 10M30 32l2 10" stroke="#e8e0d0" stroke-width="1.5"/></svg>`,
-  p6:  `<svg viewBox="0 0 48 48"><path d="M24 8c-4 4-8 10-8 18h16c0-8-4-14-8-18z" fill="#ff8800" opacity=".6" stroke="#cc6600" stroke-width="1"/><path d="M24 14c-2 3-4 7-4 12h8c0-5-2-9-4-12z" fill="#ffcc44"/><path d="M24 22c-1 2-2 3-2 6h4c0-3-1-4-2-6z" fill="#fff" opacity=".6"/><rect x="20" y="36" width="8" height="6" rx="2" fill="#8a6a30" stroke="#5a4a2a" stroke-width="1"/><circle cx="24" cy="38" r="1" fill="#c8a040"/></svg>`,
-  pL:  `<svg viewBox="0 0 48 48"><circle cx="24" cy="22" r="14" fill="#e8d0f0" stroke="#9060a0" stroke-width="2"/><path d="M18 16c0-4 4-6 6-4s6-0 6 4" fill="#e8d0f0" stroke="#9060a0" stroke-width="1.5"/><circle cx="20" cy="20" r="2" fill="#6030a0"/><circle cx="28" cy="20" r="2" fill="#6030a0"/><path d="M20 26c2 3 6 3 8 0" stroke="#9060a0" stroke-width="1.5" fill="none"/><path d="M24 8v-2M24 6l-4-2M24 6l4-2M24 6l0-4" stroke="#c090d0" stroke-width="2" stroke-linecap="round"/></svg>`,
-  // ── Neutral ──
-  coin:`<svg viewBox="0 0 48 48"><circle cx="24" cy="24" r="14" fill="#c8a040" stroke="#8a6a30" stroke-width="2"/><circle cx="24" cy="24" r="10" fill="#dab050" stroke="#8a6a30" stroke-width="1"/><text x="24" y="29" font-size="16" font-weight="700" fill="#5a4a2a" text-anchor="middle" font-family="serif">1</text></svg>`,
-};
-
-function renderArt(card, size) {
-  const svg = CARD_ART[card.id];
-  if (svg) return `<div style="width:${size}px;height:${size}px;line-height:0">${svg}</div>`;
-  return card.art;
+function cloneCard(c) {
+  return { ...c, uid: uid(), curHp: c.hp ?? 1, maxHp: c.hp ?? 1, canAtk: false, fresh: true,
+    divineShield: c.keywords?.includes("divine_shield") };
 }
 
-// ── Card Hover Preview ────────────────────────────────────────────────────
-const preview = document.createElement('div');
-preview.id = 'card-preview';
-preview.style.cssText = 'position:fixed;pointer-events:none;z-index:9999;display:none;width:136px;height:220px;background:linear-gradient(180deg,#faf3e0,#ece0c4);border:2px solid #b89a5a;border-radius:8px;padding:6px 6px 28px;font-family:Georgia,serif;box-shadow:0 4px 16px rgba(0,0,0,.5);color:#3a2a10;box-sizing:border-box;overflow:hidden';
-document.body.appendChild(preview);
-
-function showPreview(card, x, y) {
-  const isLeg = card.legendary;
-  const typeClass = card.type === 'spell' ? 'spell' : card.type === 'weapon' ? 'weapon' : '';
-  const bg = card.type === 'spell' ? 'linear-gradient(180deg,#dce8f8,#c0d4f0)'
-           : card.type === 'weapon' ? 'linear-gradient(180deg,#f0e8d0,#e0d0a8)'
-           : 'linear-gradient(180deg,#faf3e0,#ece0c4)';
-  const bc = isLeg ? '#ffd700' : card.type === 'spell' ? '#6a8abf' : card.type === 'weapon' ? '#c8a040' : '#b89a5a';
-  preview.style.background = bg;
-  preview.style.borderColor = bc;
-  let h = `<div style="position:absolute;top:-6px;left:-6px;background:linear-gradient(135deg,#48f,#2a5aff);border:2px solid #8af;border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;color:#fff;box-shadow:0 1px 3px rgba(0,0,0,.3)">${card.cost}</div>`;
-  h += `<div style="text-align:center;line-height:1">${renderArt(card, 48)}</div>`;
-  h += `<div style="font-size:13px;font-weight:700;color:${isLeg?'#ffd700':'#8b6914'};text-align:center;line-height:1.2;word-break:break-word">${card.name}</div>`;
-  h += `<div style="font-size:11px;color:#7a6a4a;text-align:center;white-space:nowrap">${card.type==='spell'?'✨ Czar':card.type==='weapon'?'⚔️ Broń':'Minionek'}</div>`;
-  const descs = [card.bcText, card.drText, card.eotText, card.spellText, card.comboText].filter(Boolean);
-  if (descs.length) h += `<div style="font-size:10px;color:#5a4a2a;text-align:center;line-height:1.3;margin:2px 0;word-break:break-word">${descs.join('<br>')}</div>`;
-  if (isLeg) h += `<div style="font-size:10px;color:#ffd700;text-align:center;font-weight:700">⭐ LEGENDARNY</div>`;
-  if (card.type === 'minion') {
-    const dispHp = card.maxHp ?? card.hp ?? 0;
-    const dispAtk = card.atk ?? 0;
-    h += `<div style="position:absolute;bottom:2px;left:6px;width:26px;height:26px;background:#d4a020;clip-path:polygon(50% 0%,100% 38%,82% 100%,18% 100%,0% 38%);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#fff">${dispAtk}</div>`;
-    h += `<div style="position:absolute;bottom:2px;right:6px;background:#c0392b;border:2px solid rgba(0,0,0,.2);border-radius:50%;width:26px;height:26px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#fff">${dispHp}</div>`;
+function shuffle(a) {
+  const b = [...a];
+  for (let i = b.length-1; i > 0; i--) {
+    const j = Math.floor(Math.random()*(i+1)); [b[i],b[j]] = [b[j],b[i]];
   }
-  preview.innerHTML = h;
-  preview.style.display = 'block';
-  const pw = 136, ph2 = 220;
-  let px = x + 18, py = y - ph2/2;
-  if (px + pw > window.innerWidth - 4) px = x - pw - 18;
-  if (py < 4) py = 4;
-  if (py + ph2 > window.innerHeight - 4) py = window.innerHeight - ph2 - 4;
-  preview.style.left = px + 'px';
-  preview.style.top = py + 'px';
-}
-function hidePreview() { preview.style.display = 'none'; }
-const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
-function attachPreview(el, card) {
-  if (isTouchDevice) return; // no hover preview on touch devices
-  el.addEventListener('mouseenter', e => showPreview(card, e.clientX, e.clientY));
-  el.addEventListener('mousemove',  e => showPreview(card, e.clientX, e.clientY));
-  el.addEventListener('mouseleave', hidePreview);
-  el.addEventListener('click', hidePreview);
+  return b;
 }
 
-// ── Lobby helpers ─────────────────────────────────────────────────────────
-function selClass(el, cls) {
-  document.querySelectorAll('.class-card').forEach(e => e.classList.remove('sel'));
-  el.classList.add('sel');
-  playerClass = cls;
-}
-function selDiff(el, lvl) {
-  document.querySelectorAll('.diff-btn').forEach(e => e.classList.remove('sel'));
-  el.classList.add('sel');
-  botDifficulty = lvl;
-}
-function genRoomId() { return Math.random().toString(36).slice(2,6).toUpperCase(); }
-
-function createRoom() {
-  isBotGame = false;
-  roomId = genRoomId();
-  document.getElementById('room-code-display').textContent = roomId;
-  document.getElementById('lobby-create').style.display = 'none';
-  document.getElementById('lobby-waiting').style.display = 'flex';
-  connectWS();
-}
-function createBotGame() {
-  isBotGame = true;
-  roomId = genRoomId();
-  document.getElementById('room-code-display').textContent = '🤖BOT';
-  document.getElementById('lobby-create').style.display = 'none';
-  document.getElementById('lobby-waiting').style.display = 'flex';
-  document.getElementById('lobby-status').innerHTML = '<span class="status-dot ready"></span>Uruchamianie bota...';
-  connectWS();
-}
-function joinRoom() {
-  if (!roomId) {
-    const code = document.getElementById('join-code-input').value.trim().toUpperCase();
-    if (code.length !== 4) { alert('Wpisz 4-literowy kod pokoju!'); return; }
-    roomId = code;
-  }
-  document.getElementById('lobby-create').style.display = 'none';
-  document.getElementById('lobby-waiting').style.display = 'flex';
-  document.getElementById('room-code-display').textContent = roomId;
-  document.getElementById('lobby-status').innerHTML = '<span class="status-dot"></span>Łączenie...';
-  connectWS();
-}
-function copyLink() {
-  const url = `${location.origin}${location.pathname}?room=${roomId}`;
-  if (navigator.clipboard && window.isSecureContext) {
-    navigator.clipboard.writeText(url).then(() => alert('Link skopiowany!'));
-  } else {
-    const ta = document.createElement('textarea');
-    ta.value = url;
-    ta.style.cssText = 'position:fixed;left:-9999px';
-    document.body.appendChild(ta);
-    ta.select();
-    document.execCommand('copy');
-    document.body.removeChild(ta);
-    alert('Link skopiowany!');
-  }
-}
-function setConnStatus(txt) { const el = document.getElementById('conn-status'); if (el) el.textContent = txt; }
-
-// ── WebSocket ─────────────────────────────────────────────────────────────
-function connectWS() {
-  myId = 'p_' + Math.random().toString(36).slice(2,10);
-  const proto = location.protocol === 'https:' ? 'wss' : 'ws';
-  const url = `${proto}://${PARTYKIT_HOST}/party/${roomId}?_pk_id=${myId}`;
-  setConnStatus('Łączenie z ' + PARTYKIT_HOST + '...');
-  ws = new WebSocket(url);
-  ws.onopen = () => {
-    setConnStatus('Połączono! Dołączanie...');
-    send({ type:'join', cls:playerClass, vsBot: isBotGame, botLevel: isBotGame ? botDifficulty : 0 });
-  };
-  ws.onmessage = e => {
-    const msg = JSON.parse(e.data);
-    if (msg.type === 'you') { myId = msg.id; }
-    if (msg.type === 'state')  onStateUpdate(msg.state, []);
-    if (msg.type === 'update') onStateUpdate(msg.state, msg.events || []);
-  };
-  ws.onclose = ev => { setConnStatus('Rozłączono (kod: ' + ev.code + ')'); log('Rozłączono z serwerem.'); };
-  ws.onerror = () => { setConnStatus('Błąd połączenia!'); log('Błąd połączenia WebSocket.'); };
-}
-function send(obj) { if (ws && ws.readyState === 1) ws.send(JSON.stringify(obj)); }
-
-// ── State update ──────────────────────────────────────────────────────────
-function onStateUpdate(state, events = []) {
-  gameState = state;
-
-  if (state.phase === 'waiting') {
-    setConnStatus('Połączono. Oczekiwanie na gracza 2...');
-    document.getElementById('lobby-status').innerHTML = '<span class="status-dot ready"></span>Połączono! Oczekiwanie na gracza 2...';
-    log(state.log);
-    return;
-  }
-
-  if (myIdx === -1 && state.playerOrder.includes(myId)) {
-    myIdx = state.playerOrder.indexOf(myId);
-  }
-
-  document.getElementById('lobby').classList.remove('on');
-  document.getElementById('gs').classList.add('on');
-
-  if (state.phase === 'mulligan') {
-    if (state.playerOrder.includes(myId)) showMulligan(state);
-    log(state.log);
-    return;
-  }
-
-  // Hide mulligan overlay when game starts
-  const mulOv = document.getElementById('mulligan-overlay');
-  if (mulOv) mulOv.style.display = 'none';
-
-  if (state.phase === 'over') { showGameOver(state); return; }
-
-  // Turn banner + stats
-  if (state.phase === 'playing' && prevActivePlayer !== null && prevActivePlayer !== state.activePlayer) {
-    const isMine = state.activePlayer === myId;
-    showTurnBanner(isMine ? 'TWOJA TURA!' : 'TURA PRZECIWNIKA', isMine);
-    if (isMine) stats.turnsPlayed++;
-  }
-  prevActivePlayer = state.activePlayer;
-
-  // Track damage from events
-  if (events.length) {
-    const oppId = state.playerOrder.find(id => id !== myId);
-    const oppIdx = state.playerOrder.indexOf(oppId);
-    events.forEach(ev => {
-      if (ev.kind === 'damage') {
-        const isOppTarget = ev.targetId === `hero_${oppIdx}` || (oppId && state.players[oppId]?.board?.some(m => m.uid === ev.targetId));
-        if (isOppTarget) stats.damageDealt += ev.amount;
-      }
-    });
-  }
-
-  // Snapshot hand card positions before render for FLIP animation
-  snapshotHandPositions();
-  const oldBoardUids = new Set(prevBoardUids);
-
-  render(state);
-
-  // Animate new minions flying from hand to board
-  if (state.players[myId]) {
-    const newBoardUids = new Set(state.players[myId].board.map(c => c.uid));
-    newBoardUids.forEach(uid => {
-      if (!oldBoardUids.has(uid) && handCardPositions[uid]) {
-        animateCardToBoard(uid, handCardPositions[uid]);
-      }
-    });
-    prevBoardUids = newBoardUids;
-  }
-
-  if (events.length) requestAnimationFrame(() => playAnimEvents(events));
+function buildDeck(cls) {
+  const pool = CLASSES[cls].cards;
+  const standards = pool.filter(c => !c.legendary);
+  const legendary = pool.find(c => c.legendary);
+  const extra = shuffle(standards).slice(0,6);
+  return shuffle([...standards, ...extra, legendary]).map(c => cloneCard(c));
 }
 
-// ── Mulligan ──────────────────────────────────────────────────────────────
-function showMulligan(state) {
-  const overlay = document.getElementById('mulligan-overlay');
-  overlay.style.display = 'flex';
+function hasTaunt(board) {
+  return board.some(c => !c.silenced && c.keywords?.includes("taunt"));
+}
 
-  if (mulliganConfirmed) {
-    document.getElementById('mulligan-hand').innerHTML = '';
-    document.getElementById('mulligan-btn').style.display = 'none';
-    document.getElementById('mulligan-wait').style.display = 'block';
-    return;
-  }
+function mkPlayer(id, cls, botLevel, hp) {
+  if (botLevel === undefined) botLevel = 0;
+  if (hp === undefined) hp = 15;
+  return { id:id, hp:hp, maxHp:hp, maxMana:1, mana:1, armor:0,
+    deck:buildDeck(cls), hand:[], board:[], weapon:null, cls:cls,
+    heroPowerUsed:false, canHeroAtk:false, heroAtkVal:0,
+    playedThisTurn:false, fatigue:0, mulliganDone:false, botLevel:botLevel };
+}
 
-  document.getElementById('mulligan-btn').style.display = '';
-  document.getElementById('mulligan-wait').style.display = 'none';
-
-  const me = state.players[myId];
-  if (!me) return;
-  const hand = document.getElementById('mulligan-hand');
-  hand.innerHTML = '';
-
-  me.hand.forEach(c => {
-    const isCoin = c.id === 'coin';
-    const isSel = mulliganSelected.has(c.uid);
-    const div = document.createElement('div');
-    div.className = 'mul-card' + (isSel ? ' selected' : '') + (isCoin ? ' coin-card' : '');
-    const typeClass = c.type === 'spell' ? 'background:linear-gradient(180deg,#dce8f8,#c0d4f0);' : c.type === 'weapon' ? 'background:linear-gradient(180deg,#f0e8d0,#e0d0a8);' : '';
-    if (typeClass) div.style.cssText = typeClass;
-    const hasTnt = c.keywords?.includes('taunt');
-    div.innerHTML = `
-      <div class="m-cost">${c.cost}</div>
-      <div class="hc-art" style="margin:2px 0">${renderArt(c, 28)}</div>
-      <div class="hc-name" style="font-size:8px;color:var(--gold);font-weight:700;text-align:center;max-width:64px">${c.name}</div>
-      ${isCoin ? '<div style="font-size:7px;color:#8a7a5a;text-align:center">Moneta</div>' : ''}
-      ${c.type==='minion' ? `<div class="hc-atk">${c.atk??0}</div><div class="hc-hp">${c.curHp??c.hp??0}</div>` : ''}
-      <div class="sel-x">✗</div>
-    `;
-    if (!isCoin) {
-      div.onclick = () => {
-        if (mulliganSelected.has(c.uid)) mulliganSelected.delete(c.uid);
-        else mulliganSelected.add(c.uid);
-        showMulligan(state);
-      };
-      attachPreview(div, c);
+function drawCards(p, n) {
+  if (n === undefined) n = 1;
+  for (let i=0; i<n; i++) {
+    if (p.deck.length > 0 && p.hand.length < 7) {
+      p.hand.push(p.deck.shift());
+    } else if (p.deck.length === 0) {
+      p.fatigue++;
+      p.hp -= p.fatigue;
+      var idx = G.playerOrder.indexOf(p.id);
+      if (idx !== -1) pendingEvents.push({ kind:'damage', targetId:'hero_'+idx, amount:p.fatigue });
     }
-    hand.appendChild(div);
+  }
+}
+
+// ======================================================================
+// EFFECT FUNCTIONS
+// ======================================================================
+function dealDamageToHero(p, amount) {
+  var absorbed = Math.min(p.armor, amount);
+  p.armor -= absorbed;
+  var actual = amount - absorbed;
+  p.hp -= actual;
+  var idx = G.playerOrder.indexOf(p.id);
+  if (idx !== -1) pendingEvents.push({ kind:'damage', targetId:'hero_'+idx, amount: actual > 0 ? actual : amount });
+}
+
+function healHero(p, amount) {
+  var actual = Math.min(p.maxHp - p.hp, amount);
+  p.hp += actual;
+  if (actual > 0) {
+    var idx = G.playerOrder.indexOf(p.id);
+    if (idx !== -1) pendingEvents.push({ kind:'heal', targetId:'hero_'+idx, amount:actual });
+  }
+}
+
+function healMinion(m, amount) {
+  var actual = Math.min(m.maxHp - m.curHp, amount);
+  m.curHp += actual;
+  if (actual > 0) pendingEvents.push({ kind:'heal', targetId:m.uid, amount:actual });
+}
+
+function minionCombat(a, d) {
+  if (d.divineShield) d.divineShield = false;
+  else { d.curHp -= a.atk??0; pendingEvents.push({ kind:'damage', targetId:d.uid, amount:a.atk??0 }); }
+  if (a.divineShield) a.divineShield = false;
+  else { a.curHp -= d.atk??0; pendingEvents.push({ kind:'damage', targetId:a.uid, amount:d.atk??0 }); }
+  a.canAtk = false;
+}
+
+function resolveHealTarget(me, allEnemies, targetUid, targetType, targetOwnerId) {
+  if (targetType === 'hero_me') return me;
+  if (targetType === 'hero_opp') return targetOwnerId ? G.players[targetOwnerId] : allEnemies[0];
+  if (targetType === 'minion_me') return me.board.find(function(m){return m.uid===targetUid}) ?? null;
+  if (targetType === 'minion_opp') {
+    for (var ei=0; ei<allEnemies.length; ei++) { var m = allEnemies[ei].board.find(function(m){return m.uid===targetUid}); if (m) return m; }
+  }
+  return null;
+}
+
+function applyBattlecry(card, me, allEnemies, targetUid, targetType, targetOwnerId) {
+  var opp = targetOwnerId ? G.players[targetOwnerId] : allEnemies[0];
+  switch (card.battlecry) {
+    case "deal1":
+      if (targetType === 'minion_opp' && targetUid && opp) {
+        var def = opp.board.find(function(c){return c.uid===targetUid});
+        if (def) { def.curHp -= 1; pendingEvents.push({ kind:'damage', targetId:def.uid, amount:1 }); }
+      } else if (targetType === 'minion_me') {
+        var def2 = me.board.find(function(c){return c.uid===targetUid});
+        if (def2) { def2.curHp -= 1; pendingEvents.push({ kind:'damage', targetId:def2.uid, amount:1 }); }
+      } else if (opp) dealDamageToHero(opp, 1);
+      break;
+    case "deal2":
+      if (targetType === 'minion_opp' && targetUid && opp) {
+        var def3 = opp.board.find(function(c){return c.uid===targetUid});
+        if (def3) { def3.curHp -= 2; pendingEvents.push({ kind:'damage', targetId:def3.uid, amount:2 }); }
+      } else if (opp) dealDamageToHero(opp, 2);
+      break;
+    case "deal1all":
+      allEnemies.forEach(function(e) {
+        e.board.forEach(function(c) { c.curHp -= 1; pendingEvents.push({ kind:'damage', targetId:c.uid, amount:1 }); });
+        dealDamageToHero(e, 1);
+      }); break;
+    case "deal1all_draw1":
+      allEnemies.forEach(function(e) {
+        e.board.forEach(function(c) { c.curHp -= 1; pendingEvents.push({ kind:'damage', targetId:c.uid, amount:1 }); });
+        dealDamageToHero(e, 1);
+      });
+      drawCards(me, 1); break;
+    case "draw1": drawCards(me, 1); break;
+    case "armor2": me.armor += 2; break;
+    case "armor3": me.armor += 3; break;
+    case "armor4": me.armor += 4; break;
+    case "heal2self": healHero(me, 2); break;
+    case "heal2target": {
+      var t = resolveHealTarget(me, allEnemies, targetUid, targetType, targetOwnerId);
+      if (t) { if ('maxMana' in t) healHero(t, 2); else healMinion(t, 2); } break;
+    }
+    case "heal4target": {
+      var t2 = resolveHealTarget(me, allEnemies, targetUid, targetType, targetOwnerId);
+      if (t2) { if ('maxMana' in t2) healHero(t2, 4); else healMinion(t2, 4); } break;
+    }
+  }
+}
+
+function applySpell(card, me, allEnemies, targetUid, targetType, targetOwnerId) {
+  var opp = targetOwnerId ? G.players[targetOwnerId] : allEnemies[0];
+  var eff = card.spellEffect;
+  switch (eff) {
+    case "deal4face":
+      if (targetType === 'minion_opp' && targetUid && opp) {
+        var def = opp.board.find(function(c){return c.uid===targetUid});
+        if (def) { def.curHp -= 4; pendingEvents.push({ kind:'damage', targetId:def.uid, amount:4 }); }
+      } else if (targetType === 'minion_me') {
+        var def2 = me.board.find(function(c){return c.uid===targetUid});
+        if (def2) { def2.curHp -= 4; pendingEvents.push({ kind:'damage', targetId:def2.uid, amount:4 }); }
+      } else if (opp) dealDamageToHero(opp, 4);
+      break;
+    case "deal2all":
+      allEnemies.forEach(function(e) {
+        e.board.forEach(function(c) { c.curHp -= 2; pendingEvents.push({ kind:'damage', targetId:c.uid, amount:2 }); });
+        dealDamageToHero(e, 2);
+      }); break;
+    case "deal3all":
+      allEnemies.forEach(function(e) {
+        e.board.forEach(function(c) { c.curHp -= 3; pendingEvents.push({ kind:'damage', targetId:c.uid, amount:3 }); });
+      }); break;
+    case "draw2": drawCards(me, 2); break;
+    case "armor4": me.armor += 4; break;
+    case "armor6": me.armor += 6; break;
+    case "mana1": me.mana = Math.min(me.mana+1, me.maxMana+1); break;
+    case "heal2self": healHero(me, 2); break;
+    case "heal2all": me.board.forEach(function(m){healMinion(m, 2)}); healHero(me, 2); break;
+    case "heal6target": {
+      var t = resolveHealTarget(me, allEnemies, targetUid, targetType, targetOwnerId);
+      if (t) { if ('maxMana' in t) healHero(t, 6); else healMinion(t, 6); } break;
+    }
+  }
+}
+
+function applyCombo(card, me, allEnemies) {
+  var opp = allEnemies[0];
+  switch (card.combo) {
+    case 'deal1': if (opp) dealDamageToHero(opp, 1); break;
+    case 'deal2': if (opp) dealDamageToHero(opp, 2); break;
+    case 'deal3': if (opp) dealDamageToHero(opp, 3); break;
+    case 'draw1': drawCards(me, 1); break;
+  }
+}
+
+function applyDeathrattle(card, owner, allEnemies) {
+  var enemy = allEnemies[0];
+  switch (card.deathrattle) {
+    case 'deal2random': {
+      var allEnemyMinions = allEnemies.flatMap(function(e){return e.board});
+      if (allEnemyMinions.length) {
+        var t = allEnemyMinions[Math.floor(Math.random()*allEnemyMinions.length)];
+        t.curHp -= 2; pendingEvents.push({ kind:'damage', targetId:t.uid, amount:2 });
+      } else if (enemy) dealDamageToHero(enemy, 2);
+      break;
+    }
+    case 'armor3': owner.armor += 3; break;
+    case 'draw1': drawCards(owner, 1); break;
+    case 'heal3self': {
+      owner.hp = Math.min(owner.maxHp, owner.hp+3);
+      var idx = G.playerOrder.indexOf(owner.id);
+      pendingEvents.push({ kind:'heal', targetId:'hero_'+idx, amount:3 });
+      break;
+    }
+  }
+}
+
+function applyEndOfTurnEffects(me, allEnemies) {
+  me.board.forEach(function(c) {
+    if (!c.endOfTurn || c.silenced) return;
+    switch (c.endOfTurn) {
+      case 'deal1random': {
+        var allEnemyMinions = allEnemies.flatMap(function(e){return e.board});
+        if (allEnemyMinions.length) {
+          var t = allEnemyMinions[Math.floor(Math.random()*allEnemyMinions.length)];
+          t.curHp -= 1; pendingEvents.push({ kind:'damage', targetId:t.uid, amount:1 });
+        } else if (allEnemies[0]) dealDamageToHero(allEnemies[0], 1);
+        break;
+      }
+      case 'buff1_0': {
+        var friends = me.board.filter(function(f){return f.uid !== c.uid});
+        if (friends.length) { var t2 = friends[Math.floor(Math.random()*friends.length)]; t2.atk = (t2.atk??0)+1; }
+        break;
+      }
+      case 'heal1self': {
+        me.hp = Math.min(me.maxHp, me.hp+1);
+        var idx = G.playerOrder.indexOf(me.id);
+        pendingEvents.push({ kind:'heal', targetId:'hero_'+idx, amount:1 });
+        break;
+      }
+      case 'heal2self': {
+        me.hp = Math.min(me.maxHp, me.hp+2);
+        var idx2 = G.playerOrder.indexOf(me.id);
+        pendingEvents.push({ kind:'heal', targetId:'hero_'+idx2, amount:2 });
+        break;
+      }
+    }
   });
 }
 
-function confirmMulligan() {
-  SFX.play();
-  send({ type: 'mulligan', replace: [...mulliganSelected] });
-  mulliganSelected.clear();
-  mulliganConfirmed = true;
-  if (gameState) showMulligan(gameState);
+function checkDead(allPlayers) {
+  var changed = true, iter = 0;
+  while (changed && iter++ < 10) {
+    changed = false;
+    allPlayers.forEach(function(p) {
+      var dead = p.board.filter(function(c){return c.curHp <= 0});
+      if (dead.length) {
+        changed = true;
+        p.board = p.board.filter(function(c){return c.curHp > 0});
+        dead.forEach(function(c) {
+          if (c.deathrattle && !c.silenced) {
+            var allEnemies = allPlayers.filter(function(e){return e.id !== p.id});
+            applyDeathrattle(c, p, allEnemies);
+          }
+        });
+      }
+    });
+  }
 }
 
-// ── Render ────────────────────────────────────────────────────────────────
-function render(state) {
-  hidePreview();
-  const me = state.players[myId];
-  const oppId = state.playerOrder.find(id => id !== myId);
-  const opp = oppId ? state.players[oppId] : null;
-  if (!me) return;
-
-  const isMyTurn = state.activePlayer === myId;
-
-  const pb = document.getElementById('pbadge');
-  if (isMyTurn) { pb.textContent = 'Twoja tura'; pb.className = 'bar-phase yours'; }
-  else { pb.textContent = 'Tura przeciwnika'; pb.className = 'bar-phase theirs'; }
-  document.getElementById('tnum').textContent = 'Tura ' + state.turn;
-
-  document.getElementById('my-hp').textContent = me.hp;
-  document.getElementById('my-art').textContent = CLASSES[me.cls]?.art ?? '🧙';
-  document.getElementById('my-cls').textContent = CLASSES[me.cls]?.cls ?? me.cls;
-  setArmor('my-armor', me.armor);
-  setWeaponSlot('my-wpn-slot', me.weapon);
-
-  const mr = document.getElementById('my-mana-row'); mr.innerHTML = '';
-  for (let i = 0; i < me.maxMana; i++) {
-    const d = document.createElement('div');
-    d.className = 'pip' + (i < me.mana ? '' : ' empty');
-    mr.appendChild(d);
+function checkWin() {
+  var human = G.players[myId];
+  if (!human || human.hp <= 0) {
+    G.phase = 'over'; G.winner = 'bots';
+    G.log = 'Urz\u0105d Skarbowy przej\u0105\u0142 kontrol\u0119!'; return;
   }
-  document.getElementById('my-mana-txt').textContent = me.mana + '/' + me.maxMana;
-  document.getElementById('my-deck').textContent = me.deck.length;
+  var livingBots = G.playerOrder.filter(function(id){return id !== myId});
+  if (livingBots.length === 0) {
+    G.phase = 'over'; G.winner = 'human';
+    G.log = 'Zwyci\u0119stwo! Twoje ksi\u0119gi s\u0105 bezbł\u0119dne.';
+  }
+}
 
-  const myFat = document.getElementById('my-fatigue');
-  if (me.fatigue > 0) { myFat.style.display = 'block'; document.getElementById('my-fatigue-val').textContent = me.fatigue; }
-  else myFat.style.display = 'none';
+function eliminatePlayer(id) {
+  G.playerOrder = G.playerOrder.filter(function(pid){return pid !== id});
+  var p = G.players[id];
+  G.log = (p && p.cls ? (CLASSES[p.cls]?.cls || p.cls) : 'Bot') + ' wyeliminowany!';
+}
 
-  const hpBtn = document.getElementById('hpbtn');
-  document.getElementById('hp-art').textContent = CLASSES[me.cls]?.heroPowerArt ?? '🔥';
-  const hpUsed = me.heroPowerUsed || me.mana < 2 || !isMyTurn;
-  hpBtn.className = 'hp-gem' + (hpUsed ? ' used' : (heroPowerMode || healMode ? ' active' : ''));
-  hpBtn.title = CLASSES[me.cls]?.heroPowerText ?? '';
+function getNextLivingPlayer(currentId) {
+  var idx = G.playerOrder.indexOf(currentId);
+  if (idx === -1 || G.playerOrder.length === 0) return myId;
+  return G.playerOrder[(idx+1) % G.playerOrder.length];
+}
 
-  const myPort = document.getElementById('my-port');
-  if (healMode || (pendingSpell && pendingSpellIsHeal)) myPort.className = 'hero-port healable';
-  else myPort.className = 'hero-port' + (me.canHeroAtk && isMyTurn ? ' can-hero-atk' : '');
+// ======================================================================
+// ACTION HANDLERS
+// ======================================================================
+function action_joinGame(humanCls, botCount, diffLevel, campaignChapter) {
+  G = { phase:"waiting", players:{}, playerOrder:[], activePlayer:"", turn:1, winner:null, log:"" };
+  pendingEvents = [];
+  myId = "human";
+  currentCampaignChapter = campaignChapter || null;
 
-  if (opp) {
-    const BOT_NAMES = ['','Żółtodziób','Normalny','Trudny','Ekspert'];
-    document.getElementById('opp-hp').textContent = opp.hp;
-    document.getElementById('opp-art').textContent = opp.botLevel > 0 ? '🤖' : (CLASSES[opp.cls]?.art ?? '🤖');
-    document.getElementById('opp-name').textContent = opp.botLevel > 0 ? `🤖 Bot` : 'Przeciwnik';
-    document.getElementById('opp-cls').textContent = opp.botLevel > 0 ? `${BOT_NAMES[opp.botLevel]} · ${CLASSES[opp.cls]?.cls??''}` : (CLASSES[opp.cls]?.cls ?? opp.cls);
-    document.getElementById('opp-mana').textContent = '💎 ' + opp.mana + '/' + opp.maxMana;
-    document.getElementById('opp-deck').textContent = opp.deck.length;
-    setArmor('opp-armor', opp.armor);
-    setWeaponSlot('opp-wpn-slot', opp.weapon);
+  var human = mkPlayer(myId, humanCls, 0);
+  G.players[myId] = human;
+  G.playerOrder.push(myId);
 
-    const oppFat = document.getElementById('opp-fatigue');
-    if (opp.fatigue > 0) { oppFat.style.display = 'block'; document.getElementById('opp-fatigue-val').textContent = opp.fatigue; }
-    else oppFat.style.display = 'none';
-
-    const oh = document.getElementById('opp-hand-display'); oh.innerHTML = '';
-    for (let i = 0; i < opp.hand.length; i++) {
-      const d = document.createElement('div'); d.className = 'bck'; oh.appendChild(d);
+  if (campaignChapter) {
+    campaignChapter.bots.forEach(function(botDef) {
+      var botId = 'bot_' + uid();
+      var botP = mkPlayer(botId, botDef.cls, botDef.level, botDef.isBoss ? 30 : 15);
+      botP.mulliganDone = true;
+      G.players[botId] = botP;
+      G.playerOrder.push(botId);
+      if (botDef.isBoss) {
+        for (var j=0; j<3; j++) {
+          var m = { id:'kontroler'+j, name:'Kontroler Podatk\u00F3w', art:'\uD83D\uDC6E', cost:3, type:'minion',
+            atk:2, hp:3, uid:uid(), curHp:3, maxHp:3, canAtk:false, fresh:true };
+          botP.board.push(m);
+        }
+      }
+    });
+  } else {
+    for (var i=0; i<botCount; i++) {
+      var botId = 'bot_' + uid();
+      var botCls = ALL_CLASSES[Math.floor(Math.random()*4)];
+      var botP = mkPlayer(botId, botCls, diffLevel);
+      botP.mulliganDone = true;
+      G.players[botId] = botP;
+      G.playerOrder.push(botId);
     }
-    renderBoard('opp-board', opp.board, 'opp', isMyTurn);
-    const oppHasTaunt = opp.board.some(c => !c.silenced && c.keywords?.includes('taunt'));
-    // Attacks (minion/hero weapon) are blocked by taunt; hero powers and spells are not
-    const canTargetOppHero = isMyTurn && ((!oppHasTaunt && selAtk) || heroPowerMode || (pendingSpell && !pendingSpellIsHeal));
-    const canHealOppHero = healMode || (pendingSpell && pendingSpellIsHeal);
-    document.getElementById('opp-port').className = 'hero-port' + (canTargetOppHero ? ' attackable' : '') + (canHealOppHero ? ' healable' : '');
   }
 
-  renderBoard('my-board', me.board, 'me', isMyTurn);
-  renderHand(me, isMyTurn);
+  G.phase = "mulligan";
+  G.playerOrder.forEach(function(id, i) {
+    drawCards(G.players[id], 3);
+    if (i > 0) {
+      var coin = cloneCard({ id:"coin", name:"Moneta", art:"\uD83E\uDE99", cost:0, type:"spell",
+        spellEffect:"mana1", spellText:"Zyskaj 1 man\u0119 w tej turze." });
+      G.players[id].hand.unshift(coin);
+    }
+  });
+  G.log = "Wymie\u0144 karty przed gr\u0105!";
+  pendingEvents = [];
+  showScreen('mulligan');
+  renderMulligan();
+}
 
-  document.getElementById('eotn').disabled = !isMyTurn;
-  log(state.log);
+function action_mulligan(replaceUids) {
+  var me = G.players[myId];
+  var toReplace = me.hand.filter(function(c){return replaceUids.indexOf(c.uid)!==-1 && c.id !== 'coin'});
+  me.hand = me.hand.filter(function(c){return toReplace.indexOf(c)===-1});
+  toReplace.forEach(function(c){ me.deck.push(cloneCard(c)); });
+  me.deck = shuffle(me.deck);
+  drawCards(me, toReplace.length);
+  me.mulliganDone = true;
+  startPlaying();
+}
+
+function startPlaying() {
+  G.phase = "playing";
+  G.activePlayer = myId;
+  G.turn = 1;
+  G.playerOrder.forEach(function(id) {
+    G.players[id].maxMana = 1; G.players[id].mana = 1;
+    G.players[id].board.forEach(function(c) { c.canAtk = false; c.fresh = true; });
+  });
+  G.log = "Gra rozpocz\u0119ta! Twoja tura.";
+  pendingEvents = [];
+  showScreen('board');
+  setTimeout(function(){ setupCanvas(); }, 50);
+  showTurnBanner("TWOJA TURA", true);
+  render();
+}
+
+function action_playCard(cardUid, targetUid, targetType, targetOwnerId) {
+  if (G.phase !== 'playing' || G.activePlayer !== myId) return;
+  var me = G.players[myId];
+  var allEnemies = G.playerOrder.filter(function(id){return id!==myId}).map(function(id){return G.players[id]});
+  var idx = me.hand.findIndex(function(c){return c.uid===cardUid});
+  if (idx === -1) return;
+  var card = me.hand[idx];
+  if (me.mana < card.cost) return;
+  var hadPlayed = me.playedThisTurn;
+  me.mana -= card.cost; me.hand.splice(idx, 1); me.playedThisTurn = true;
+
+  if (card.type === 'minion') {
+    if (me.board.length >= 4) { me.hand.splice(idx, 0, card); me.mana += card.cost; me.playedThisTurn = hadPlayed; return; }
+    card.canAtk = !!(card.keywords && card.keywords.indexOf("charge")!==-1);
+    card.fresh = !(card.keywords && card.keywords.indexOf("charge")!==-1);
+    me.board.push(card);
+    applyBattlecry(card, me, allEnemies, targetUid, targetType, targetOwnerId);
+    if (hadPlayed && card.combo) applyCombo(card, me, allEnemies);
+    G.log = (CLASSES[me.cls]?.cls??me.cls) + ': zagrano ' + card.name;
+  } else if (card.type === 'spell') {
+    applySpell(card, me, allEnemies, targetUid, targetType, targetOwnerId);
+    G.log = (CLASSES[me.cls]?.cls??me.cls) + ': czar ' + card.name;
+  } else if (card.type === 'weapon') {
+    me.weapon = { uid:uid(), name:card.name, art:card.art, atk:card.weaponAtk, durability:card.durability, cost:card.cost };
+    me.heroAtkVal = card.weaponAtk; me.canHeroAtk = true;
+    G.log = (CLASSES[me.cls]?.cls??me.cls) + ': wyekwipowano ' + card.name;
+  }
+
+  var allP = G.playerOrder.map(function(id){return G.players[id]});
+  checkDead(allP);
+  G.playerOrder.filter(function(id){return id!==myId}).forEach(function(id) {
+    if (G.players[id].hp <= 0) eliminatePlayer(id);
+  });
+  checkWin();
+  afterAction();
+}
+
+function action_attack(attackerUid, targetUid, targetType, targetOwnerId) {
+  if (G.phase !== 'playing' || G.activePlayer !== myId) return;
+  var me = G.players[myId];
+  var attacker = me.board.find(function(c){return c.uid===attackerUid});
+  if (!attacker || !attacker.canAtk || attacker.fresh) return;
+  var targetEnemy = targetOwnerId ? G.players[targetOwnerId] : G.playerOrder.filter(function(id){return id!==myId}).map(function(id){return G.players[id]})[0];
+  if (!targetEnemy) return;
+
+  if (targetType === 'hero') {
+    if (hasTaunt(targetEnemy.board)) return;
+    var oppIdx = G.playerOrder.indexOf(targetEnemy.id);
+    pendingEvents.push({ kind:'attack_anim', attackerId:attacker.uid, targetId:'hero_'+oppIdx, amount:0 });
+    dealDamageToHero(targetEnemy, attacker.atk??0);
+    attacker.canAtk = false;
+    G.log = attacker.name + ' atakuje bohatera za ' + attacker.atk + '!';
+  } else {
+    var defender = targetEnemy.board.find(function(c){return c.uid===targetUid});
+    if (!defender) return;
+    if (!(defender.keywords && defender.keywords.indexOf("taunt")!==-1) && hasTaunt(targetEnemy.board)) return;
+    pendingEvents.push({ kind:'attack_anim', attackerId:attacker.uid, targetId:defender.uid, amount:0 });
+    minionCombat(attacker, defender);
+    G.log = attacker.name + ' atakuje ' + defender.name;
+  }
+
+  var allP = G.playerOrder.map(function(id){return G.players[id]});
+  checkDead(allP);
+  G.playerOrder.filter(function(id){return id!==myId}).forEach(function(id) {
+    if (G.players[id].hp <= 0) eliminatePlayer(id);
+  });
+  checkWin();
+  afterAction();
+}
+
+function action_heroAttack(targetUid, targetType, targetOwnerId) {
+  if (G.phase !== 'playing' || G.activePlayer !== myId) return;
+  var me = G.players[myId];
+  if (!me.canHeroAtk || me.heroAtkVal === 0) return;
+  var targetEnemy = targetOwnerId ? G.players[targetOwnerId]
+    : G.playerOrder.filter(function(id){return id!==myId}).map(function(id){return G.players[id]})[0];
+  if (!targetEnemy) return;
+  var meIdx = G.playerOrder.indexOf(myId);
+
+  if (targetType === 'hero') {
+    if (hasTaunt(targetEnemy.board)) return;
+    var oppIdx = G.playerOrder.indexOf(targetEnemy.id);
+    pendingEvents.push({ kind:'attack_anim', attackerId:'hero_'+meIdx, targetId:'hero_'+oppIdx, amount:0 });
+    dealDamageToHero(targetEnemy, me.heroAtkVal);
+  } else {
+    var def = targetEnemy.board.find(function(c){return c.uid===targetUid});
+    if (!def) return;
+    if (!(def.keywords && def.keywords.indexOf("taunt")!==-1) && hasTaunt(targetEnemy.board)) return;
+    pendingEvents.push({ kind:'attack_anim', attackerId:'hero_'+meIdx, targetId:def.uid, amount:0 });
+    def.curHp -= me.heroAtkVal;
+    pendingEvents.push({ kind:'damage', targetId:def.uid, amount:me.heroAtkVal });
+  }
+  if (me.weapon) {
+    me.weapon.durability--;
+    if (me.weapon.durability <= 0) { me.weapon = null; me.heroAtkVal = 0; }
+  }
+  me.canHeroAtk = false;
+  var allP = G.playerOrder.map(function(id){return G.players[id]});
+  checkDead(allP);
+  G.playerOrder.filter(function(id){return id!==myId}).forEach(function(id) {
+    if (G.players[id].hp <= 0) eliminatePlayer(id);
+  });
+  checkWin();
+  afterAction();
+}
+
+function action_heroPower(targetUid, targetType, targetOwnerId) {
+  if (G.phase !== 'playing' || G.activePlayer !== myId) return;
+  var me = G.players[myId];
+  if (me.heroPowerUsed || me.mana < 2) return;
+  me.mana -= 2; me.heroPowerUsed = true;
+  var allEnemies = G.playerOrder.filter(function(id){return id!==myId}).map(function(id){return G.players[id]});
+  var targetEnemy = targetOwnerId ? G.players[targetOwnerId] : allEnemies[0];
+
+  if (me.cls === 'mage') {
+    if (targetType === 'hero' && targetEnemy) dealDamageToHero(targetEnemy, 1);
+    else if (targetUid) {
+      var found = false;
+      for (var ei=0; ei<allEnemies.length; ei++) {
+        var def = allEnemies[ei].board.find(function(c){return c.uid===targetUid});
+        if (def) { def.curHp -= 1; pendingEvents.push({ kind:'damage', targetId:def.uid, amount:1 }); found = true; break; }
+      }
+      if (!found) {
+        var def2 = me.board.find(function(c){return c.uid===targetUid});
+        if (def2) { def2.curHp -= 1; pendingEvents.push({ kind:'damage', targetId:def2.uid, amount:1 }); }
+      }
+    }
+    G.log = "Hero Power: 1 obra\u017Cenie!";
+  } else if (me.cls === 'warrior') {
+    me.armor += 2; G.log = "Hero Power: +2 pancerza!";
+  } else if (me.cls === 'rogue') {
+    me.weapon = { uid:uid(), name:'Ukryty Ostrze', art:'\uD83D\uDDE1\uFE0F', atk:1, durability:2, cost:2 };
+    me.heroAtkVal = 1; me.canHeroAtk = true; G.log = "Hero Power: Sztylet 1/2!";
+  } else if (me.cls === 'priest') {
+    var t = resolveHealTarget(me, allEnemies, targetUid, targetType, targetOwnerId);
+    if (t) { if ('maxMana' in t) healHero(t, 2); else healMinion(t, 2); }
+    G.log = "Hero Power: Przywr\u00F3cono 2 HP!";
+  }
+
+  var allP = G.playerOrder.map(function(id){return G.players[id]});
+  checkDead(allP);
+  checkWin();
+  afterAction();
+}
+
+function action_endTurn() {
+  if (G.phase !== 'playing' || G.activePlayer !== myId) return;
+  var me = G.players[myId];
+  var allEnemies = G.playerOrder.filter(function(id){return id!==myId}).map(function(id){return G.players[id]});
+
+  applyEndOfTurnEffects(me, allEnemies);
+  var allP = G.playerOrder.map(function(id){return G.players[id]});
+  checkDead(allP);
+  G.playerOrder.filter(function(id){return id!==myId}).forEach(function(id) {
+    if (G.players[id].hp <= 0) eliminatePlayer(id);
+  });
+  checkWin();
+  if (G.phase === 'over') { afterAction(); return; }
+
+  me.board.forEach(function(c) { c.fresh = false; c.canAtk = true; });
+  me.playedThisTurn = false;
+
+  var nextId = getNextLivingPlayer(myId);
+  G.activePlayer = nextId;
+  G.turn++;
+  var next = G.players[nextId];
+  next.maxMana = Math.min(10, Math.ceil(G.turn / 2));
+  next.mana = next.maxMana;
+  next.heroPowerUsed = false;
+  next.canHeroAtk = !!next.weapon;
+  drawCards(next, 1);
+  next.board.forEach(function(c) { c.fresh = false; c.canAtk = true; });
+
+  afterAction();
+  if (next.botLevel > 0) {
+    var BOT_NAMES = ['','\u017B\u00F3\u0142todziob','Normalny','Trudny','Ekspert'];
+    G.log = 'Bot (' + BOT_NAMES[next.botLevel] + ') my\u015Bli...';
+    render();
+    setTimeout(function(){ runBotTurn(nextId, 0); }, 900);
+  }
+}
+
+function afterAction() {
+  var evs = pendingEvents.slice(); pendingEvents = [];
+  if (G.phase === 'over') {
+    render(); playAnimEvents(evs); setTimeout(function(){ showGameOver(); }, 800);
+    return;
+  }
+  playAnimEvents(evs);
+  render();
+}
+
+// ======================================================================
+// BOT AI
+// ======================================================================
+function runBotTurn(botId, safety) {
+  if (safety === undefined) safety = 0;
+  if (safety > 25 || G.phase !== 'playing' || G.activePlayer !== botId) return;
+  var bot = G.players[botId];
+  if (!bot) return;
+  var delay = [0,1100,850,650,450][bot.botLevel ?? 1];
+  setTimeout(function() {
+    if (G.phase !== 'playing' || G.activePlayer !== botId) return;
+    var move = getNextBotMove(botId);
+    if (!move) return;
+    executeBotMove(move, botId);
+    if (move.type !== 'end_turn' && G.phase === 'playing' && G.activePlayer === botId) {
+      runBotTurn(botId, safety+1);
+    }
+  }, delay);
+}
+
+function executeBotMove(move, botId) {
+  var bot = G.players[botId];
+  var human = G.players[myId];
+  if (!bot || !human) return;
+  var allEnemies_bot = [human];
+
+  if (move.type === 'end_turn') {
+    applyEndOfTurnEffects(bot, allEnemies_bot);
+
+    if (currentCampaignChapter && currentCampaignChapter.specialRule === 'group_synergy') {
+      var allBots = G.playerOrder.filter(function(id){return id!==myId}).map(function(id){return G.players[id]});
+      var allBotMinions = allBots.flatMap(function(b){return b.board});
+      if (allBotMinions.length > 0) {
+        var t = allBotMinions[Math.floor(Math.random()*allBotMinions.length)];
+        t.atk = (t.atk??0)+1; t.curHp += 1; t.maxHp += 1;
+      }
+    }
+
+    var allP = G.playerOrder.map(function(id){return G.players[id]});
+    checkDead(allP);
+    if (human.hp <= 0) { checkWin(); afterAction(); return; }
+    checkWin(); if (G.phase === 'over') { afterAction(); return; }
+
+    bot.board.forEach(function(c) { c.fresh = false; c.canAtk = true; });
+    bot.playedThisTurn = false;
+
+    var nextId = getNextLivingPlayer(botId);
+    G.activePlayer = nextId;
+    G.turn++;
+    var next = G.players[nextId];
+    next.maxMana = Math.min(10, Math.ceil(G.turn/2));
+    next.mana = next.maxMana;
+    next.heroPowerUsed = false;
+    next.canHeroAtk = !!next.weapon;
+    drawCards(next, 1);
+    next.board.forEach(function(c) { c.fresh = false; c.canAtk = true; });
+
+    var evs = pendingEvents.slice(); pendingEvents = [];
+    playAnimEvents(evs);
+
+    if (nextId === myId) {
+      render(); showTurnBanner("TWOJA TURA", true);
+    } else {
+      render();
+      var BOT_NAMES = ['','\u017B\u00F3\u0142todziob','Normalny','Trudny','Ekspert'];
+      G.log = 'Bot (' + BOT_NAMES[next.botLevel] + ') my\u015Bli...';
+      render();
+      setTimeout(function(){ runBotTurn(nextId, 0); }, 900);
+    }
+    return;
+  }
+
+  if (move.type === 'play_card') {
+    var idx = bot.hand.findIndex(function(c){return c.uid===move.cardUid});
+    if (idx === -1) return;
+    var card = bot.hand[idx];
+    if (bot.mana < card.cost) return;
+    var hadPlayed = bot.playedThisTurn;
+    bot.mana -= card.cost; bot.hand.splice(idx,1); bot.playedThisTurn = true;
+    if (card.type === 'minion') {
+      if (bot.board.length >= 4) { bot.hand.splice(idx,0,card); bot.mana += card.cost; bot.playedThisTurn = hadPlayed; return; }
+      card.canAtk = !!(card.keywords && card.keywords.indexOf("charge")!==-1);
+      card.fresh = !(card.keywords && card.keywords.indexOf("charge")!==-1);
+      bot.board.push(card);
+      applyBattlecry(card, bot, allEnemies_bot, move.targetUid, move.targetType, myId);
+      if (hadPlayed && card.combo) applyCombo(card, bot, allEnemies_bot);
+    } else if (card.type === 'spell') {
+      applySpell(card, bot, allEnemies_bot, move.targetUid, move.targetType, myId);
+    } else if (card.type === 'weapon') {
+      bot.weapon = { uid:uid(), name:card.name, art:card.art, atk:card.weaponAtk, durability:card.durability, cost:card.cost };
+      bot.heroAtkVal = card.weaponAtk; bot.canHeroAtk = true;
+    }
+  } else if (move.type === 'attack') {
+    var attacker = bot.board.find(function(c){return c.uid===move.attackerUid});
+    if (!attacker || !attacker.canAtk || attacker.fresh) return;
+    if (move.targetType === 'hero') {
+      if (hasTaunt(human.board)) return;
+      var oppIdx = G.playerOrder.indexOf(myId);
+      pendingEvents.push({ kind:'attack_anim', attackerId:attacker.uid, targetId:'hero_'+oppIdx, amount:0 });
+      dealDamageToHero(human, attacker.atk??0);
+      attacker.canAtk = false;
+    } else {
+      var def = human.board.find(function(c){return c.uid===move.targetUid});
+      if (!def) return;
+      if (!(def.keywords && def.keywords.indexOf("taunt")!==-1) && hasTaunt(human.board)) return;
+      pendingEvents.push({ kind:'attack_anim', attackerId:attacker.uid, targetId:def.uid, amount:0 });
+      minionCombat(attacker, def);
+    }
+  } else if (move.type === 'hero_attack') {
+    if (!bot.canHeroAtk || bot.heroAtkVal === 0) return;
+    var botIdx = G.playerOrder.indexOf(botId);
+    if (move.targetType === 'hero') {
+      if (hasTaunt(human.board)) return;
+      var hIdx = G.playerOrder.indexOf(myId);
+      pendingEvents.push({ kind:'attack_anim', attackerId:'hero_'+botIdx, targetId:'hero_'+hIdx, amount:0 });
+      dealDamageToHero(human, bot.heroAtkVal);
+    } else {
+      var def2 = human.board.find(function(c){return c.uid===move.targetUid});
+      if (!def2) return;
+      if (!(def2.keywords && def2.keywords.indexOf("taunt")!==-1) && hasTaunt(human.board)) return;
+      pendingEvents.push({ kind:'attack_anim', attackerId:'hero_'+botIdx, targetId:def2.uid, amount:0 });
+      def2.curHp -= bot.heroAtkVal;
+      pendingEvents.push({ kind:'damage', targetId:def2.uid, amount:bot.heroAtkVal });
+    }
+    if (bot.weapon) { bot.weapon.durability--; if (bot.weapon.durability <= 0) { bot.weapon = null; bot.heroAtkVal = 0; } }
+    bot.canHeroAtk = false;
+  } else if (move.type === 'hero_power') {
+    if (bot.heroPowerUsed || bot.mana < 2) return;
+    bot.mana -= 2; bot.heroPowerUsed = true;
+    if (currentCampaignChapter && currentCampaignChapter.specialRule === 'boss_fight' && move.isBossHeroPower) {
+      dealDamageToHero(human, 3);
+      drawCards(bot, 1);
+      G.log = "Minister u\u017Cywa Hero Power: 3 obra\u017Cenia!";
+    } else if (bot.cls === 'warrior') {
+      bot.armor += 2;
+    } else if (bot.cls === 'rogue') {
+      bot.weapon = { uid:uid(), name:'Ukryty Ostrze', art:'\uD83D\uDDE1\uFE0F', atk:1, durability:2, cost:2 };
+      bot.heroAtkVal = 1; bot.canHeroAtk = true;
+    } else if (bot.cls === 'mage') {
+      if (move.targetUid) {
+        var def3 = human.board.find(function(c){return c.uid===move.targetUid});
+        if (def3) { def3.curHp -= 1; pendingEvents.push({ kind:'damage', targetId:def3.uid, amount:1 }); }
+      } else dealDamageToHero(human, 1);
+    } else if (bot.cls === 'priest') {
+      healHero(bot, 2);
+    }
+  }
+
+  var allP = G.playerOrder.map(function(id){return G.players[id]});
+  checkDead(allP);
+  if (human.hp <= 0) { checkWin(); afterAction(); return; }
+  G.playerOrder.filter(function(id){return id!==myId}).forEach(function(id) {
+    if (G.players[id].hp <= 0) eliminatePlayer(id);
+  });
+  checkWin();
+  var evs = pendingEvents.slice(); pendingEvents = [];
+  playAnimEvents(evs);
+  render();
+}
+
+function getNextBotMove(botId) {
+  if (G.phase !== 'playing' || G.activePlayer !== botId) return null;
+  var bot = G.players[botId];
+  var human = G.players[myId];
+  if (!bot || !human) return null;
+  var lvl = bot.botLevel;
+
+  var taunts = human.board.filter(function(c){return !c.silenced && c.keywords && c.keywords.indexOf('taunt')!==-1});
+  var attackers = bot.board.filter(function(c){return c.canAtk && !c.fresh});
+  var playable = bot.hand.filter(function(c){return c.cost <= bot.mana && (c.type !== 'minion' || bot.board.length < 4)});
+
+  // L4: Check lethal
+  if (lvl >= 4 && taunts.length === 0) {
+    var totalBoardDmg = attackers.reduce(function(s,c){return s+(c.atk??0)}, 0);
+    var heroDmg = bot.canHeroAtk ? bot.heroAtkVal : 0;
+    var spellDmg = 0, manaLeft = bot.mana;
+    playable.filter(function(c){return ['deal4face','deal6face'].indexOf(c.spellEffect??'')!==-1}).sort(function(a,b){return a.cost-b.cost})
+      .forEach(function(c){ if(c.cost<=manaLeft){spellDmg+=(c.spellEffect==='deal4face'?4:6);manaLeft-=c.cost;} });
+    if (totalBoardDmg+heroDmg+spellDmg >= human.hp+human.armor) {
+      var dmgSpell = playable.find(function(c){return ['deal4face','deal6face'].indexOf(c.spellEffect??'')!==-1});
+      if (dmgSpell) return botBuildPlayCard(dmgSpell, bot, human, lvl);
+      if (attackers.length > 0) return { type:'attack', attackerUid:attackers[0].uid, targetType:'hero' };
+      if (bot.canHeroAtk && bot.heroAtkVal > 0) return { type:'hero_attack', targetType:'hero' };
+    }
+  }
+
+  // 1. Play a card
+  if (playable.length > 0) {
+    var card;
+    if (lvl===1) card = playable[Math.floor(Math.random()*playable.length)];
+    else if (lvl===2) card = playable.slice().sort(function(a,b){return a.cost-b.cost})[0];
+    else if (lvl===3) card = playable.slice().sort(function(a,b){return b.cost-a.cost})[0];
+    else {
+      var spells = playable.filter(function(c){return c.type==='spell' && c.spellEffect && c.spellEffect.indexOf('deal')!==-1});
+      card = (spells.length>0 && human.board.length>0) ? spells.sort(function(a,b){return b.cost-a.cost})[0] : playable.slice().sort(function(a,b){return b.cost-a.cost})[0];
+    }
+    return botBuildPlayCard(card, bot, human, lvl);
+  }
+
+  // 2. Attack with a minion
+  if (attackers.length > 0) {
+    var attacker = lvl===1 ? attackers[Math.floor(Math.random()*attackers.length)] : attackers[0];
+    var move = botBuildMinionAttack(attacker, human, lvl);
+    if (move) return move;
+  }
+
+  // 3. Hero power
+  if (!bot.heroPowerUsed && bot.mana >= 2) return botBuildHeroPower(bot, human, lvl);
+
+  // 4. Hero weapon attack
+  if (bot.canHeroAtk && bot.heroAtkVal > 0) return botBuildHeroAttack(bot, human, lvl);
+
+  return { type:'end_turn' };
+}
+
+function botBuildPlayCard(card, bot, human, lvl) {
+  var msg = { type:'play_card', cardUid:card.uid };
+  var eff = card.spellEffect;
+  if (eff==='deal4face'||eff==='deal6face') {
+    var dmg = eff==='deal4face'?4:6;
+    if (lvl>=3 && human.board.length>0) {
+      var killable = human.board.filter(function(c){return c.curHp<=dmg});
+      if (killable.length>0) { var t=killable.sort(function(a,b){return b.curHp-a.curHp})[0]; msg.targetUid=t.uid; msg.targetType='minion_opp'; return msg; }
+    }
+    msg.targetType='hero'; return msg;
+  }
+  if (eff && eff.indexOf('heal')!==-1) { msg.targetType='hero_me'; return msg; }
+  if (card.battlecry==='heal2target'||card.battlecry==='heal4target') { msg.targetType='hero_me'; return msg; }
+  if (card.battlecry==='deal1'||card.battlecry==='deal2') {
+    var dmg2 = card.battlecry==='deal1'?1:2;
+    if (lvl>=3 && human.board.length>0) {
+      var killable2 = human.board.filter(function(c){return c.curHp<=dmg2});
+      if (killable2.length>0) { var t2=killable2.sort(function(a,b){return (b.atk??0)-(a.atk??0)})[0]; msg.targetUid=t2.uid; msg.targetType='minion_opp'; return msg; }
+    }
+    msg.targetType='hero'; return msg;
+  }
+  return msg;
+}
+
+function botBuildMinionAttack(attacker, human, lvl) {
+  var taunts = human.board.filter(function(c){return !c.silenced && c.keywords && c.keywords.indexOf('taunt')!==-1});
+  if (taunts.length>0) return { type:'attack', attackerUid:attacker.uid, targetUid:taunts[0].uid, targetType:'minion' };
+  if (lvl===1) {
+    if (human.board.length>0 && Math.random()<0.6) { var t=human.board[Math.floor(Math.random()*human.board.length)]; return { type:'attack', attackerUid:attacker.uid, targetUid:t.uid, targetType:'minion' }; }
+    return { type:'attack', attackerUid:attacker.uid, targetType:'hero' };
+  }
+  if (lvl===2) return { type:'attack', attackerUid:attacker.uid, targetType:'hero' };
+  if (lvl===3) {
+    if (human.board.length>0) { var s=human.board.slice().sort(function(a,b){return (b.atk??0)-(a.atk??0)}); if((s[0].atk??0)>=3) return { type:'attack', attackerUid:attacker.uid, targetUid:s[0].uid, targetType:'minion' }; }
+    return { type:'attack', attackerUid:attacker.uid, targetType:'hero' };
+  }
+  if (human.board.length>0) {
+    var fav = human.board.find(function(t){return (attacker.atk??0)>=t.curHp && attacker.curHp>(t.atk??0)});
+    if (fav) return { type:'attack', attackerUid:attacker.uid, targetUid:fav.uid, targetType:'minion' };
+    var dang = human.board.slice().sort(function(a,b){return (b.atk??0)-(a.atk??0)})[0];
+    if ((dang.atk??0)>=attacker.curHp) return { type:'attack', attackerUid:attacker.uid, targetUid:dang.uid, targetType:'minion' };
+  }
+  return { type:'attack', attackerUid:attacker.uid, targetType:'hero' };
+}
+
+function botBuildHeroPower(bot, human, lvl) {
+  if (currentCampaignChapter && currentCampaignChapter.specialRule === 'boss_fight') {
+    var ch = currentCampaignChapter;
+    var botDef = ch.bots.find(function(b){return b.isBoss && bot.cls === b.cls});
+    if (botDef && botDef.isBoss) return { type:'hero_power', isBossHeroPower:true };
+  }
+  if (bot.cls==='warrior'||bot.cls==='rogue') return { type:'hero_power' };
+  if (bot.cls==='mage') {
+    if (lvl>=3) { var oneHp=human.board.find(function(c){return c.curHp===1}); if(oneHp) return { type:'hero_power', targetUid:oneHp.uid, targetType:'minion' }; }
+    return { type:'hero_power', targetType:'hero' };
+  }
+  if (bot.cls==='priest') return { type:'hero_power', targetType:'hero_me' };
+  return { type:'hero_power' };
+}
+
+function botBuildHeroAttack(bot, human, lvl) {
+  var taunts = human.board.filter(function(c){return !c.silenced && c.keywords && c.keywords.indexOf('taunt')!==-1});
+  if (taunts.length>0) return { type:'hero_attack', targetUid:taunts[0].uid, targetType:'minion' };
+  if (lvl<=2) return { type:'hero_attack', targetType:'hero' };
+  if (human.board.length>0) { var d=human.board.slice().sort(function(a,b){return (b.atk??0)-(a.atk??0)})[0]; if((d.atk??0)>=2) return { type:'hero_attack', targetUid:d.uid, targetType:'minion' }; }
+  return { type:'hero_attack', targetType:'hero' };
+}
+
+// ======================================================================
+// SCREENS
+// ======================================================================
+function showScreen(id) {
+  document.querySelectorAll('.scr').forEach(function(el){el.classList.remove('on')});
+  var el = document.getElementById(id);
+  if (el) el.classList.add('on');
+}
+
+// ======================================================================
+// LOBBY
+// ======================================================================
+function initLobby() {
+  var grid = document.getElementById('class-grid');
+  while (grid.firstChild) grid.removeChild(grid.firstChild);
+  ALL_CLASSES.forEach(function(cls) {
+    var info = CLASSES[cls];
+    var div = document.createElement('div');
+    div.className = 'class-card';
+    div.dataset.cls = cls;
+    div.onclick = function(){ selectClass(cls); };
+    var art = document.createElement('div');
+    art.className = 'cl-art';
+    art.textContent = info.art;
+    var name = document.createElement('div');
+    name.className = 'cl-name';
+    name.textContent = info.cls;
+    var hp = document.createElement('div');
+    hp.className = 'cl-hp';
+    hp.textContent = info.heroPowerText;
+    div.appendChild(art);
+    div.appendChild(name);
+    div.appendChild(hp);
+    grid.appendChild(div);
+  });
+
+  // Bot count
+  var bcRow = document.getElementById('bot-count-row');
+  while (bcRow.firstChild) bcRow.removeChild(bcRow.firstChild);
+  [1,2,3,4].forEach(function(n) {
+    var btn = document.createElement('button');
+    btn.className = 'opt-btn' + (n===selectedBotCount?' sel':'');
+    btn.textContent = String(n);
+    btn.onclick = function(){ selectedBotCount = n; updateLobbySelections(); };
+    bcRow.appendChild(btn);
+  });
+
+  // Difficulty
+  var dRow = document.getElementById('diff-row');
+  while (dRow.firstChild) dRow.removeChild(dRow.firstChild);
+  var dLabels = document.getElementById('diff-labels');
+  while (dLabels.firstChild) dLabels.removeChild(dLabels.firstChild);
+  var BOT_NAMES = ['\u017B\u00F3\u0142todziob','Normalny','Trudny','Ekspert'];
+  [1,2,3,4].forEach(function(n,i) {
+    var btn = document.createElement('button');
+    btn.className = 'opt-btn' + (n===selectedDifficulty?' sel':'');
+    btn.textContent = String(n);
+    btn.onclick = function(){ selectedDifficulty = n; updateLobbySelections(); };
+    dRow.appendChild(btn);
+
+    var lbl = document.createElement('div');
+    lbl.className = 'diff-label';
+    lbl.textContent = BOT_NAMES[i];
+    dLabels.appendChild(lbl);
+  });
+}
+
+function updateLobbySelections() {
+  var bcBtns = document.querySelectorAll('#bot-count-row .opt-btn');
+  bcBtns.forEach(function(btn,i){ btn.classList.toggle('sel', (i+1)===selectedBotCount); });
+  var dBtns = document.querySelectorAll('#diff-row .opt-btn');
+  dBtns.forEach(function(btn,i){ btn.classList.toggle('sel', (i+1)===selectedDifficulty); });
+}
+
+function selectClass(cls) {
+  selectedClass = cls;
+  document.querySelectorAll('.class-card').forEach(function(el){el.classList.remove('sel')});
+  var el = document.querySelector('[data-cls="'+cls+'"]');
+  if (el) el.classList.add('sel');
+  document.getElementById('start-quick-btn').removeAttribute('disabled');
+}
+
+function startQuickGame() {
+  if (!selectedClass) return;
+  action_joinGame(selectedClass, selectedBotCount, selectedDifficulty);
+}
+
+// ======================================================================
+// CAMPAIGN
+// ======================================================================
+function showCampaignMap() {
+  if (!selectedClass) { alert('Najpierw wybierz klas\u0119!'); return; }
+  renderCampaignMap();
+  showScreen('campaign-map');
+}
+
+function renderCampaignMap() {
+  var progress = getCampaignProgress();
+  var container = document.getElementById('campaign-nodes');
+  while (container.firstChild) container.removeChild(container.firstChild);
+  CAMPAIGN.forEach(function(ch) {
+    var unlocked = ch.id <= progress+1;
+    var completed = ch.id <= progress;
+    var node = document.createElement('div');
+    node.className = 'campaign-node' + (completed?' completed':unlocked?' unlocked':' locked');
+
+    var numEl = document.createElement('div');
+    numEl.className = 'cn-num';
+    numEl.textContent = completed ? '\u2713' : String(ch.id);
+    node.appendChild(numEl);
+
+    var titleEl = document.createElement('div');
+    titleEl.className = 'cn-title';
+    titleEl.textContent = ch.title;
+    node.appendChild(titleEl);
+
+    if (ch.specialRuleText) {
+      var ruleEl = document.createElement('div');
+      ruleEl.className = 'cn-rule';
+      ruleEl.textContent = ch.specialRuleText;
+      node.appendChild(ruleEl);
+    }
+
+    var botsEl = document.createElement('div');
+    botsEl.className = 'cn-bots';
+    botsEl.textContent = 'Przeciwnicy: ' + ch.bots.length;
+    node.appendChild(botsEl);
+
+    if (unlocked) node.onclick = (function(chapter){ return function(){ showChapterIntro(chapter); }; })(ch);
+    container.appendChild(node);
+  });
+}
+
+function showChapterIntro(chapter) {
+  document.getElementById('ci-title').textContent = chapter.title;
+  document.getElementById('ci-story').textContent = chapter.story;
+  var ruleEl = document.getElementById('ci-rule');
+  if (chapter.specialRuleText) { ruleEl.textContent = '\u26A0 ' + chapter.specialRuleText; ruleEl.style.display='block'; }
+  else ruleEl.style.display='none';
+  document.getElementById('ci-bots').textContent = 'Przeciwnicy: ' + chapter.bots.length;
+  document.getElementById('ci-start-btn').onclick = function(){ action_joinGame(selectedClass, 0, 0, chapter); };
+  showScreen('chapter-intro');
+}
+
+// ======================================================================
+// MULLIGAN
+// ======================================================================
+function renderMulligan() {
+  var me = G.players[myId];
+  if (!me) return;
+  var mulEl = document.getElementById('mulligan-cards');
+  if (!mulEl) return;
+  while (mulEl.firstChild) mulEl.removeChild(mulEl.firstChild);
+  mulliganSelected = new Set();
+  me.hand.forEach(function(c) {
+    var div = document.createElement('div');
+    div.className = 'hand-card' + (c.type==='spell'?' spell':'') + (c.type==='weapon'?' weapon-card':'') + (c.legendary?' legendary':'') + ' playable';
+
+    var costEl = document.createElement('div');
+    costEl.className = 'hc-cost';
+    costEl.textContent = String(c.cost);
+    div.appendChild(costEl);
+
+    var artEl = document.createElement('div');
+    artEl.className = 'hc-art';
+    artEl.textContent = c.art;
+    div.appendChild(artEl);
+
+    var nameEl = document.createElement('div');
+    nameEl.className = 'hc-name';
+    nameEl.textContent = c.name;
+    div.appendChild(nameEl);
+
+    var typeEl = document.createElement('div');
+    typeEl.className = 'hc-type';
+    typeEl.textContent = c.type==='spell'?'\u2728 Czar':c.type==='weapon'?'\u2694\uFE0F Bro\u0144':'Minionek';
+    div.appendChild(typeEl);
+
+    var descTxt = c.bcText||c.spellText||'';
+    if (descTxt) {
+      var descEl = document.createElement('div');
+      descEl.className = 'hc-desc';
+      descEl.textContent = descTxt;
+      div.appendChild(descEl);
+    }
+
+    if (c.type==='minion') {
+      var atkEl = document.createElement('div');
+      atkEl.className = 'hc-atk';
+      atkEl.textContent = String(c.atk??0);
+      div.appendChild(atkEl);
+      var hpEl = document.createElement('div');
+      hpEl.className = 'hc-hp';
+      hpEl.textContent = String(c.curHp??0);
+      div.appendChild(hpEl);
+    }
+
+    div.dataset.uid = c.uid;
+    div.onclick = (function(card, element){
+      return function() {
+        if (mulliganSelected.has(card.uid)) { mulliganSelected.delete(card.uid); element.classList.remove('selected-replace'); }
+        else { mulliganSelected.add(card.uid); element.classList.add('selected-replace'); }
+      };
+    })(c, div);
+    mulEl.appendChild(div);
+  });
+  document.getElementById('mulligan-confirm').onclick = function() {
+    action_mulligan(Array.from(mulliganSelected));
+  };
+}
+
+// ======================================================================
+// RENDER
+// ======================================================================
+function render() {
+  if (!G || G.phase === 'waiting') return;
+  if (G.phase === 'mulligan') { renderMulligan(); return; }
+  if (G.phase !== 'playing' && G.phase !== 'over') return;
+
+  var me = G.players[myId];
+  if (!me) return;
+  var isMyTurnNow = G.activePlayer === myId && G.phase === 'playing';
+
+  // Update top bar
+  var badge = document.getElementById('turn-badge');
+  if (badge) {
+    if (isMyTurnNow) { badge.textContent = 'TWOJA TURA'; badge.className = 'bar-phase yours'; }
+    else { badge.textContent = 'TURA WROGA'; badge.className = 'bar-phase theirs'; }
+  }
+
+  // Render enemy zones
+  renderEnemyZones();
+
+  // Player hero area
+  var myIdx = G.playerOrder.indexOf(myId);
+  document.getElementById('my-port-art').textContent = CLASSES[me.cls]?.art ?? '\uD83D\uDC64';
+
+  var myPortEl = document.getElementById('my-port');
+  myPortEl.className = 'my-hero-port'
+    + (me.canHeroAtk && me.heroAtkVal > 0 && isMyTurnNow ? ' can-hero-atk' : '')
+    + (selAtk === '__hero__' ? ' sel-hero' : '');
+  myPortEl.id = 'hero_' + myIdx;
+
+  document.getElementById('my-hp').textContent = String(me.hp);
+  var myArmorEl = document.getElementById('my-armor');
+  if (me.armor > 0) { myArmorEl.style.display='flex'; myArmorEl.textContent=String(me.armor); } else myArmorEl.style.display='none';
+
+  // Hero power
+  var hpBtn = document.getElementById('hpbtn');
+  if (hpBtn) {
+    hpBtn.className = 'hp-gem' + (me.heroPowerUsed ? ' used' : '') + ((heroPowerMode||healMode) ? ' active' : '');
+    document.getElementById('hp-art').textContent = CLASSES[me.cls]?.heroPowerArt ?? '\u26A1';
+    hpBtn.disabled = me.heroPowerUsed || me.mana < 2 || !isMyTurnNow;
+  }
+
+  // Mana
+  document.getElementById('my-mana-txt').textContent = '\uD83D\uDC8E ' + me.mana + '/' + me.maxMana;
+
+  // Class name & deck
+  document.getElementById('my-cls-name').textContent = CLASSES[me.cls]?.cls ?? me.cls;
+  document.getElementById('my-deck-info').textContent = '\uD83D\uDCDA ' + me.deck.length;
+
+  // Weapon slot
+  var wpnSlot = document.getElementById('my-wpn-slot');
+  if (wpnSlot) {
+    while (wpnSlot.firstChild) wpnSlot.removeChild(wpnSlot.firstChild);
+    if (me.weapon) {
+      var wpnCard = document.createElement('div');
+      wpnCard.className = 'wpn-card';
+      var wpnArt = document.createElement('span');
+      wpnArt.className = 'wpn-art';
+      wpnArt.textContent = me.weapon.art;
+      wpnCard.appendChild(wpnArt);
+      var wpnAtk = document.createElement('div');
+      wpnAtk.className = 'wpn-atk';
+      wpnAtk.textContent = String(me.weapon.atk);
+      wpnCard.appendChild(wpnAtk);
+      var wpnDur = document.createElement('div');
+      wpnDur.className = 'wpn-dur';
+      wpnDur.textContent = String(me.weapon.durability);
+      wpnCard.appendChild(wpnDur);
+      wpnSlot.appendChild(wpnCard);
+    }
+  }
+
+  // Board
+  renderBoard('my-board', me.board, 'me');
+  renderHand(me, isMyTurnNow);
+
+  // End turn button
+  var eotn = document.getElementById('eotn');
+  if (eotn) eotn.disabled = !isMyTurnNow;
+
+  // Log
+  var lgEl = document.getElementById('lg-text');
+  if (lgEl) lgEl.textContent = G.log;
+
+  // Spell overlay
+  var so = document.getElementById('spell-overlay');
+  if (pendingSpell || heroPowerMode || healMode) {
+    so.classList.add('show');
+    var txt = document.getElementById('spell-msg-txt');
+    if (pendingSpell) txt.textContent = 'Wybierz cel: ' + pendingSpell.name;
+    else if (healMode) txt.textContent = 'Wybierz cel leczenia';
+    else txt.textContent = 'Wybierz cel Hero Power';
+  } else {
+    so.classList.remove('show');
+  }
+
   drawArrow();
 }
 
-function setArmor(id, val) {
-  const el = document.getElementById(id);
-  if (val > 0) { el.style.display = 'flex'; el.textContent = val; }
-  else el.style.display = 'none';
-}
-function setWeaponSlot(slotId, wpn) {
-  const el = document.getElementById(slotId);
-  if (!el) return;
-  if (wpn) {
-    el.innerHTML = `<div class="wpn-card" title="${wpn.name}">
-      <span class="wpn-art">${wpn.art}</span>
-      <div class="wpn-atk">${wpn.atk}</div>
-      <div class="wpn-dur">${wpn.durability}</div>
-    </div>`;
-  } else {
-    el.innerHTML = '';
-  }
+function renderEnemyZones() {
+  var container = document.getElementById('enemy-zones');
+  if (!container) return;
+  while (container.firstChild) container.removeChild(container.firstChild);
+  var botIds = G.playerOrder.filter(function(id){return id !== myId});
+  var BOT_NAMES = ['','\u017B\u00F3\u0142todziob','Normalny','Trudny','Ekspert'];
+
+  botIds.forEach(function(botId) {
+    var bot = G.players[botId];
+    if (!bot) return;
+    var isThisBotActive = G.activePlayer === botId;
+    var zone = document.createElement('div');
+    zone.className = 'enemy-zone' + (isThisBotActive ? ' active-bot' : '');
+    zone.dataset.botId = botId;
+
+    var botIdx = G.playerOrder.indexOf(botId);
+    var isBoss = currentCampaignChapter && currentCampaignChapter.bots ? currentCampaignChapter.bots.find(function(b){return b.isBoss && b.cls === bot.cls}) : null;
+    var canTarget = canTargetBotHero(bot, botId);
+
+    // Hero area
+    var heroArea = document.createElement('div');
+    heroArea.className = 'hero-area';
+
+    var heroPort = document.createElement('div');
+    heroPort.className = 'hero-port' + (canTarget ? ' attackable' : '');
+    heroPort.id = 'hero_' + botIdx;
+    var heroArt = document.createElement('span');
+    heroArt.style.fontSize = '22px';
+    heroArt.textContent = '\uD83E\uDD16';
+    heroPort.appendChild(heroArt);
+    var heroHpBadge = document.createElement('div');
+    heroHpBadge.className = 'hero-hp';
+    heroHpBadge.textContent = String(bot.hp);
+    heroPort.appendChild(heroHpBadge);
+    if (bot.armor > 0) {
+      var armorBadge = document.createElement('div');
+      armorBadge.className = 'hero-armor';
+      armorBadge.textContent = String(bot.armor);
+      heroPort.appendChild(armorBadge);
+    }
+    heroArea.appendChild(heroPort);
+
+    var infoDiv = document.createElement('div');
+    infoDiv.style.flex = '1';
+    var clsName = document.createElement('div');
+    clsName.style.cssText = 'font-size:11px;color:var(--cyan)';
+    clsName.textContent = CLASSES[bot.cls]?.cls ?? bot.cls;
+    infoDiv.appendChild(clsName);
+    var lvlName = document.createElement('div');
+    lvlName.style.cssText = 'font-size:9px;color:#888';
+    lvlName.textContent = BOT_NAMES[bot.botLevel] + (isBoss ? '  \u2605 BOSS' : '');
+    infoDiv.appendChild(lvlName);
+    var manaInfo = document.createElement('div');
+    manaInfo.style.cssText = 'font-size:10px;color:var(--amber)';
+    manaInfo.textContent = '\uD83D\uDC8E ' + bot.mana + '/' + bot.maxMana + ' \u00B7 \uD83D\uDCDA ' + bot.deck.length;
+    infoDiv.appendChild(manaInfo);
+    if (bot.weapon) {
+      var wpnInfo = document.createElement('div');
+      wpnInfo.style.cssText = 'font-size:9px;color:var(--amber)';
+      wpnInfo.textContent = bot.weapon.art + ' ' + bot.weapon.atk + '/' + bot.weapon.durability;
+      infoDiv.appendChild(wpnInfo);
+    }
+    heroArea.appendChild(infoDiv);
+
+    var handBacks = document.createElement('div');
+    handBacks.className = 'hand-backs-row';
+    for (var hi=0; hi<bot.hand.length; hi++) {
+      var bck = document.createElement('div');
+      bck.className = 'bck';
+      handBacks.appendChild(bck);
+    }
+    heroArea.appendChild(handBacks);
+
+    zone.appendChild(heroArea);
+
+    // Board
+    var boardRow = document.createElement('div');
+    boardRow.className = 'minion-row';
+    bot.board.forEach(function(c) {
+      var wrap = createMinionElement(c, 'opp', botId);
+      boardRow.appendChild(wrap);
+    });
+    zone.appendChild(boardRow);
+
+    container.appendChild(zone);
+
+    // Attach hero click
+    heroPort.addEventListener('click', (function(bid){
+      return function(e) { e.stopPropagation(); targetBotHero(bid); };
+    })(botId));
+  });
 }
 
-function renderBoard(elId, cards, side, isMyTurn) {
-  const el = document.getElementById(elId); el.innerHTML = '';
-  cards.forEach(c => {
-    const div = document.createElement('div');
-    const canA = side === 'me' && c.canAtk && !c.fresh && isMyTurn;
-    const isSel = selAtk === c.uid;
-    const isTgt = (selAtk || heroPowerMode || (pendingSpell && !pendingSpellIsHeal)) && side === 'opp';
-    const hasTnt = !c.silenced && c.keywords?.includes('taunt');
-    const isHeal = (healMode || (pendingSpell && pendingSpellIsHeal));
-    div.className = 'minion'
-      + (c.legendary ? ' legendary' : '')
-      + (isSel ? ' sel' : canA ? ' can-atk' : (!canA && side === 'me' && !isHeal ? ' exh' : ''))
-      + (isTgt ? ' targeted' : '')
-      + (isHeal ? ' healable' : '')
-      + (hasTnt ? ' taunt' : '')
-      + (c.curHp < c.maxHp && !isTgt && !isHeal ? ' damaged-glow' : '');
+function createMinionElement(c, side, ownerId) {
+  var canA = side === 'me' && c.canAtk && !c.fresh && G.activePlayer === myId;
+  var isSel = selAtk === c.uid;
+  var isTgt = (selAtk || heroPowerMode || (pendingSpell && !pendingSpellIsHeal)) && side === 'opp';
+  var hasTnt = !c.silenced && c.keywords && c.keywords.indexOf('taunt') !== -1;
+  var isHeal = (healMode || (pendingSpell && pendingSpellIsHeal));
+  var isLeg = c.legendary;
+
+  var wrap = document.createElement('div');
+  wrap.className = 'minion-wrap'
+    + (isSel ? ' sel' : canA ? ' can-atk' : '')
+    + (isTgt ? ' targeted' : '')
+    + (hasTnt ? ' taunt' : '')
+    + (isHeal && side !== 'opp' ? ' healable' : '')
+    + (isLeg ? ' legendary-wrap' : '');
+  wrap.dataset.uid = c.uid;
+  wrap.dataset.owner = ownerId || '';
+
+  var minion = document.createElement('div');
+  minion.className = 'minion'
+    + (c.divineShield ? ' divine-shield' : '')
+    + (c.curHp < c.maxHp ? ' damaged' : '');
+
+  var costBadge = document.createElement('div');
+  costBadge.className = 'm-cost';
+  costBadge.textContent = String(c.cost);
+  minion.appendChild(costBadge);
+
+  var artEl = document.createElement('div');
+  artEl.className = 'm-art';
+  artEl.textContent = c.art;
+  minion.appendChild(artEl);
+
+  wrap.appendChild(minion);
+
+  var atkBadge = document.createElement('div');
+  atkBadge.className = 'm-atk';
+  atkBadge.textContent = String(c.atk??0);
+  wrap.appendChild(atkBadge);
+
+  var hpBadge = document.createElement('div');
+  hpBadge.className = 'm-hp' + (c.curHp < c.maxHp ? ' hurt' : '');
+  hpBadge.textContent = String(c.curHp);
+  wrap.appendChild(hpBadge);
+
+  if (c.deathrattle && !c.silenced) {
+    var dr = document.createElement('div');
+    dr.className = 'dr-badge';
+    dr.textContent = '\uD83D\uDC80';
+    wrap.appendChild(dr);
+  }
+  if (c.endOfTurn && !c.silenced) {
+    var eot = document.createElement('div');
+    eot.className = 'eot-badge';
+    eot.textContent = '\u23F0';
+    wrap.appendChild(eot);
+  }
+  if (c.combo && side === 'me') {
+    var combo = document.createElement('div');
+    combo.className = 'combo-badge';
+    combo.textContent = '\u26A1';
+    wrap.appendChild(combo);
+  }
+  if (c.divineShield) {
+    var ds = document.createElement('div');
+    ds.className = 'ds-indicator';
+    ds.textContent = '\uD83D\uDD2E';
+    wrap.appendChild(ds);
+  }
+
+  // Click handler
+  if (side === 'opp') {
+    wrap.addEventListener('click', (function(card, bid){
+      return function(e){ e.stopPropagation(); clickBotMinion(card, bid); };
+    })(c, ownerId));
+  } else {
+    wrap.addEventListener('click', (function(card){
+      return function(e){ e.stopPropagation(); clickMyMinion(card); };
+    })(c));
+  }
+
+  return wrap;
+}
+
+function renderBoard(containerId, board, side) {
+  var el = document.getElementById(containerId);
+  if (!el) return;
+  while (el.firstChild) el.removeChild(el.firstChild);
+  board.forEach(function(c) {
+    var wrap = createMinionElement(c, side, side === 'me' ? myId : '');
+    el.appendChild(wrap);
+  });
+}
+
+function renderHand(me, isMyTurnNow) {
+  var el = document.getElementById('my-hand');
+  if (!el) return;
+  while (el.firstChild) el.removeChild(el.firstChild);
+  me.hand.forEach(function(c) {
+    var canPlay = isMyTurnNow && c.cost <= me.mana && (c.type !== 'minion' || me.board.length < 4);
+    var div = document.createElement('div');
+    div.className = 'hand-card'
+      + (c.type==='spell'?' spell':'')
+      + (c.type==='weapon'?' weapon-card':'')
+      + (c.legendary?' legendary':'')
+      + (canPlay?' playable':'');
+
+    var costEl = document.createElement('div');
+    costEl.className = 'hc-cost';
+    costEl.textContent = String(c.cost);
+    div.appendChild(costEl);
+
+    var artEl = document.createElement('div');
+    artEl.className = 'hc-art';
+    artEl.textContent = c.art;
+    div.appendChild(artEl);
+
+    var nameEl = document.createElement('div');
+    nameEl.className = 'hc-name';
+    nameEl.textContent = c.name;
+    div.appendChild(nameEl);
+
+    var typeEl = document.createElement('div');
+    typeEl.className = 'hc-type';
+    typeEl.textContent = c.type==='spell'?'\u2728 Czar':c.type==='weapon'?'\u2694\uFE0F Bro\u0144':'Minionek';
+    div.appendChild(typeEl);
+
+    var descTxt = c.bcText||c.spellText||c.drText||c.eotText||c.comboText||'';
+    if (descTxt) {
+      var descEl = document.createElement('div');
+      descEl.className = 'hc-desc';
+      descEl.textContent = descTxt;
+      div.appendChild(descEl);
+    }
+
+    if (c.type==='minion') {
+      var atkEl = document.createElement('div');
+      atkEl.className = 'hc-atk';
+      atkEl.textContent = String(c.atk??0);
+      div.appendChild(atkEl);
+      var hpEl = document.createElement('div');
+      hpEl.className = 'hc-hp';
+      hpEl.textContent = String(c.curHp??0);
+      div.appendChild(hpEl);
+    }
+
     div.dataset.uid = c.uid;
-    div.innerHTML = `<div class="m-cost">${c.cost}</div>
-      <div class="m-art">${renderArt(c, 32)}</div>
-      <div class="m-name">${c.name}</div>
-      ${hasTnt ? '<div class="m-kw">Prowokacja</div>' : ''}
-      ${c.keywords?.includes('charge') ? '<div class="m-kw">Szarża</div>' : ''}
-      <div class="m-atk">${c.atk??0}</div>
-      <div class="m-hp${c.curHp < c.maxHp ? ' hurt' : ''}">${c.curHp}</div>
-      ${c.divineShield ? '<div class="m-ds"></div>' : ''}
-      ${(c.combo && side === 'me') ? '<div class="combo-badge">COMBO</div>' : ''}
-      ${(c.deathrattle && !c.silenced) ? '<div class="dr-badge">💀</div>' : ''}
-      ${(c.endOfTurn && !c.silenced) ? '<div class="eot-badge">⏰</div>' : ''}`;
-    if (side === 'me') div.onclick = e => { e.stopPropagation(); clickMyMinion(c, div); };
-    else div.onclick = e => { e.stopPropagation(); clickOppMinion(c); };
-    attachPreview(div, c);
+    if (canPlay) {
+      div.addEventListener('click', (function(card){
+        return function(e){ e.stopPropagation(); clickHandCard(card); };
+      })(c));
+    }
     el.appendChild(div);
   });
 }
 
-function renderHand(me, isMyTurn) {
-  const ph = document.getElementById('my-hand'); ph.innerHTML = '';
-  me.hand.forEach(c => {
-    const pl = isMyTurn && me.mana >= c.cost;
-    const div = document.createElement('div');
-    const typeClass = c.type === 'spell' ? ' spell' : c.type === 'weapon' ? ' weapon' : '';
-    const legClass = c.legendary ? ' legendary' : '';
-    const tauntClass = c.keywords?.includes('taunt') ? ' taunt-card' : '';
-    div.className = 'hand-card' + typeClass + legClass + tauntClass + ' ' + (pl ? 'playable' : 'unplayable');
-    div.dataset.uid = c.uid;
-    const showCombo = me.playedThisTurn && c.comboText;
-    const desc = c.bcText || c.spellText || c.drText || c.eotText || '';
-    div.innerHTML = `<div class="m-cost">${c.cost}</div>
-      <div class="hc-art">${renderArt(c, 32)}</div>
-      <div class="hc-name">${c.name}</div>
-      <div class="hc-type">${c.type==='spell'?'✨ Czar':c.type==='weapon'?'⚔️ Broń':'Minionek'}</div>
-      ${desc ? `<div class="hc-desc">${desc}</div>` : ''}
-      ${c.type==='minion' ? `<div class="hc-atk">${c.atk??0}</div><div class="hc-hp">${c.curHp??0}</div>` : ''}
-      ${showCombo ? `<div class="combo-badge">COMBO</div><div class="hc-combo">${c.comboText}</div>` : ''}`;
-    if (pl) div.onclick = e => { e.stopPropagation(); clickHandCard(c, div); };
-    attachPreview(div, c);
-    ph.appendChild(div);
-  });
-}
-
-// ── Interaction ───────────────────────────────────────────────────────────
-function clickHandCard(card, el) {
-  if (!isMyTurn()) return;
+// ======================================================================
+// INTERACTION
+// ======================================================================
+function clickHandCard(card) {
   cancelModes();
-  const needsBcTarget = card.type === 'minion' && needsBattlecryTarget(card);
-  if ((card.type === 'spell' && needsTarget(card)) || needsBcTarget) {
+  if (G.activePlayer !== myId || G.phase !== 'playing') return;
+  var me = G.players[myId];
+  if (me.mana < card.cost) return;
+  if (card.type === 'minion' && me.board.length >= 4) return;
+
+  var needsTarget = card.battlecry === 'deal1' || card.battlecry === 'heal2target' || card.battlecry === 'heal4target'
+    || card.spellEffect === 'deal4face' || card.spellEffect === 'heal6target';
+
+  if (needsTarget) {
     pendingSpell = card;
-    const isHeal = card.type === 'spell' ? (card.spellEffect?.includes('heal') ?? false) : (card.battlecry?.includes('heal') ?? false);
-    pendingSpellIsHeal = isHeal;
-    const overlay = document.getElementById('spell-overlay');
-    overlay.classList.add('on');
-    if (isHeal) overlay.classList.add('heal-mode');
-    document.getElementById('spell-msg-txt').textContent = isHeal ? 'Wybierz cel uzdrowienia' : 'Wybierz cel';
-    if (el) {
-      const r = el.getBoundingClientRect(), br = document.getElementById('board').getBoundingClientRect();
-      dragStart = { x:r.left-br.left+r.width/2, y:r.top-br.top+r.height/2 };
-      dragCurrent = { ...dragStart };
-    }
-    log('Wybierz cel: ' + card.name);
-    if (gameState) render(gameState);
+    pendingSpellIsHeal = (card.battlecry && card.battlecry.indexOf('heal')!==-1) || (card.spellEffect && card.spellEffect.indexOf('heal')!==-1);
+    setDragStart();
+    render();
     return;
   }
-  SFX.play(); stats.cardsPlayed++;
-  send({ type:'play_card', cardUid:card.uid });
-  showFx(card.type==='spell' ? '✨ Czar!' : card.type==='weapon' ? '⚔️ Broń!' : '');
+
+  action_playCard(card.uid, null, null, null);
 }
 
-function needsTarget(card) {
-  return ['deal4face','deal6face','heal2target','heal4target','heal6target'].includes(card.spellEffect);
-}
-function needsBattlecryTarget(card) {
-  return ['deal1','deal2','heal2target','heal4target'].includes(card.battlecry);
-}
-function isAoe(card) {
-  return ['deal2all','deal3all','deal1all'].includes(card?.spellEffect);
-}
+function clickMyMinion(card) {
+  if (G.activePlayer !== myId || G.phase !== 'playing') return;
 
-function clickMyMinion(card, el) {
-  if (!isMyTurn()) return;
   if (healMode) {
-    send({ type:'hero_power', targetUid:card.uid, targetType:'minion_me' });
-    SFX.heal(); showFx('💚 Uzdrowienie!'); cancelModes(); return;
+    action_heroPower(card.uid, 'minion_me', null);
+    cancelModes();
+    return;
   }
   if (pendingSpell && pendingSpellIsHeal) {
-    stats.cardsPlayed++;
-    send({ type:'play_card', cardUid:pendingSpell.uid, targetUid:card.uid, targetType:'minion_me' });
-    SFX.heal(); showFx('💚 Uzdrowienie!'); cancelModes(); return;
+    action_playCard(pendingSpell.uid, card.uid, 'minion_me', null);
+    cancelModes();
+    return;
   }
-  if (pendingSpell || heroPowerMode) { cancelModes(); return; }
-  if (card.fresh && !card.keywords?.includes('charge')) { log(card.name + ' dopiero weszła!'); return; }
-  if (!card.canAtk) { log(card.name + ' już atakowała.'); return; }
-  selAtk = selAtk === card.uid ? null : card.uid;
-  if (selAtk) {
-    const r = el.getBoundingClientRect(), br = document.getElementById('board').getBoundingClientRect();
-    dragStart = { x:r.left-br.left+r.width/2, y:r.top-br.top+r.height/2 };
-    dragCurrent = { ...dragStart };
-  }
-  render(gameState);
-}
-
-function clickOppMinion(card) {
-  if (!isMyTurn()) return;
-  if (healMode) {
-    send({ type:'hero_power', targetUid:card.uid, targetType:'minion_opp' });
-    SFX.heal(); showFx('💚 Uzdrowienie!'); cancelModes(); return;
-  }
-  if (pendingSpell && pendingSpellIsHeal) {
-    stats.cardsPlayed++;
-    send({ type:'play_card', cardUid:pendingSpell.uid, targetUid:card.uid, targetType:'minion_opp' });
-    SFX.heal(); showFx('💚 Uzdrowienie!'); cancelModes(); return;
-  }
-  if (pendingSpell) {
-    SFX.play(); stats.cardsPlayed++;
-    send({ type:'play_card', cardUid:pendingSpell.uid, targetUid:card.uid, targetType:'minion_opp' });
-    showFx('✨ Czar!'); cancelModes(); return;
+  if (pendingSpell && !pendingSpellIsHeal) {
+    action_playCard(pendingSpell.uid, card.uid, 'minion_me', null);
+    cancelModes();
+    return;
   }
   if (heroPowerMode) {
-    SFX.play();
-    send({ type:'hero_power', targetUid:card.uid, targetType:'minion' });
-    showFx('Hero Power!'); cancelModes(); return;
+    action_heroPower(card.uid, 'minion_me', null);
+    cancelModes();
+    return;
   }
-  if (!selAtk) { log('Najpierw wybierz swoją kartę!'); return; }
-  SFX.attack();
+
+  if (card.canAtk && !card.fresh) {
+    selAtk = (selAtk === card.uid) ? null : card.uid;
+    setDragStart();
+    render();
+  }
+}
+
+function clickBotMinion(card, botId) {
+  if (G.activePlayer !== myId) return;
+  if (healMode) { action_heroPower(card.uid, 'minion_opp', botId); cancelModes(); return; }
+  if (pendingSpell && pendingSpellIsHeal) {
+    action_playCard(pendingSpell.uid, card.uid, 'minion_opp', botId); cancelModes(); return;
+  }
+  if (pendingSpell) {
+    action_playCard(pendingSpell.uid, card.uid, 'minion_opp', botId); cancelModes(); return;
+  }
+  if (heroPowerMode) { action_heroPower(card.uid, 'minion', botId); cancelModes(); return; }
+  if (!selAtk) return;
   if (selAtk === '__hero__') {
-    send({ type:'hero_attack', targetUid:card.uid, targetType:'minion' });
-  } else {
-    send({ type:'attack', attackerUid:selAtk, targetUid:card.uid, targetType:'minion' });
+    action_heroAttack(card.uid, 'minion', botId); selAtk=null; render(); return;
   }
-  selAtk = null; render(gameState);
+  action_attack(selAtk, card.uid, 'minion', botId); selAtk=null; render();
 }
 
-function targetHero(side) {
-  if (!isMyTurn()) return;
-  if (selAtk === '__hero__' && side === 'opp') {
-    SFX.attack();
-    send({ type:'hero_attack', targetType:'hero' });
-    selAtk = null; render(gameState); return;
+function canTargetBotHero(bot, botId) {
+  if (G.activePlayer !== myId || G.phase !== 'playing') return false;
+  var hasTnt = hasTaunt(bot.board);
+  return (!hasTnt && selAtk) || heroPowerMode || healMode || !!pendingSpell;
+}
+
+function targetBotHero(botId) {
+  if (G.activePlayer !== myId) return;
+  var bot = G.players[botId];
+  if (!bot) return;
+  if (healMode) {
+    action_heroPower(null, 'hero_opp', botId); cancelModes(); return;
   }
-  if (healMode && side === 'opp') {
-    send({ type:'hero_power', targetType:'hero_opp' });
-    SFX.heal(); showFx('💚 Uzdrowienie!'); cancelModes(); return;
+  if (pendingSpell && pendingSpellIsHeal) {
+    action_playCard(pendingSpell.uid, null, 'hero_opp', botId); cancelModes(); return;
   }
-  if (pendingSpell && pendingSpellIsHeal && side === 'opp') {
-    stats.cardsPlayed++;
-    send({ type:'play_card', cardUid:pendingSpell.uid, targetType:'hero_opp' });
-    SFX.heal(); showFx('💚 Uzdrowienie!'); cancelModes(); return;
-  }
-  if (side !== 'opp') return;
   if (pendingSpell) {
-    SFX.play(); stats.cardsPlayed++;
-    send({ type:'play_card', cardUid:pendingSpell.uid, targetType:'hero' });
-    showFx('✨ Czar!'); cancelModes(); return;
+    action_playCard(pendingSpell.uid, null, 'hero', botId); cancelModes(); return;
   }
   if (heroPowerMode) {
-    SFX.play();
-    send({ type:'hero_power', targetType:'hero' });
-    showFx('Hero Power!'); cancelModes(); return;
+    action_heroPower(null, 'hero', botId); cancelModes(); return;
   }
-  if (!selAtk) { log('Wybierz kartę do ataku!'); return; }
-  SFX.attack();
-  send({ type:'attack', attackerUid:selAtk, targetType:'hero' });
-  selAtk = null; render(gameState);
+  if (selAtk === '__hero__') {
+    action_heroAttack(null, 'hero', botId); selAtk=null; render(); return;
+  }
+  if (selAtk) {
+    action_attack(selAtk, null, 'hero', botId); selAtk=null; render(); return;
+  }
 }
 
 function heroSelfClick() {
-  if (!isMyTurn()) return;
-  if (healMode) {
-    send({ type:'hero_power', targetType:'hero_me' });
-    SFX.heal(); showFx('💚 Uzdrowienie!'); cancelModes(); return;
+  if (G.activePlayer !== myId || G.phase !== 'playing') return;
+  var me = G.players[myId];
+
+  if (healMode) { action_heroPower(null, 'hero_me', null); cancelModes(); return; }
+  if (pendingSpell && pendingSpellIsHeal) { action_playCard(pendingSpell.uid, null, 'hero_me', null); cancelModes(); return; }
+
+  if (me.canHeroAtk && me.heroAtkVal > 0) {
+    selAtk = (selAtk === '__hero__') ? null : '__hero__';
+    setDragStart();
+    render();
   }
-  if (pendingSpell && pendingSpellIsHeal) {
-    stats.cardsPlayed++;
-    send({ type:'play_card', cardUid:pendingSpell.uid, targetType:'hero_me' });
-    SFX.heal(); showFx('💚 Uzdrowienie!'); cancelModes(); return;
-  }
-  const me = gameState?.players[myId];
-  if (!me?.canHeroAtk) return;
-  selAtk = '__hero__';
-  const el = document.getElementById('my-port');
-  const r = el.getBoundingClientRect(), br = document.getElementById('board').getBoundingClientRect();
-  dragStart = { x:r.left-br.left+r.width/2, y:r.top-br.top+r.height/2 };
-  dragCurrent = { ...dragStart };
-  log('Bohater atakuje — wybierz cel!');
-  render(gameState);
 }
 
-function activateHeroPower() {
-  if (!isMyTurn()) return;
-  const me = gameState?.players[myId];
-  if (!me || me.heroPowerUsed || me.mana < 2) return;
+function clickHeroPower() {
+  if (G.activePlayer !== myId || G.phase !== 'playing') return;
+  var me = G.players[myId];
+  if (me.heroPowerUsed || me.mana < 2) return;
+
   cancelModes();
-  if (me.cls === 'warrior') { SFX.play(); send({ type:'hero_power' }); showFx('🛡️ +2 Pancerza!'); return; }
-  if (me.cls === 'rogue')   { SFX.play(); send({ type:'hero_power' }); showFx('⚔️ Sztylet!'); return; }
+
+  if (me.cls === 'warrior' || me.cls === 'rogue') {
+    action_heroPower(null, null, null);
+    return;
+  }
+
   if (me.cls === 'priest') {
     healMode = true;
-    document.getElementById('spell-overlay').classList.add('on','heal-mode');
-    document.getElementById('spell-msg-txt').textContent = 'Wybierz cel uzdrowienia';
-    const hpEl = document.getElementById('hpbtn');
-    if (hpEl) {
-      const r = hpEl.getBoundingClientRect(), br = document.getElementById('board').getBoundingClientRect();
-      dragStart = { x:r.left-br.left+r.width/2, y:r.top-br.top+r.height/2 };
-      dragCurrent = { ...dragStart };
-    }
-    log('Hero Power: wybierz cel uzdrowienia');
-    render(gameState); return;
+    setDragStart();
+    render();
+    return;
   }
-  heroPowerMode = true;
-  document.getElementById('spell-overlay').classList.add('on');
-  document.getElementById('spell-msg-txt').textContent = 'Wybierz cel czaru';
-  const hpEl = document.getElementById('hpbtn');
-  if (hpEl) {
-    const r = hpEl.getBoundingClientRect(), br = document.getElementById('board').getBoundingClientRect();
-    dragStart = { x:r.left-br.left+r.width/2, y:r.top-br.top+r.height/2 };
-    dragCurrent = { ...dragStart };
-  }
-  log('Hero Power: wybierz cel (kliknij minionka lub bohatera wroga)');
-  render(gameState);
-}
 
-function cancelModes() {
-  pendingSpell = null; pendingSpellIsHeal = false;
-  heroPowerMode = false; healMode = false; selAtk = null;
-  const overlay = document.getElementById('spell-overlay');
-  overlay.classList.remove('on','heal-mode');
-  document.getElementById('spell-msg-txt').textContent = 'Wybierz cel czaru';
+  heroPowerMode = true;
+  setDragStart();
+  render();
 }
 
 function sendEndTurn() {
-  if (!isMyTurn()) return;
   cancelModes();
-  send({ type:'end_turn' });
+  action_endTurn();
 }
 
-function isMyTurn() {
-  return gameState?.activePlayer === myId && gameState?.phase === 'playing';
+function cancelModes() {
+  selAtk = null;
+  pendingSpell = null;
+  pendingSpellIsHeal = false;
+  heroPowerMode = false;
+  healMode = false;
 }
 
-// ── Animations ────────────────────────────────────────────────────────────
-function findTargetElement(targetId) {
-  if (targetId.startsWith('hero_')) {
-    const idx = parseInt(targetId.split('_')[1]);
-    if (!gameState) return null;
-    const pid = gameState.playerOrder[idx];
-    return pid === myId ? document.getElementById('my-port') : document.getElementById('opp-port');
+function setDragStart() {
+  var bf = document.getElementById('board');
+  if (!bf) return;
+  var r = bf.getBoundingClientRect();
+  dragStart = { x: r.width/2, y: r.height - 100 };
+  dragCurrent = { x: dragStart.x, y: dragStart.y };
+}
+
+// ======================================================================
+// TURN BANNER
+// ======================================================================
+function showTurnBanner(text, isYours) {
+  var el = document.getElementById('turn-banner');
+  if (!el) return;
+  el.textContent = text;
+  el.className = 'turn-banner show ' + (isYours ? 'yours' : 'theirs');
+  setTimeout(function() { el.classList.remove('show'); }, 1200);
+}
+
+// ======================================================================
+// GAME OVER
+// ======================================================================
+function showGameOver() {
+  var won = G.winner === 'human';
+  var gotEl = document.getElementById('got');
+  gotEl.textContent = won ? '\uD83C\uDFC6 Zwyci\u0119stwo!' : '\uD83D\uDC80 Przegrana!';
+  gotEl.className = 'got ' + (won ? 'win' : 'lose');
+  document.getElementById('gos').textContent = won
+    ? 'Twoje ksi\u0119gi s\u0105 bezbł\u0119dne!'
+    : 'Urz\u0105d Skarbowy przej\u0105\u0142 kontrol\u0119.';
+
+  var prevRetry = document.getElementById('retry-btn-dynamic');
+  if (prevRetry) prevRetry.remove();
+
+  var campaignBtns = document.getElementById('go-campaign-btns');
+  if (won && currentCampaignChapter) {
+    saveCampaignProgress(currentCampaignChapter.id);
+    campaignBtns.style.display = 'block';
+    var nextChapter = CAMPAIGN.find(function(c){return c.id === currentCampaignChapter.id + 1});
+    var nextBtn = document.getElementById('go-next-btn');
+    if (nextChapter) {
+      nextBtn.textContent = 'NAST\u0118PNY ROZDZIA\u0141 \u25B6';
+      nextBtn.onclick = function() { hideGameOver(); showChapterIntro(nextChapter); };
+    } else {
+      nextBtn.textContent = '\uD83C\uDF89 KONIEC KAMPANII!';
+      nextBtn.onclick = function() { hideGameOver(); showScreen('lobby'); };
+    }
+  } else {
+    campaignBtns.style.display = 'none';
   }
-  return document.querySelector(`[data-uid="${targetId}"]`);
+
+  if (!won && currentCampaignChapter) {
+    var retryBtn = document.createElement('button');
+    retryBtn.className = 'start-btn';
+    retryBtn.textContent = '\uD83D\uDD04 Spr\u00F3buj ponownie';
+    retryBtn.id = 'retry-btn-dynamic';
+    retryBtn.style.marginTop = '4px';
+    retryBtn.onclick = function() { hideGameOver(); showChapterIntro(currentCampaignChapter); };
+    var inner = document.getElementById('goc-inner');
+    inner.insertBefore(retryBtn, campaignBtns);
+  }
+
+  var goov = document.getElementById('goov');
+  goov.className = won ? 'win-bg' : 'lose-bg';
+  goov.style.display = 'flex';
+}
+
+function hideGameOver() {
+  document.getElementById('goov').style.display = 'none';
+}
+
+function restartLobby() {
+  hideGameOver();
+  G = { phase:"waiting", players:{}, playerOrder:[], activePlayer:"", turn:1, winner:null, log:"" };
+  currentCampaignChapter = null;
+  cancelModes();
+  showScreen('lobby');
+}
+
+// ======================================================================
+// CANVAS ARROW
+// ======================================================================
+function setupCanvas() {
+  var cv = document.getElementById('ac');
+  var bf = document.getElementById('board');
+  if (!cv || !bf) return;
+  function resize() { if (bf.offsetWidth>0) { cv.width=bf.offsetWidth; cv.height=bf.offsetHeight; } }
+  resize();
+  window.addEventListener('resize', function() { resize(); drawArrow(); });
+}
+
+function drawArrow() {
+  var cv = document.getElementById('ac');
+  if (!cv) return;
+  var ctx = cv.getContext('2d');
+  if (!cv.width || !cv.height) {
+    var bf = document.getElementById('board');
+    if (bf && bf.offsetWidth>0) { cv.width=bf.offsetWidth; cv.height=bf.offsetHeight; }
+  }
+  ctx.clearRect(0,0,cv.width,cv.height);
+  if (!selAtk && !pendingSpell && !heroPowerMode && !healMode) return;
+  var sx=dragStart.x, sy=dragStart.y, ex=dragCurrent.x, ey=dragCurrent.y;
+  var color='#00ffff';
+  ctx.beginPath(); ctx.arc(sx,sy,8,0,Math.PI*2); ctx.fillStyle=color+'88'; ctx.fill();
+  ctx.beginPath(); ctx.arc(sx,sy,6,0,Math.PI*2); ctx.strokeStyle='#fff'; ctx.lineWidth=2; ctx.stroke();
+  ctx.beginPath(); ctx.arc(sx,sy,6,0,Math.PI*2); ctx.fillStyle=color; ctx.fill();
+  if (Math.abs(ex-sx)<8 && Math.abs(ey-sy)<8) return;
+  ctx.beginPath(); ctx.moveTo(sx,sy);
+  ctx.quadraticCurveTo((sx+ex)/2,(sy+ey)/2-20,ex,ey);
+  ctx.strokeStyle=color; ctx.lineWidth=3; ctx.setLineDash([6,4]); ctx.stroke(); ctx.setLineDash([]);
+  var angle=Math.atan2(ey-((sy+ey)/2-20),ex-(sx+ex)/2), al=14;
+  ctx.beginPath(); ctx.moveTo(ex,ey);
+  ctx.lineTo(ex-al*Math.cos(angle-0.4),ey-al*Math.sin(angle-0.4));
+  ctx.lineTo(ex-al*Math.cos(angle+0.4),ey-al*Math.sin(angle+0.4));
+  ctx.closePath(); ctx.fillStyle=color; ctx.fill();
+}
+
+// ======================================================================
+// ANIMATION
+// ======================================================================
+function findTargetElement(targetId) {
+  if (targetId && typeof targetId === 'string' && targetId.indexOf('hero_') === 0) {
+    return document.getElementById(targetId);
+  }
+  return document.querySelector('[data-uid="'+targetId+'"]');
 }
 
 function playAnimEvents(events) {
-  const bf = document.getElementById('board');
-  if (!bf) return;
-  let delay = 0;
-  events.forEach((ev) => {
+  var bf = document.getElementById('board');
+  if (!bf || !events || !events.length) return;
+  var delay = 0;
+  events.forEach(function(ev) {
     if (ev.kind === 'attack_anim') {
-      setTimeout(() => {
-        const atk = findTargetElement(ev.attackerId);
-        const tgt = findTargetElement(ev.targetId);
-        if (!atk || !tgt) return;
-        SFX.attack();
-        const ar = atk.getBoundingClientRect(), tr = tgt.getBoundingClientRect();
-        const dx = (tr.left + tr.width/2 - ar.left - ar.width/2) * 0.4;
-        const dy = (tr.top + tr.height/2 - ar.top - ar.height/2) * 0.4;
-        atk.style.transition = 'transform 0.15s ease-in';
-        atk.style.transform = `translate(${dx}px, ${dy}px)`;
-        atk.style.zIndex = '100';
-        setTimeout(() => {
-          atk.style.transition = 'transform 0.1s ease-out';
-          atk.style.transform = '';
-          setTimeout(() => { atk.style.transition = ''; atk.style.zIndex = ''; }, 120);
-        }, 160);
+      setTimeout(function() {
+        var atk = findTargetElement(ev.attackerId);
+        var tgt = findTargetElement(ev.targetId);
+        if (!atk||!tgt) return;
+        var ar=atk.getBoundingClientRect(), tr=tgt.getBoundingClientRect();
+        var dx=(tr.left+tr.width/2-ar.left-ar.width/2)*0.4;
+        var dy=(tr.top+tr.height/2-ar.top-ar.height/2)*0.4;
+        atk.style.transition='transform 0.15s ease-in';
+        atk.style.transform='translate('+dx+'px,'+dy+'px)';
+        atk.style.zIndex='100';
+        setTimeout(function() { atk.style.transition='transform 0.1s ease-out'; atk.style.transform=''; setTimeout(function(){atk.style.transition='';atk.style.zIndex='';},120); },160);
       }, delay);
       delay += 280;
     } else {
-      setTimeout(() => {
-        if (ev.kind === 'heal') SFX.heal();
-        const target = findTargetElement(ev.targetId);
+      setTimeout(function() {
+        var target = findTargetElement(ev.targetId);
         if (!target) return;
-        const tr = target.getBoundingClientRect(), br = bf.getBoundingClientRect();
-        const x = tr.left - br.left + tr.width/2, y = tr.top - br.top + tr.height/2;
-        const pop = document.createElement('div');
-        pop.className = 'dmg-pop ' + (ev.kind === 'heal' ? 'heal' : 'dmg');
-        pop.textContent = (ev.kind === 'heal' ? '+' : '-') + ev.amount;
-        pop.style.left = (x-12) + 'px'; pop.style.top = (y-16) + 'px';
-        bf.appendChild(pop); setTimeout(() => pop.remove(), 900);
+        var tr=target.getBoundingClientRect(), br=bf.getBoundingClientRect();
+        var x=tr.left-br.left+tr.width/2, y=tr.top-br.top+tr.height/2;
+        var pop = document.createElement('div');
+        pop.className = 'dmg-pop ' + (ev.kind==='heal'?'heal':'dmg');
+        pop.textContent = (ev.kind==='heal'?'+':'-') + ev.amount;
+        pop.style.left=(x-12)+'px'; pop.style.top=(y-16)+'px';
+        bf.appendChild(pop); setTimeout(function(){pop.remove();},900);
         target.classList.add('atk-flash');
-        setTimeout(() => target.classList.remove('atk-flash'), 250);
+        setTimeout(function(){target.classList.remove('atk-flash');},250);
       }, delay);
       delay += 120;
     }
   });
 }
 
-// ── Arrow ─────────────────────────────────────────────────────────────────
-function setupCanvas() {
-  const cv = document.getElementById('ac'), bf = document.getElementById('board');
-  function r() { cv.width = bf.offsetWidth; cv.height = bf.offsetHeight; }
-  r(); window.addEventListener('resize', () => { r(); drawArrow(); });
-}
-// Point dragCurrent at the opponent's hero so the arrow draws immediately on activation
-function aimAtOppHero() {
-  const bf = document.getElementById('board');
-  const oppPort = document.getElementById('opp-port');
-  if (!bf || !oppPort) return;
-  const br = bf.getBoundingClientRect(), r = oppPort.getBoundingClientRect();
-  dragCurrent = { x: r.left - br.left + r.width / 2, y: r.top - br.top + r.height / 2 };
-}
+// ======================================================================
+// INIT
+// ======================================================================
+window.addEventListener('load', function() {
+  initLobby();
+  setupCanvas();
 
-function drawArrow() {
-  const cv = document.getElementById('ac'), ctx = cv.getContext('2d');
-  // Resize canvas if not yet initialized (board was hidden during setupCanvas)
-  if (!cv.width || !cv.height) {
-    const bf = document.getElementById('board');
-    if (bf.offsetWidth > 0) { cv.width = bf.offsetWidth; cv.height = bf.offsetHeight; }
-  }
-  ctx.clearRect(0, 0, cv.width, cv.height);
-  if (!selAtk && !pendingSpell && !heroPowerMode && !healMode) return;
-  const sx = dragStart.x, sy = dragStart.y, ex = dragCurrent.x, ey = dragCurrent.y;
-  const color = '#e74c3c';
-  // Always draw origin pulse dot to show selection mode is active
-  ctx.beginPath(); ctx.arc(sx, sy, 8, 0, Math.PI*2);
-  ctx.fillStyle = color + 'aa'; ctx.fill();
-  ctx.beginPath(); ctx.arc(sx, sy, 6, 0, Math.PI*2);
-  ctx.strokeStyle = '#fff'; ctx.lineWidth = 2; ctx.stroke();
-  ctx.beginPath(); ctx.arc(sx, sy, 6, 0, Math.PI*2);
-  ctx.fillStyle = color; ctx.fill();
-  // Draw arrow only when mouse has moved away from origin
-  if (Math.abs(ex-sx) < 8 && Math.abs(ey-sy) < 8) return;
-  ctx.beginPath(); ctx.moveTo(sx, sy);
-  ctx.quadraticCurveTo((sx+ex)/2, (sy+ey)/2-20, ex, ey);
-  ctx.strokeStyle = color; ctx.lineWidth = 3; ctx.setLineDash([6,4]); ctx.stroke(); ctx.setLineDash([]);
-  const angle = Math.atan2(ey-((sy+ey)/2-20), ex-(sx+ex)/2), al = 14, aw = 5;
-  ctx.beginPath(); ctx.moveTo(ex, ey);
-  ctx.lineTo(ex-al*Math.cos(angle-aw/3), ey-al*Math.sin(angle-aw/3));
-  ctx.lineTo(ex-al*Math.cos(angle+aw/3), ey-al*Math.sin(angle+aw/3));
-  ctx.closePath(); ctx.fillStyle = color; ctx.fill();
-}
-document.addEventListener('mousemove', e => {
-  if (!selAtk && !pendingSpell && !heroPowerMode && !healMode) return;
-  const bf = document.getElementById('board'), r = bf.getBoundingClientRect();
-  dragCurrent = { x:e.clientX-r.left, y:e.clientY-r.top };
-  drawArrow();
-});
-document.addEventListener('touchmove', e => {
-  if (!selAtk && !pendingSpell && !heroPowerMode && !healMode) return;
-  const t = e.touches[0];
-  const bf = document.getElementById('board'), r = bf.getBoundingClientRect();
-  dragCurrent = { x:t.clientX-r.left, y:t.clientY-r.top };
-  drawArrow();
-}, {passive:true});
-document.addEventListener('click', e => {
-  const onBoard = e.target.closest('.minion') || e.target.closest('.hero-port') || e.target.closest('.hp-gem');
-  if ((selAtk || heroPowerMode || healMode || pendingSpell) && !onBoard) {
-    cancelModes(); if (gameState) render(gameState);
-  }
-});
-
-// ── Effects ───────────────────────────────────────────────────────────────
-function snapshotHandPositions() {
-  handCardPositions = {};
-  const handEl = document.getElementById('my-hand');
-  if (!handEl) return;
-  const cards = handEl.querySelectorAll('.hand-card');
-  cards.forEach(el => {
-    const uid = el.dataset?.uid;
-    if (uid) handCardPositions[uid] = el.getBoundingClientRect();
+  document.addEventListener('mousemove', function(e) {
+    if (!selAtk && !pendingSpell && !heroPowerMode && !healMode) return;
+    var bf=document.getElementById('board');
+    if (!bf) return;
+    var r=bf.getBoundingClientRect();
+    dragCurrent={x:e.clientX-r.left,y:e.clientY-r.top}; drawArrow();
   });
-}
-function animateCardToBoard(uid, fromRect) {
-  const el = document.querySelector(`#my-board [data-uid="${uid}"]`);
-  if (!el) return;
-  const toRect = el.getBoundingClientRect();
-  const dx = fromRect.left - toRect.left + (fromRect.width - toRect.width)/2;
-  const dy = fromRect.top - toRect.top + (fromRect.height - toRect.height)/2;
-  el.style.transform = `translate(${dx}px, ${dy}px) scale(0.75)`;
-  el.style.opacity = '0.7';
-  el.classList.add('card-flying');
-  el.classList.remove('spawning');
-  requestAnimationFrame(() => requestAnimationFrame(() => {
-    el.style.transform = '';
-    el.style.opacity = '';
-    setTimeout(() => el.classList.remove('card-flying'), 400);
-  }));
-}
-function showTurnBanner(text, isMine) {
-  const b = document.getElementById('turn-banner');
-  b.textContent = text;
-  b.className = 'turn-banner ' + (isMine ? 'yours' : 'theirs');
-  void b.offsetWidth; // force reflow
-  b.classList.add('show');
-  setTimeout(() => { b.classList.remove('show'); }, 1500);
-}
-function showFx(txt) {
-  if (!txt) return;
-  const bf = document.getElementById('board');
-  const p = document.createElement('div'); p.className = 'fx-label'; p.textContent = txt;
-  bf.appendChild(p); setTimeout(() => p.remove(), 900);
-}
-function showGameOver(state) {
-  const won = state.winner === myId;
-  const gotEl = document.getElementById('got');
-  gotEl.textContent = won ? '🏆 Zwycięstwo!' : '💀 Przegrana!';
-  gotEl.className = 'got ' + (won ? 'win' : 'lose');
-  document.getElementById('gos').textContent = won
-    ? 'Wygrałeś! Twoje księgi są bezbłędne.'
-    : 'Przegrałeś. Urząd Skarbowy przejął kontrolę.';
-  const goov = document.getElementById('goov');
-  goov.className = won ? 'win-bg' : 'lose-bg';
-  goov.style.display = 'flex';
-
-  // Stats — all values are internal integers, safe for innerHTML
-  const statsEl = document.getElementById('go-stats');
-  statsEl.innerHTML = `
-    <div class="go-stat"><div class="go-stat-val">${Number(stats.damageDealt)}</div><div class="go-stat-label">⚔️ Obrażenia</div></div>
-    <div class="go-stat"><div class="go-stat-val">${Number(stats.cardsPlayed)}</div><div class="go-stat-label">🃏 Karty zagrane</div></div>
-    <div class="go-stat"><div class="go-stat-val">${Number(stats.turnsPlayed)}</div><div class="go-stat-label">🔄 Tury</div></div>
-    <div class="go-stat"><div class="go-stat-val">${Number(state.turn)}</div><div class="go-stat-label">📊 Łączne tury</div></div>`;
-
-  // Particles
-  if (won) {
-    const pc = document.getElementById('go-particles');
-    pc.innerHTML = '';
-    const colors = ['#ffd700','#ffaa00','#fff4cc','#e8c840'];
-    for (let i = 0; i < 30; i++) {
-      const p = document.createElement('div');
-      p.className = 'go-particle';
-      p.style.left = Math.random()*100+'%';
-      p.style.top = '-10px';
-      p.style.background = colors[Math.floor(Math.random()*colors.length)];
-      p.style.width = (4+Math.random()*6)+'px';
-      p.style.height = p.style.width;
-      p.style.animationDuration = (2+Math.random()*3)+'s';
-      p.style.animationDelay = Math.random()*2+'s';
-      pc.appendChild(p);
-    }
-  }
-  if (won) SFX.win(); else SFX.lose();
-}
-const logHistory = [];
-function log(m) {
-  const el = document.getElementById('lg-text');
-  if (el) el.textContent = m;
-  if (m && m !== logHistory[logHistory.length - 1]) {
-    logHistory.push(m);
-    if (logHistory.length > 30) logHistory.shift();
-    const entries = document.getElementById('log-entries');
-    if (entries) {
-      const d = document.createElement('div');
-      d.className = 'log-entry';
-      d.textContent = m;
-      entries.appendChild(d);
-      entries.scrollTop = entries.scrollHeight;
-      if (entries.children.length > 30) entries.removeChild(entries.firstChild);
-    }
-  }
-}
-function toggleLog() {
-  document.getElementById('log-panel').classList.toggle('open');
-}
-
-// ── Class defs (client-side) ───────────────────────────────────────────────
-const CLASSES = {
-  mage:    { art:'🧙', cls:'Mag Podatkowy',    heroPowerArt:'🔥', heroPowerText:'Zadaj 1 obrażenie dowolnemu celowi.' },
-  warrior: { art:'⚔️', cls:'Wojownik Księgi',  heroPowerArt:'🛡️', heroPowerText:'Zyskaj 2 pancerza.' },
-  rogue:   { art:'🃏', cls:'Łotr Podatkowy',   heroPowerArt:'🗡️', heroPowerText:'Wyekwipuj sztylet 1/2.' },
-  priest:  { art:'✝️', cls:'Kapłan Bilansowy', heroPowerArt:'💚', heroPowerText:'Przywróć 2 HP dowolnemu celowi.' },
-};
-
-// ── Init ──────────────────────────────────────────────────────────────────
-setupCanvas();
-
-const urlRoom = new URLSearchParams(location.search).get('room');
-if (urlRoom) {
-  document.getElementById('join-code-input').value = urlRoom.toUpperCase();
-  document.getElementById('lobby-create').innerHTML = `
-    <div style="font-size:13px;color:var(--gold);font-weight:700;text-align:center">Dołączasz do pokoju: <span style="font-family:monospace;letter-spacing:3px">${urlRoom.toUpperCase()}</span></div>
-    <button class="start-btn" onclick="joinRoom()" style="margin-top:8px">Dołącz do Gry ▶</button>
-  `;
-  roomId = urlRoom.toUpperCase();
-}
+  document.addEventListener('touchmove', function(e) {
+    if (!selAtk && !pendingSpell && !heroPowerMode && !healMode) return;
+    var t=e.touches[0];
+    var bf=document.getElementById('board');
+    if (!bf) return;
+    var r=bf.getBoundingClientRect();
+    dragCurrent={x:t.clientX-r.left,y:t.clientY-r.top}; drawArrow();
+  }, {passive:true});
+  document.addEventListener('click', function(e) {
+    var onBoard = e.target.closest('.minion-wrap') || e.target.closest('.hero-port') || e.target.closest('.my-hero-port') || e.target.closest('.hp-gem') || e.target.closest('.hand-card') || e.target.closest('.spell-overlay') || e.target.closest('.eot-btn');
+    if ((selAtk||heroPowerMode||healMode||pendingSpell) && !onBoard) { cancelModes(); if(G && G.phase !== 'waiting') render(); }
+  });
+});
 </script>
 </body>
 </html>
