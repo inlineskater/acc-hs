@@ -476,7 +476,7 @@ function mkPlayer(id, cls, botLevel, hp) {
   return { id:id, hp:hp, maxHp:hp, maxMana:1, mana:1, armor:0,
     deck:buildDeck(cls), hand:[], board:[], weapon:null, cls:cls,
     heroPowerUsed:false, canHeroAtk:false, heroAtkVal:0,
-    playedThisTurn:false, fatigue:0, mulliganDone:false, botLevel:botLevel };
+    playedThisTurn:false, fatigue:0, mulliganDone:false, botLevel:botLevel, turnsPlayed:0 };
 }
 
 function drawCards(p, n) {
@@ -709,7 +709,7 @@ function checkWin() {
     G.phase = 'over'; G.winner = 'bots';
     G.log = 'Urz\u0105d Skarbowy przej\u0105\u0142 kontrol\u0119!'; return;
   }
-  var livingBots = G.playerOrder.filter(function(id){return id !== myId});
+  var livingBots = G.playerOrder.filter(function(id){return id !== myId && G.players[id] && G.players[id].hp > 0});
   if (livingBots.length === 0) {
     G.phase = 'over'; G.winner = 'human';
     G.log = 'Zwyci\u0119stwo! Twoje ksi\u0119gi s\u0105 bezbł\u0119dne.';
@@ -975,7 +975,8 @@ function action_endTurn() {
   G.activePlayer = nextId;
   G.turn++;
   var next = G.players[nextId];
-  next.maxMana = Math.min(10, Math.ceil(G.turn / 2));
+  next.turnsPlayed = (next.turnsPlayed || 0) + 1;
+  next.maxMana = Math.min(10, next.turnsPlayed + 1);
   next.mana = next.maxMana;
   next.heroPowerUsed = false;
   next.canHeroAtk = !!next.weapon;
@@ -1047,11 +1048,16 @@ function executeBotMove(move, botId) {
     bot.board.forEach(function(c) { c.fresh = false; c.canAtk = true; });
     bot.playedThisTurn = false;
 
+    // Eliminate any bots with HP <= 0 before routing to next player
+    G.playerOrder.filter(function(id){ return id !== myId && G.players[id] && G.players[id].hp <= 0; })
+      .forEach(function(id){ eliminatePlayer(id); });
+
     var nextId = getNextLivingPlayer(botId);
     G.activePlayer = nextId;
     G.turn++;
     var next = G.players[nextId];
-    next.maxMana = Math.min(10, Math.ceil(G.turn/2));
+    next.turnsPlayed = (next.turnsPlayed || 0) + 1;
+    next.maxMana = Math.min(10, next.turnsPlayed + 1);
     next.mana = next.maxMana;
     next.heroPowerUsed = false;
     next.canHeroAtk = !!next.weapon;
@@ -1909,7 +1915,7 @@ function clickBotMinion(card, botId) {
   if (pendingSpell) {
     action_playCard(pendingSpell.uid, card.uid, 'minion_opp', botId); cancelModes(); return;
   }
-  if (heroPowerMode) { action_heroPower(card.uid, 'minion', botId); cancelModes(); return; }
+  if (heroPowerMode) { action_heroPower(card.uid, 'minion_opp', botId); cancelModes(); return; }
   if (!selAtk) return;
   if (selAtk === '__hero__') {
     action_heroAttack(card.uid, 'minion', botId); selAtk=null; render(); return;
