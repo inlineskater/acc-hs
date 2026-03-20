@@ -578,7 +578,7 @@ export default class SerceKsiagServer implements Party.Server {
       case "armor4": me.armor += 4; break;
       case "armor6": me.armor += 6; break;
       case "armor6draw1": me.armor += 6; this.drawCards(me, 1); break;
-      case "mana1": me.mana = Math.min(me.mana + 1, me.maxMana + 1); break;
+      case "mana1": me.mana = Math.min(me.mana + 1, 10); break;
       case "buff_weapon": if (me.weapon) { me.weapon.atk += 2; me.heroAtkVal += 2; } break;
       case "buff_all": me.board.forEach(c => { c.atk = (c.atk ?? 0) + 2; c.curHp += 2; c.maxHp += 2; }); break;
       case "heal2self": this.healHero(me, 2); break;
