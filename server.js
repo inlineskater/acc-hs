@@ -158,6 +158,9 @@ class GameRoom {
     for (let i = 0; i < n; i++) {
       if (p.deck.length > 0 && p.hand.length < 4) {
         p.hand.push(p.deck.shift());
+      } else if (p.deck.length > 0) {
+        const burned = p.deck.shift();
+        this.state.log = 'Ręka pełna! ' + burned.name + ' spłonęła.';
       } else if (p.deck.length === 0) {
         p.fatigue++;
         p.hp -= p.fatigue;

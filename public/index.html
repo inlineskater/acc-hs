@@ -8,17 +8,17 @@
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html,body{height:100%;overflow:hidden}
 :root{
-  --bg:#f0f4ff;--bg2:#e6eaff;--bg3:#d5dbf5;
-  --cyan:#0077bb;--purple:#6600bb;--pink:#bb0066;
-  --amber:#aa6600;--green:#006633;
-  --card-bg:#ffffff;--font:'Courier New',monospace;
-  --glow-cyan:0 0 8px #0077bb66,0 0 18px #0077bb22;
-  --glow-pink:0 0 8px #bb006666,0 0 18px #bb006622;
-  --glow-amber:0 0 8px #aa660066,0 0 18px #aa660022;
-  --red:#cc1111;--mana:#0077bb;
+  --bg:#0a0a0f;--bg2:#0f0f1a;--bg3:#1a1a2e;
+  --cyan:#00ffff;--purple:#9b00ff;--pink:#ff0090;
+  --amber:#ffb000;--green:#00ff88;
+  --card-bg:#12121e;--font:'Courier New',monospace;
+  --glow-cyan:0 0 8px #00ffff,0 0 20px #00ffff44;
+  --glow-pink:0 0 8px #ff0090,0 0 20px #ff009044;
+  --glow-amber:0 0 8px #ffb000,0 0 20px #ffb00044;
+  --red:#ff4444;--mana:#00ffff;
 }
-body{background:#e0e6ff;display:flex;align-items:center;justify-content:center;height:100dvh;font-family:var(--font);touch-action:manipulation;color:#1a1a3a}
-#G{width:100vw;height:100dvh;max-width:420px;max-height:900px;background:var(--bg);overflow:hidden;display:flex;flex-direction:column;position:relative;color:#1a1a3a;border-radius:0}
+body{background:#0a0a0f;display:flex;align-items:center;justify-content:center;height:100dvh;font-family:var(--font);touch-action:manipulation;color:#e0e8ff}
+#G{width:100vw;height:100dvh;max-width:420px;max-height:900px;background:var(--bg);overflow:hidden;display:flex;flex-direction:column;position:relative;color:#e0e8ff;border-radius:0}
 @media(min-width:440px){#G{border-radius:16px;border:2px solid var(--cyan);box-shadow:var(--glow-cyan)}}
 .scr{display:none;flex-direction:column;flex:1;overflow:hidden}.scr.on{display:flex}
 
@@ -89,7 +89,7 @@ body{background:#e0e6ff;display:flex;align-items:center;justify-content:center;h
 
 /* ---- Board ---- */
 #board{flex:1;flex-direction:column;position:relative;overflow:hidden;
-  background-image:linear-gradient(rgba(100,120,220,.07) 1px,transparent 1px),linear-gradient(90deg,rgba(100,120,220,.07) 1px,transparent 1px);
+  background-image:linear-gradient(rgba(0,255,255,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(0,255,255,.03) 1px,transparent 1px);
   background-size:20px 20px;background-color:var(--bg)}
 .top-bar{display:flex;align-items:center;justify-content:space-between;padding:4px 8px;background:var(--bg2);border-bottom:1px solid #222;z-index:10;min-height:36px;flex-shrink:0}
 .bar-title{font-size:15px;color:var(--cyan);font-weight:700;letter-spacing:2px}
@@ -104,7 +104,7 @@ body{background:#e0e6ff;display:flex;align-items:center;justify-content:center;h
 
 /* ---- Enemy zones ---- */
 #enemy-zones{display:flex;flex-direction:row;justify-content:space-around;align-items:flex-start;flex:1;min-height:0;overflow:hidden}
-.enemy-zone{flex:1;display:flex;flex-direction:column;align-items:center;border-right:1px solid #bbc;padding:3px 3px;transition:background .3s;min-width:0}
+.enemy-zone{flex:1;display:flex;flex-direction:column;align-items:center;border-right:1px solid #1a1a2e;padding:3px 3px;transition:background .3s;min-width:0}
 /* Vertical layout for 3+ bots: heroes stacked left, boards on right */
 #enemy-zones.vertical-layout{flex-direction:column;justify-content:flex-start;align-items:stretch}
 #enemy-zones.vertical-layout .enemy-zone{flex-direction:row;border-right:none;border-bottom:1px solid #1a1a2e;align-items:center;padding:4px 0;min-height:84px}
@@ -122,21 +122,21 @@ body{background:#e0e6ff;display:flex;align-items:center;justify-content:center;h
 /* Compact minion rows for multi-bot */
 #enemy-zones .minion-row{min-height:40px}
 .enemy-zone:last-child{border-right:none}
-.enemy-zone.active-bot{background:#e0e8ff}
+.enemy-zone.active-bot{background:#0a0a1a}
 .hand-backs-row{display:flex;gap:2px;flex-wrap:wrap;justify-content:center}
 .bck{width:10px;height:14px;background:var(--purple);border-radius:2px;border:1px solid #6a00aa;opacity:.6}
 .hero-area{display:flex;flex-direction:column;align-items:center;gap:3px;padding:2px 0;width:100%}
-.hero-port{width:38px;height:38px;border-radius:50%;border:2px solid #99a;display:flex;align-items:center;justify-content:center;cursor:pointer;position:relative;background:#fff;transition:all .2s;flex-shrink:0}
+.hero-port{width:38px;height:38px;border-radius:50%;border:2px solid #444;display:flex;align-items:center;justify-content:center;cursor:pointer;position:relative;background:var(--bg2);transition:all .2s;flex-shrink:0}
 .hero-port.attackable{border-color:var(--red);box-shadow:0 0 8px #ff444466}
 .hero-port.can-hero-atk{border-color:var(--amber);box-shadow:var(--glow-amber)}
 .hero-hp{position:absolute;bottom:-4px;right:-4px;background:var(--red);color:#fff;font-size:10px;font-weight:700;width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:1px solid #fff}
-.hero-armor{position:absolute;bottom:-4px;left:-4px;background:#4488ff;color:#fff;font-size:9px;font-weight:700;width:16px;height:16px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:1px solid #88aaff}
+.hero-armor{position:absolute;bottom:14px;right:-4px;left:auto;background:#4488ff;color:#fff;font-size:9px;font-weight:700;width:16px;height:16px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:1px solid #88aaff}
 
 
 /* ---- Player zone ---- */
 .player-hero-area{display:flex;align-items:center;justify-content:space-between;padding:4px 12px;gap:8px}
 .my-hero-center{display:flex;flex-direction:column;align-items:center;gap:1px;flex:1}
-.my-hero-port{width:48px;height:48px;border-radius:50%;border:2px solid #99a;display:flex;align-items:center;justify-content:center;cursor:pointer;position:relative;background:#fff;transition:all .2s;flex-shrink:0}
+.my-hero-port{width:48px;height:48px;border-radius:50%;border:2px solid #444;display:flex;align-items:center;justify-content:center;cursor:pointer;position:relative;background:var(--bg2);transition:all .2s;flex-shrink:0}
 .my-hero-port.can-hero-atk{border-color:var(--amber);box-shadow:var(--glow-amber);cursor:pointer}
 .my-hero-port.sel-hero{border-color:var(--pink);box-shadow:var(--glow-pink)}
 .hp-gem{width:40px;height:40px;border-radius:50%;border:2px solid #444;background:var(--bg3);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:all .2s;flex-shrink:0}
@@ -162,7 +162,7 @@ body{background:#e0e6ff;display:flex;align-items:center;justify-content:center;h
 /* ---- Oval/Shield minions ---- */
 .minion-wrap{position:relative;display:inline-flex;flex-direction:column;align-items:center;cursor:pointer;transition:transform .15s}
 .minion-wrap:hover{transform:scale(1.05)}
-.minion{width:60px;height:70px;clip-path:ellipse(45% 48% at 50% 50%);background:#fff;border:2px solid #ccd;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative}
+.minion{width:60px;height:70px;clip-path:ellipse(45% 48% at 50% 50%);background:var(--card-bg);display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;border:none}
 .minion::before{content:'';position:absolute;inset:-2px;z-index:-1;clip-path:ellipse(45% 48% at 50% 50%);background:var(--cyan);opacity:0;transition:opacity .2s}
 .minion-wrap.taunt .minion{clip-path:polygon(15% 0%,85% 0%,100% 35%,85% 100%,50% 88%,15% 100%,0% 35%)}
 .minion-wrap.taunt .minion::before{clip-path:polygon(15% 0%,85% 0%,100% 35%,85% 100%,50% 88%,15% 100%,0% 35%)}
@@ -171,7 +171,7 @@ body{background:#e0e6ff;display:flex;align-items:center;justify-content:center;h
 .minion-wrap.targeted .minion::before{opacity:1;background:var(--red)}
 .minion-wrap.taunt .minion::before{opacity:.6;background:#3a6aff}
 .minion-wrap.healable .minion::before{opacity:.5;background:var(--green)}
-.minion-wrap.legendary-wrap .minion{background:linear-gradient(135deg,#fffde0,#fff8c0)}
+.minion-wrap.legendary-wrap .minion{background:linear-gradient(135deg,#1a1a00,#2a2000)}
 .minion-wrap.legendary-wrap{filter:drop-shadow(0 0 6px #ffd700)}
 .minion.divine-shield{box-shadow:inset 0 0 12px #ffff0066}
 .minion.damaged{}
@@ -192,17 +192,17 @@ body{background:#e0e6ff;display:flex;align-items:center;justify-content:center;h
 
 /* ---- Hand cards (Hearthstone rectangle style) ---- */
 @keyframes legendary-shimmer{0%,100%{box-shadow:0 0 6px #ffd700,0 0 16px #ffd70055}50%{box-shadow:0 0 14px #ffd700,0 0 32px #ffd700aa}}
-.hand-card{width:72px;height:104px;background:#fff;border-radius:8px;border:2px solid #bbc;display:flex;flex-direction:column;align-items:center;cursor:pointer;position:relative;transition:transform .15s,box-shadow .15s;flex-shrink:0}
-.hand-card.playable{border-color:var(--green);box-shadow:0 0 6px #00663344}
+.hand-card{width:72px;height:104px;background:#12141e;border-radius:8px;border:2px solid #444;display:flex;flex-direction:column;align-items:center;cursor:pointer;position:relative;transition:transform .15s,box-shadow .15s;flex-shrink:0}
+.hand-card.playable{border-color:var(--green);box-shadow:0 0 6px #00ff8844}
 .hand-card.playable:hover{transform:translateY(-10px) scale(1.06);box-shadow:0 0 14px var(--green)}
-.hand-card.spell{background:#f5f0ff;border-color:var(--purple)}
-.hand-card.weapon-card{background:#fff8ec;border-color:var(--amber)}
-.hand-card.legendary{animation:legendary-shimmer 2s ease-in-out infinite;border-color:#aa8800}
+.hand-card.spell{background:#160a22;border-color:#5533aa}
+.hand-card.weapon-card{background:#1a1100;border-color:#aa7700}
+.hand-card.legendary{animation:legendary-shimmer 2s ease-in-out infinite;border-color:#ffd700}
 /* Mana diamond badge */
 .hand-card .hc-cost{position:absolute;top:2px;left:2px;font-size:14px;font-weight:900;color:#fff;width:24px;height:24px;display:flex;align-items:center;justify-content:center;z-index:2;background:#1177ee;clip-path:polygon(50% 0%,100% 50%,50% 100%,0% 50%);filter:drop-shadow(0 0 4px #1177ee)}
 .hand-card .hc-art{font-size:26px;margin-top:10px;flex-shrink:0;line-height:1}
-.hand-card .hc-name{font-size:13px;color:#1a1a3a;text-align:center;width:66px;margin-top:3px;font-weight:700;background:#fffd;padding:1px 3px;line-height:1.2;word-break:break-word}
-.hand-card .hc-type{font-size:10px;color:#556;margin-top:1px;text-align:center}
+.hand-card .hc-name{font-size:13px;color:#fff;text-align:center;width:66px;margin-top:3px;font-weight:700;background:#000a;padding:1px 3px;line-height:1.2;word-break:break-word}
+.hand-card .hc-type{font-size:10px;color:#aaa;margin-top:1px;text-align:center}
 /* Description tooltip: hidden, pointer-events none (used in mulligan screen) */
 .hand-card .hc-desc{display:none;pointer-events:none}
 /* ATK badge: pentagon/sword shape */
@@ -211,14 +211,14 @@ body{background:#e0e6ff;display:flex;align-items:center;justify-content:center;h
 .hand-card .hc-hp{position:absolute;bottom:4px;right:3px;font-size:13px;font-weight:700;color:#fff;background:var(--red);width:22px;height:22px;clip-path:polygon(50% 0%,80% 20%,100% 55%,85% 85%,50% 100%,15% 85%,0% 55%,20% 20%);display:flex;align-items:center;justify-content:center}
 
 /* ---- Log bar ---- */
-.log-bar{font-size:14px;color:#445080;padding:3px 8px;text-align:center;background:var(--bg2);border-top:1px solid #bbc;flex-shrink:0;min-height:20px}
+.log-bar{font-size:14px;color:#8899bb;padding:3px 8px;text-align:center;background:var(--bg2);border-top:1px solid #1a1a2e;flex-shrink:0;min-height:20px}
 
 /* ---- Turn banner ---- */
 .turn-banner{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:23px;font-weight:700;letter-spacing:4px;text-transform:uppercase;padding:10px 30px;border-radius:8px;z-index:200;pointer-events:none;opacity:0;transition:opacity .3s}
 .turn-banner.show{opacity:1;animation:banner-in .6s ease-out}
 @keyframes banner-in{0%{transform:translate(-50%,-50%) scale(2);opacity:0}50%{opacity:1}100%{transform:translate(-50%,-50%) scale(1)}}
-.turn-banner.yours{color:var(--green);background:#e8fff4ee;border:2px solid var(--green);box-shadow:0 0 20px #00663344}
-.turn-banner.theirs{color:var(--red);background:#fff0f0ee;border:2px solid var(--red);box-shadow:0 0 20px #cc111144}
+.turn-banner.yours{color:var(--green);background:#001a0aee;border:2px solid var(--green);box-shadow:0 0 20px #00ff8844}
+.turn-banner.theirs{color:var(--red);background:#1a0a0aee;border:2px solid var(--red);box-shadow:0 0 20px #ff444444}
 
 /* ---- Spell overlay ---- */
 .spell-overlay{position:absolute;top:0;left:0;right:0;background:var(--bg2);border-bottom:2px solid var(--pink);padding:6px 10px;z-index:100;display:none;align-items:center;justify-content:space-between;font-size:13px;color:var(--pink)}
@@ -245,6 +245,19 @@ body{background:#e0e6ff;display:flex;align-items:center;justify-content:center;h
 .got.win{color:var(--green);text-shadow:0 0 12px #00ff8866}
 .got.lose{color:var(--red);text-shadow:0 0 12px #ff444466}
 .go-sub{font-size:13px;color:#aab}
+
+/* ---- Bot action log panel ---- */
+#log-panel {
+  position:absolute; bottom:0; left:0; right:0;
+  background:#0a0a0fee; border-top:2px solid var(--cyan);
+  max-height:160px; overflow-y:auto;
+  transform:translateY(100%); transition:transform .3s;
+  z-index:60; padding:4px 8px; font-size:12px;
+  font-family:var(--font); pointer-events:none;
+}
+#log-panel.visible { transform:translateY(0); pointer-events:auto; }
+.log-entry { color:#aac; padding:2px 0; border-bottom:1px solid #1a1a2e; line-height:1.4; }
+.log-entry.new { color:#00ffff; }
 </style>
 </head>
 <body>
@@ -356,6 +369,8 @@ body{background:#e0e6ff;display:flex;align-items:center;justify-content:center;h
     <span id="spell-msg-txt">Wybierz cel czaru</span>
     <button onclick="cancelModes()">&#10005; Anuluj</button>
   </div>
+
+  <div id="log-panel"><div id="log-entries"></div></div>
 </div>
 
 <!-- ======== GAME OVER ======== -->
@@ -393,6 +408,42 @@ function showCardTip(el, text) {
 function hideCardTip() {
   var tip = document.getElementById('card-tip');
   if (tip) tip.style.display = 'none';
+}
+
+// ======================================================================
+// BOT ACTION LOG
+// ======================================================================
+var actionLog = [];
+
+function addLog(msg) {
+  G.log = msg;
+  actionLog.push(msg);
+  if (actionLog.length > 30) actionLog.shift();
+  renderLogPanel();
+}
+
+function renderLogPanel() {
+  var panel = document.getElementById('log-panel');
+  var container = document.getElementById('log-entries');
+  if (!panel || !container) return;
+  while (container.firstChild) container.removeChild(container.firstChild);
+  var show = actionLog.slice(-8);
+  show.forEach(function(m, i) {
+    var div = document.createElement('div');
+    div.className = 'log-entry' + (i === show.length - 1 ? ' new' : '');
+    div.textContent = m;
+    container.appendChild(div);
+  });
+  container.scrollTop = container.scrollHeight;
+}
+
+function showLogPanel() {
+  var p = document.getElementById('log-panel');
+  if (p) p.classList.add('visible');
+}
+function hideLogPanel() {
+  var p = document.getElementById('log-panel');
+  if (p) p.classList.remove('visible');
 }
 
 // ======================================================================
@@ -546,6 +597,9 @@ function drawCards(p, n) {
   for (let i=0; i<n; i++) {
     if (p.deck.length > 0 && p.hand.length < 4) {
       p.hand.push(p.deck.shift());
+    } else if (p.deck.length > 0) {
+      var burned = p.deck.shift();
+      G.log = 'R\u0119ka pe\u0142na! ' + burned.name + ' sp\u0142on\u0119\u0142a.';
     } else if (p.deck.length === 0) {
       p.fatigue++;
       p.hp -= p.fatigue;
@@ -945,7 +999,8 @@ function startPlaying() {
   } else {
     var firstBot = G.players[G.activePlayer];
     var BOT_NAMES = ['','\u017B\u00F3\u0142todziob','Normalny','Trudny','Ekspert'];
-    G.log = 'Bot (' + BOT_NAMES[firstBot.botLevel] + ') zaczyna gr\u0119!';
+    addLog('Bot (' + BOT_NAMES[firstBot.botLevel] + ') zaczyna gr\u0119!');
+    showLogPanel();
     render();
     setTimeout(function(){ runBotTurn(G.activePlayer, 0); }, 900);
   }
@@ -1139,7 +1194,8 @@ function action_endTurn() {
   afterAction();
   if (next.botLevel > 0) {
     var BOT_NAMES = ['','\u017B\u00F3\u0142todziob','Normalny','Trudny','Ekspert'];
-    G.log = 'Bot (' + BOT_NAMES[next.botLevel] + ') my\u015Bli...';
+    addLog('Bot (' + BOT_NAMES[next.botLevel] + ') my\u015Bli...');
+    showLogPanel();
     render();
     setTimeout(function(){ runBotTurn(nextId, 0); }, 900);
   }
@@ -1229,11 +1285,12 @@ function executeBotMove(move, botId) {
     playAnimEvents(evs);
 
     if (nextId === myId) {
-      render(); showTurnBanner("TWOJA TURA", true);
+      hideLogPanel(); render(); showTurnBanner("TWOJA TURA", true);
     } else {
       render();
       var BOT_NAMES = ['','\u017B\u00F3\u0142todziob','Normalny','Trudny','Ekspert'];
-      G.log = 'Bot (' + BOT_NAMES[next.botLevel] + ') my\u015Bli...';
+      addLog('Bot (' + BOT_NAMES[next.botLevel] + ') my\u015Bli...');
+      showLogPanel();
       render();
       setTimeout(function(){ runBotTurn(nextId, 0); }, 900);
     }
@@ -1247,6 +1304,7 @@ function executeBotMove(move, botId) {
     if (bot.mana < card.cost) return;
     var hadPlayed = bot.playedThisTurn;
     bot.mana -= card.cost; bot.hand.splice(idx,1); bot.playedThisTurn = true;
+    addLog('\uD83E\uDD16 Bot zagrywa ' + card.name);
     if (card.type === 'minion') {
       if (bot.board.length >= 4) { bot.hand.splice(idx,0,card); bot.mana += card.cost; bot.playedThisTurn = hadPlayed; return; }
       card.canAtk = !!(card.keywords && card.keywords.indexOf("charge")!==-1);
@@ -1267,6 +1325,7 @@ function executeBotMove(move, botId) {
       if (!targetPlayer || hasTaunt(targetPlayer.board)) return;
       var oppIdx = G.playerOrder.indexOf(targetPlayer.id);
       pendingEvents.push({ kind:'attack_anim', attackerId:attacker.uid, targetId:'hero_'+oppIdx, amount:0 });
+      addLog('\u2694\uFE0F ' + attacker.name + ' \u2192 Bohater');
       dealDamageToHero(targetPlayer, attacker.atk??0);
       attacker.canAtk = false;
     } else {
@@ -1278,6 +1337,7 @@ function executeBotMove(move, botId) {
       }
       if (!def) return;
       pendingEvents.push({ kind:'attack_anim', attackerId:attacker.uid, targetId:def.uid, amount:0 });
+      addLog('\u2694\uFE0F ' + attacker.name + ' \u2192 ' + def.name);
       minionCombat(attacker, def);
     }
   } else if (move.type === 'hero_attack') {
@@ -2001,6 +2061,30 @@ function createMinionElement(c, side, ownerId) {
     })(c));
   }
 
+  // Tooltip
+  var tipLines = [c.name];
+  if (c.atk !== undefined) tipLines.push('Atk:' + c.atk + '  HP:' + c.curHp);
+  var kw = [];
+  if (!c.silenced && c.keywords) {
+    if (c.keywords.indexOf('taunt') !== -1) kw.push('Prowokacja');
+    if (c.keywords.indexOf('divine_shield') !== -1) kw.push('Tarcza Boska');
+    if (c.keywords.indexOf('deathrattle') !== -1) kw.push('Ostatnia Wola');
+    if (c.keywords.indexOf('charge') !== -1) kw.push('Szar\u017Ca');
+  }
+  if (kw.length) tipLines.push(kw.join(', '));
+  if (c.bcText) tipLines.push(c.bcText);
+  if (c.spellText) tipLines.push(c.spellText);
+  var tipText = tipLines.join(' | ');
+  wrap.addEventListener('mouseenter', function() { showCardTip(wrap, tipText); });
+  wrap.addEventListener('mouseleave', hideCardTip);
+  var _touchTimer;
+  wrap.addEventListener('touchstart', function() {
+    _touchTimer = setTimeout(function() { showCardTip(wrap, tipText); }, 400);
+  }, {passive:true});
+  wrap.addEventListener('touchend', function() {
+    clearTimeout(_touchTimer); hideCardTip();
+  });
+
   return wrap;
 }
 
@@ -2331,10 +2415,8 @@ function drawArrow() {
   var cv = document.getElementById('ac');
   if (!cv) return;
   var ctx = cv.getContext('2d');
-  if (!cv.width || !cv.height) {
-    var bf = document.getElementById('board');
-    if (bf && bf.offsetWidth>0) { cv.width=bf.offsetWidth; cv.height=bf.offsetHeight; }
-  }
+  var bf = document.getElementById('board');
+  if (bf && bf.offsetWidth > 0) { cv.width = bf.offsetWidth; cv.height = bf.offsetHeight; }
   ctx.clearRect(0,0,cv.width,cv.height);
   if (!selAtk && !pendingSpell && !heroPowerMode && !healMode) return;
   var sx=dragStart.x, sy=dragStart.y, ex=dragCurrent.x, ey=dragCurrent.y;

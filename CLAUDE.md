@@ -10,30 +10,48 @@ npm start        # Standalone Node.js server (no PartyKit, uses server.js)
 
 ## Architecture
 
-Two separate server implementations exist:
-- `party/server.ts` — PartyKit server (TypeScript). **Primary** for multiplayer hosting.
-  All game logic lives here. Compiled/run by PartyKit runtime.
-- `server.js` — Standalone Node.js WebSocket server. Alternative for local play
-  without PartyKit. Mirrors the logic in server.ts but in plain JS.
-- `public/index.html` — Single-file frontend (HTML + vanilla JS, ~1100 lines).
-  Connects to whichever server is running via WebSocket.
+The game has **three runtime modes**:
+
+1. **GitHub Pages (primary)** — `public/index.html` runs the entire game in the browser,
+   no server required. All game state, bot AI, and logic live in the frontend JS.
+   Deployed automatically via GitHub Actions on every push to `master`.
+
+2. **PartyKit multiplayer** — `party/server.ts` is a TypeScript server for real-time
+   multiplayer. Frontend connects via WebSocket. Deploy with `npm run deploy`.
+
+3. **Standalone Node.js** — `server.js` is a plain-JS WebSocket server mirroring
+   `server.ts`. Run with `npm start`. Alternative to PartyKit for local LAN play.
 
 ## Key Files
 
 | File | Purpose |
 |------|---------|
-| `party/server.ts` | PartyKit server — game state, turn logic, card effects |
-| `public/index.html` | Client UI — rendering, animations, WS message handling |
-| `server.js` | Standalone Node.js mirror of server.ts |
+| `public/index.html` | The entire game — HTML + CSS + vanilla JS (~2500 lines). Runs standalone in browser. |
+| `party/server.ts` | PartyKit server — TypeScript, for multiplayer hosting |
+| `server.js` | Standalone Node.js WebSocket server — JS mirror of server.ts |
+| `start.js` | Wrapper that launches server.js with extra startup logic |
 | `partykit.json` | PartyKit config — main: server.ts, serve: public/ |
-| `cards.csv` | Card data reference (NOT loaded at runtime — cards are hardcoded in servers) |
-| `GAME_DOCS.md` | Game design documentation |
+| `cards.csv` | Card data reference only — NOT loaded at runtime |
+| `GAME_DOCS.md` | Game design documentation and card reference |
+| `.github/workflows/` | GitHub Actions — deploys public/ to GitHub Pages on push |
 
 ## Gotchas
 
-- Card data is **hardcoded** in both `server.js` and `party/server.ts` as JS/TS arrays.
-  `cards.csv` is a reference/export only — changes there don't affect the game.
-- Game content (card names, UI text) is in **Polish**.
+- **Card data is hardcoded** in `public/index.html`, `server.js`, and `party/server.ts`
+  as JS/TS arrays. `cards.csv` is a reference export only — changes there don't affect the game.
+- **Game content (card names, UI text) is in Polish.**
+- The game runs **fully offline** from `public/index.html` — no server or internet needed.
 - After `npx partykit deploy`, update `PARTYKIT_HOST` in `public/index.html` with
   your PartyKit username, then deploy again.
 - `start.js` wraps `server.js` with some startup logic for the standalone server.
+
+## Game Features
+
+- 4 hero classes: Mage, Warrior, Rogue, Priest (Polish-themed)
+- 1–3 bots per game, 4 difficulty levels
+- Campaign mode with 8 chapters and special rules
+- Neon cyberpunk UI, dark/light theme toggle
+- Mechanics: taunt, charge, divine shield, deathrattle, combo, battlecry, end-of-turn effects
+- Bot turn slide-up log panel showing each action
+- Board minion hover tooltips
+- Armor badge stacks above HP badge on hero portraits

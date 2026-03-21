@@ -1,108 +1,74 @@
-# Serce Ksiąg – Multiplayer Setup
+# Serce Ksiag
 
-## Struktura projektu
+A Hearthstone-inspired card game with a tax-office theme, playable entirely in the browser. Built with vanilla JS — no frameworks, no build step, no server required.
 
-```
-serce-ksiag/
-├── party/
-│   └── server.ts     ← Partykit server (cała logika gry)
-├── public/
-│   └── index.html    ← Klient (HTML/JS)
-├── partykit.json
-└── package.json
-```
+**Play it:** https://inlineskater.github.io/acc-hs/
 
-## Uruchomienie lokalne (dev)
+---
+
+## What it is
+
+Single-file browser game (~2500 lines, `public/index.html`). Choose a hero class, fight 1–3 bots, and survive the bureaucracy. Game content is in Polish.
+
+**Heroes:** Mage, Warrior, Rogue, Priest — each with a unique hero power and 8-card deck.
+
+**Mechanics:** taunt, charge, divine shield, deathrattle, combo, battlecry, end-of-turn effects, fatigue, armor, weapons.
+
+**Modes:**
+- Quick game — pick class, pick number of bots (1–3) and difficulty (1–4)
+- Campaign — 8 chapters with story and special rules
+
+---
+
+## Run locally
 
 ```bash
-cd serce-ksiag
+# Just open the file — no server needed
+open public/index.html
+```
+
+Or serve it with any static server:
+
+```bash
+npx serve public
+```
+
+---
+
+## Alternative: WebSocket server mode
+
+Two server implementations exist for real-time multiplayer experiments:
+
+```bash
 npm install
-npx partykit dev
+
+# Standalone Node.js WebSocket server
+npm start
+
+# PartyKit (deploy to PartyKit cloud)
+npm run dev      # local dev at localhost:1999
+npm run deploy   # deploy to partykit.dev
 ```
 
-Gra dostępna na: http://localhost:1999
+When using a server, the frontend connects via WebSocket automatically (it detects `localhost` vs production host).
 
-## Deploy na Partykit (darmowy hosting)
+---
 
-### 1. Zaloguj się do Partykit
+## Project structure
 
-```bash
-npx partykit login
+```
+public/
+  index.html        The entire game (HTML + CSS + JS)
+party/
+  server.ts         PartyKit TypeScript server (multiplayer)
+server.js           Standalone Node.js WebSocket server
+start.js            Launcher wrapper for server.js
+cards.csv           Card data reference (not loaded at runtime)
+GAME_DOCS.md        Game design and card reference documentation
 ```
 
-Otworzy się przeglądarka — zaloguj przez GitHub.
+---
 
-### 2. Deploy
+## GitHub Pages deployment
 
-```bash
-npx partykit deploy
-```
-
-Otrzymasz URL w stylu:
-```
-https://serce-ksiag.TWOJA_NAZWA.partykit.dev
-```
-
-### 3. Zaktualizuj PARTYKIT_HOST w index.html
-
-W pliku `public/index.html` znajdź linię:
-
-```js
-const PARTYKIT_HOST = window.location.hostname === 'localhost'
-  ? 'localhost:1999'
-  : 'serce-ksiag.YOUR_USERNAME.partykit.dev'; // <-- CHANGE THIS after deploy
-```
-
-Zamień `YOUR_USERNAME` na swoją nazwę użytkownika Partykit (taką samą jak GitHub).
-
-### 4. Deploy ponownie po zmianie
-
-```bash
-npx partykit deploy
-```
-
-## Jak grać w 2 osoby
-
-1. Gracz 1 otwiera grę → wybiera klasę → klika **Stwórz Pokój**
-2. Gracz 1 widzi 4-literowy kod pokoju (np. `K4BZ`)
-3. Gracz 2 otwiera grę → wpisuje kod → klika **Dołącz**
-4. Gra startuje automatycznie!
-
-Alternatywnie: Gracz 1 klika "Skopiuj link zaproszenia" i wysyła link do gracza 2.
-
-## Funkcje gry
-
-### Karty
-- **Minionki** — klasyczne karty z atakiem i HP
-- **Czary** — natychmiastowy efekt (damage, dobieranie, pancerz)
-- **Bronie** — ekwipunek na bohatera dający mu atak
-
-### Mechaniki
-- **Prowokacja (Taunt)** — musi być zabita przed atakiem na bohatera
-- **Szarża (Charge)** — może atakować od razu po zagraniu
-- **Okrzyk Bitewny (Battlecry)** — efekt przy zagraniu
-- **Grzechotka Śmierci (Deathrattle)** — efekt przy śmierci
-- **Hero Power** — 2 many, raz na turę (Mag: 1 dmg, Wojownik: +2 pancerza)
-- **Broń bohatera** — kliknij portret bohatera aby atakować
-
-### Ataki
-1. Kliknij swoją kartę na planszy → pojawia się złota strzałka
-2. Przeciągnij/kliknij cel (karta wroga lub portret bohatera)
-
-### Lina (Rope)
-- 20 sekund na turę
-- Lina wypala się od prawej → automatyczny koniec tury
-
-## Darmowe limity Partykit
-
-- Bez limitu połączeń jednoczesnych
-- Bez limitu pokoi
-- 1GB transfer/miesiąc (wystarczy na tysiące gier)
-
-## Potencjalne rozszerzenia
-
-- [ ] Więcej klas (Łotr, Kapłan, Druid...)
-- [ ] Konstruktor talii
-- [ ] System rankingowy (Partykit + localStorage)
-- [ ] Animacje sieciowe (damage events przez WS)
-- [ ] Obserwatorzy (spectators)
+Pushes to `master` automatically deploy `public/` via GitHub Actions. No configuration needed.

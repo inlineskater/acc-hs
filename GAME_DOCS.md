@@ -1,20 +1,23 @@
 # Serce Ksiąg — Game Documentation
 
-> Tax-office-themed Hearthstone clone. Two files only: `party/server.ts` (game logic) and `public/index.html` (UI + client JS). Built on PartyKit (WebSocket rooms).
+> Tax-office-themed Hearthstone clone. Primary mode: `public/index.html` is a self-contained single-file game that runs entirely in the browser with no server. Optional WebSocket servers exist for multiplayer experimentation.
 
 ---
 
 ## Architecture
 
 ```
-party/server.ts       TypeScript, runs on PartyKit edge
-public/index.html     Single-file frontend (HTML + CSS + JS inline)
-start.js              Dev launcher (PartyKit + cloudflared)
+public/index.html     Self-contained game — HTML + CSS + JS (~2500 lines)
+party/server.ts       Optional: PartyKit TypeScript server for multiplayer
+server.js             Optional: Standalone Node.js WebSocket server
+start.js              Launcher wrapper for server.js
 ```
 
-- Server holds all game state. Client is a dumb renderer — it sends actions, server validates and broadcasts the new state.
-- Every state update: `{ type:"update", state: GameState, events: AnimEvent[] }`.
-- Animations (`AnimEvent`) are `-dmg`/`+heal` pop-ups played client-side.
+**Primary mode (GitHub Pages / offline):** All game state, bot AI, and logic live in `public/index.html`. No server needed.
+
+**WebSocket mode:** When a server is running, the client connects via WebSocket and the server holds game state. Client sends actions, server validates and broadcasts the new state via `{ type:"update", state: GameState, events: AnimEvent[] }`.
+
+Animations (`AnimEvent`) are `-dmg`/`+heal` pop-ups played client-side in all modes.
 
 ---
 
@@ -159,7 +162,7 @@ Hero Power (2 mana): heal 2 HP to any target (hero or minion). Uses `healMode` f
 
 ---
 
-## Server Actions (WebSocket messages)
+## Actions (WebSocket messages, used in multiplayer server mode)
 
 ### Client → Server
 
